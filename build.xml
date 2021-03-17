@@ -18,7 +18,13 @@
 	 <target name="compile" depends="init"
 	        description="compile the source " >
 	    <!-- Compile the java code from ${src} into ${build} -->
-	    <javac srcdir="${src}" destdir="${build}" encoding="iso-8859-1"/>
+	    <javac srcdir="${src}" destdir="${build}" encoding="iso-8859-1" failonerror="false">
+			<classpath>
+			        <pathelement path="lib/gral-core-0.11.jar"/>
+					<pathelement path="lib/jtouchbar-0.1.0.jar"/>
+					<pathelement path="lib/junit-4.13.2.jar"/>
+			    </classpath>
+		</javac>
 	  </target>
 	  
 

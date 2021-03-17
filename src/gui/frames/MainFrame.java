@@ -60,7 +60,6 @@ import gui.ContextHelpPanel;
 import gui.Desktop;
 import gui.FileLoadingException;
 import gui.Logger;
-import gui.TouchBarHandler;
 import gui.actions.*;
 import gui.graph.Edge;
 import gui.graph.Node;
@@ -134,7 +133,6 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 	
 	private Desktop desktop;
 
-	public static TouchBarHandler touchBarHandler;
 
 	private JMenuBar menuBar;
 	private static ContextHelpPanel contextHelpPanel;
@@ -266,11 +264,7 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 		this.setVisible(true);
 
 
-		
-		if (MainFrame.DEVMODE) {
-			touchBarHandler = new TouchBarHandler(this);
-			touchBarHandler.setActiveView(this);
-		}
+	
 		
 		// DEBUG
 	

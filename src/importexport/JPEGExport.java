@@ -15,10 +15,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGEncodeParam;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
-
+import javax.imageio.ImageIO;
 /*import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGEncodeParam;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
@@ -83,14 +80,18 @@ public class JPEGExport extends Export {
     		}
     		BufferedImage img = getImage(width);
     		float quality = 0.98f;
-            JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
+            
+			/*JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
             encoder.encode(img);
             JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(img);
             param.setQuality(quality, true);
             encoder.encode(img, param);
-    
+    */
+
+			
             FileOutputStream fos = new FileOutputStream(file);
-    		fos.write(out.toByteArray());
+    		//fos.write(out.toByteArray());
+			ImageIO.write(img, "jpg", fos);
     		fos.close();
     		out.close();
     	} catch (Exception exc) {
