@@ -16,7 +16,7 @@ Then, package all compiled classes into a single jar file by issuing:
 ant dist
 ```
 
-This creates a single file `onyx.jar`.
+This creates a single file `onyx.jar` in subfolder `build/jar`.
 
 # Run
 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
          
-<project default="create_run_jar" name="Create Runnable Jar for Project Onyx" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project default="dist" 
+name="Create Runnable Jar for Project Onyx" xmlns:ivy="antlib:org.apache.ivy.ant">
 
 	<property name="src" location="src" />
 	<property name="lib" location="lib" />
@@ -53,9 +54,7 @@
 	  </target>
 	  
 
-   <!--
-<target name="exe" depends="obfuscate">-->
-	   <target name="exe">
+<target name="exe">
 	<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j.dir}/launch4j.jar
 	    :${launch4j.dir}/lib/xstream.jar" />
 	<launch4j configFile="./l4j.xml" />
@@ -77,8 +76,7 @@
      <format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
    </tstamp>
     <echo>Creating JAR</echo>
-        <!--jar destfile="/Users/andreas/Desktop/onyx.jar" filesetmanifest="mergewithoutmain" includes="**/*.class"-->
-        <jar destfile="./onyx.jar" filesetmanifest="mergewithoutmain" includes="**/*.class">
+        <jar destfile="${build}/jar/onyx.jar" filesetmanifest="mergewithoutmain" includes="**/*.class">
 
             <manifest>
                 <attribute name="Built-By" value="Andreas Brandmaier"/>
@@ -92,9 +90,6 @@
             </manifest>
             <fileset dir="${build}"
             excludes="test" />
-            <!--zipfileset excludes="META-INF/*.SF" src="/Applications/eclipse/plugins/org.junit_4.8.2.v4_8_2_v20110321-1705/junit.jar"/>
-            <zipfileset excludes="META-INF/*.SF"
-            src="/Applications/eclipse/plugins/org.hamcrest.core_1.1.0.v20090501071000.jar"/-->
         </jar>
     </target>
   
