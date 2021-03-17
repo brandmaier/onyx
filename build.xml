@@ -7,11 +7,20 @@
 	<property name="build" location="build" />
 	<property name="launch4j.dir" location="../launch4j" />
 
-<!--
-<taskdef resource="proguard/ant/task.properties" 
-	classpath="../proguard-7.0.1/lib/proguard.jar"/>
-         classpath="/opt/local/share/java/proguard.jar " />-->
+    <target name="init">
+       <!-- Create the time stamp -->
+       <tstamp/>
+       <!-- Create the build directory structure used by compile -->
+       <mkdir dir="${build}"/>
+     </target>
 
+
+	 <target name="compile" depends="init"
+	        description="compile the source " >
+	    <!-- Compile the java code from ${src} into ${build} -->
+	    <javac srcdir="${src}" destdir="${build}" encoding="iso-8859-1"/>
+	  </target>
+	  
 
    <target name="build ONYX" depends="obfuscate">
    	
