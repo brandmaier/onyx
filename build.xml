@@ -42,8 +42,11 @@
 
 		</javac>
 		
-		<copy todir="${build}">
+		<copy todir="${build}/icons">
 		  <fileset dir="${src}/icons"/>
+		</copy>
+		
+		<copy todir="${build}/images">
 		  <fileset dir="${src}/images"/>
 		</copy>
 	

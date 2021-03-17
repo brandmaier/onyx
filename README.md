@@ -10,6 +10,14 @@ If you want to build Onyx from sources, download the sources, make sure that you
 ant compile
 ````
 
+Then, package all compiled classes into a single jar file by issuing:
+
+```{bash}
+ant dist
+```
+
+This creates a single file `onyx.jar`.
+
 # Run
 
 After you have successfully created the distributable jar file, you can run
