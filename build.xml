@@ -7,7 +7,6 @@
 	<property name="build" location="build" />
 	<property name="launch4j.dir" location="../launch4j" />
 
-
 	<available classname="org.apache.ivy.Main" property="ivy.installed"/> 
 
 	
@@ -34,7 +33,7 @@
 				-->
 		
 	    <!-- Compile the java code from ${src} into ${build} -->
-	    <javac srcdir="${src}" destdir="${build}" encoding="iso-8859-1" failonerror="false">
+	    <javac srcdir="${src}" destdir="${build}" debug="true" encoding="iso-8859-1" failonerror="false">
 			<classpath>
 			        <pathelement path="lib/gral-core-0.11.jar"/>
 					<pathelement path="lib/jtouchbar-0.1.0.jar"/>
@@ -42,13 +41,15 @@
 			    </classpath>
 
 		</javac>
+		
+		<copy todir="${build}">
+		  <fileset dir="${src}/icons"/>
+		  <fileset dir="${src}/images"/>
+		</copy>
+	
 	  </target>
 	  
 
-   <target name="build ONYX" depends="obfuscate">
-   	
-   </target>
-   
    <!--
 <target name="exe" depends="obfuscate">-->
 	   <target name="exe">
@@ -60,7 +61,7 @@
 
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
-    <target name="create_jar">
+    <target name="dist" depends="compile">
     
     <echo>Delete old JAR file</echo>
     <delete file="./onyx.jar"/>
@@ -93,39 +94,5 @@
             src="/Applications/eclipse/plugins/org.hamcrest.core_1.1.0.v20090501071000.jar"/-->
         </jar>
     </target>
-    
-    <target name="obfuscate" depends="create_jar" description="Create
-    obfuscated class">
-
-   	<proguard>
--injars       onyx.jar
--outjars      onyx-release.jar
--libraryjars	/Library/Java/JavaVirtualMachines/openjdk13-openj9/Contents/Home/jmods/java.base.jmod(!**.jar;!module-info.class)
--libraryjars 	lib/jtouchbar-0.1.0.jar
--libraryjars	lib/gral-core-0.11.jar
--keep public class Master {
-	public static void main(java.lang.String[]);
-}
--keep public class engine.externalRunner.ExternalRunUnit
--keep public enum gui.graph.Graph$MeanTreatment
--keep public enum gui.graph.FillStyle
--dontwarn lgcmsimulation.*
--dontwarn junit.framework.*
--dontwarn test.*
--dontwarn DifferentialMatrix
--dontwarn  QPolynomial
--dontwarn QRing
--dontwarn  AnalyticalFunction
--dontwarn RingMatrix
--dontwarn RingVector
--dontwarn DifferentialDouble
--dontwarn groebner.*
--dontwarn lgmsimulation.*
--dontwarn gui.frames.TimeseriesMeanPlot
--printmapping onyx.map
--renamesourcefileattribute SourceFile    
--keepattributes SourceFile,LineNumberTable
-    	</proguard>
-    	
-    </target>
+  
 </project>

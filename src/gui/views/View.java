@@ -689,9 +689,9 @@ public class View extends JPanel implements MouseListener, MouseMotionListener, 
 	@Override
 	public void focusGained(FocusEvent e) {
 		
-		if (MainFrame.touchBarHandler!=null)
+		/*if (MainFrame.touchBarHandler!=null)
 			MainFrame.touchBarHandler.setActiveView(this);
-		
+		*/
 	}
 
 	@Override

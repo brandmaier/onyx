@@ -10,6 +10,15 @@ If you want to build Onyx from sources, download the sources, make sure that you
 ant compile
 ````
 
+# Run
+
+After you have successfully created the distributable jar file, you can run
+it from the command line:
+
+```{bash}
+java -jar onyx.jar
+```
+
 # License
 
 Onyx uses various (unmodified) libraries, which are here redistributed under their original licenses:

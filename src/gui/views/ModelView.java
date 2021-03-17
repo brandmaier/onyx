@@ -4340,14 +4340,14 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		if (pressedEdge == null && pressedNode == null)
 			desktop.mousePressedOnModelView(this, arg0);
 
-		if (MainFrame.touchBarHandler != null) {
+		/*if (MainFrame.touchBarHandler != null) {
 			if (pressedNode != null)
 				MainFrame.touchBarHandler.setActiveView(pressedNode);
 			else if (pressedEdge != null)
 				MainFrame.touchBarHandler.setActiveView(pressedEdge);
 			else if (MainFrame.touchBarHandler != null)
 				MainFrame.touchBarHandler.setActiveView(this);
-		}
+		}*/
 
 	}
 
