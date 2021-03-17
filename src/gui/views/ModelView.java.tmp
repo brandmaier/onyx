@@ -1,0 +1,3960 @@
+package gui.views;
+
+import importexport.CorrelationMatrixExport;
+import importexport.EstimateTextExport;
+import importexport.Export;
+import importexport.JPEGExport;
+import importexport.LaTeXExport;
+import importexport.LavaanExport;
+import importexport.MatrixTextExport;
+import importexport.MplusExport;
+import importexport.OnyxJavaExport;
+import importexport.OpenMxExport;
+import importexport.SVGExport;
+import importexport.StringExport;
+import importexport.XMLExport;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.PointerInfo;
+
+import java.awt.RenderingHints;
+import java.awt.Stroke;
+
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import engine.Dataset;
+
+import engine.ModelListener;
+import engine.ModelRequestInterface;
+import engine.ModelRun.Priority;
+import engine.ModelRun.Status;
+import engine.Statik;
+
+import engine.ModelRun.Warning;
+import engine.ModelRunUnit.Objective;
+import engine.externalRunner.ExternalRunUnit;
+import engine.ModelRun;
+import engine.ModelRunUnit;
+import engine.OnyxModel;
+import engine.ParameterReader;
+import engine.SimulatedDataset;
+
+import geometry.Rectangle;
+import gui.Constants;
+import gui.Desktop;
+import gui.LabeledInputBox;
+import gui.MessageObject;
+import gui.MessageObjectContainer;
+import gui.NodeGroup;
+import gui.NodeGroupManager;
+
+import gui.TransferableVariableList;
+import gui.fancy.DropShadowBorder;
+import gui.frames.EdgeStyleFrame;
+import gui.frames.MainFrame;
+import gui.graph.Edge;
+import gui.graph.FancyStyle;
+import gui.graph.Graph;
+import gui.graph.Node;
+import gui.graph.Node.AnchorType;
+import gui.graph.SimpleBlackAndWhiteStyle;
+import gui.graph.Style;
+import gui.linker.DatasetField;
+import gui.linker.GraphField;
+import gui.linker.LinkHandler;
+import gui.linker.LinkListener;
+import gui.undo.ColorChangeStep;
+import gui.undo.EdgeCreateStep;
+import gui.undo.LinkStep;
+import gui.undo.MovedStep;
+import gui.undo.NodeCreateStep;
+import gui.undo.NodePositionMultiStep;
+import gui.undo.NodeStateChangedStep;
+import gui.undo.PriorityChangeStep;
+import gui.undo.ReshapeStep;
+import gui.undo.UnlinkStep;
+
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JColorChooser;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
+
+import javax.swing.JPopupMenu;
+
+import javax.swing.SwingUtilities;
+
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import javax.swing.text.BadLocationException;
+
+import lgmsimulation.Model;
+
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGEncodeParam;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
+
+public class ModelView extends View implements ModelListener, ActionListener,
+		DropTargetListener, DocumentListener, KeyListener, MouseMotionListener,
+		Transferable, ClipboardOwner, LinkListener
+		{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2465936243089035720L;
+
+	private static long IMMEDIATEREDRAWTIME = 2000000000;
+
+	public static enum showPolicyType {
+		STARTING, BESTML, BESTLS, MANUAL
+	};
+
+	public showPolicyType showPolicy;
+
+	public final static int THINSTROKE = 0, MEDIUMSTROKE = 1, THICKSTROKE = 2;
+
+	List<CodeView> codeView = new ArrayList<CodeView>();
+
+	boolean atomicOperationInProgress; //
+
+	public boolean isAtomicOperationInProgress() {
+		return atomicOperationInProgress;
+	}
+
+	public void setAtomicOperationInProgress(boolean atomicOperationInProgress) {
+		this.atomicOperationInProgress = atomicOperationInProgress;
+		if (!atomicOperationInProgress) {
+			if (atomicModelChangeCount > 0) {
+				modelChangedEvent();
+			}
+			atomicModelChangeCount = 0;
+
+		}
+	}
+
+	public String getName() {
+		if (mri == null)
+			return "(starting)";
+		return mri.getName();
+	}
+
+	public Graph getGraph() {
+		return graph;
+	}
+
+	private Graph graph;
+	private ModelRequestInterface mri;
+	private Border border;
+	private Node dragNode;
+
+	private Edge draggedLabelEdge;
+
+	private int drawEdgeToY = -1, drawEdgeToX = -1, drawEdgeFromX = -1,
+			drawEdgeFromY = -1;
+	private long lastMousePressedTime;
+
+	private boolean unsavedChanges = false;
+
+	public boolean isUnsavedChanges() {
+		return unsavedChanges;
+	}
+
+	JMenuItem menuSwapLatent;
+	JMenuItem menuSwapNormalized;
+	JMenuItem menuSwapGrouping;
+	JMenuItem menuUnlinkGrouping;
+
+	private Node menuContextNode;
+	private Edge menuContextEdge;
+
+	private JMenuItem menuDeleteModel;
+	private JMenuItem menuTidyUp;
+	private JMenuItem menuAutoLayout;
+	private JMenuItem menuToggleShowGrid;
+	private JMenuItem menuToggleMarkUnconnectedManifests;
+	private JRadioButtonMenuItem menuPriorityHigh, menuPriorityNormal,
+			menuPriorityLow, menuPriorityHold;
+
+	// data concerning the grid
+	private boolean showGrid;
+	private boolean lockToGrid;
+	private int gridSize = Constants.DEFAULT_GRID_SIZE;
+
+	private Stroke gridStroke;
+
+	private JMenuItem menuDeleteEdge;
+
+	private JMenuItem menuToggleLockToGrid;
+
+	private JMenuItem menuToggleEdgeHeads;
+
+	private JMenuItem menuDeleteNode;
+
+	private JMenuItem menuSaveModel;
+	private JMenuItem menuLoadStartingvalues;
+	JMenuItem menuSelectEdgeStyle;
+	private JMenuItem menuExportJPEG;
+	private JMenu menuShowCode;
+	private JMenuItem menuShowOpenMXCode;
+	private JMenuItem menuShowMPlusCode;
+	private JMenuItem menuShowRAMMatrices;
+	private JMenuItem menuShowOnyxJavaCode;
+
+	private JMenuItem menuShowTextOutput;
+
+	JMenuItem thinStroke, mediumStroke, thickStroke;
+	JMenu menuStroke;
+
+	EdgeStyleFrame edgeStyleFrame;
+	// private Node node;
+
+	private int nodeIdCounter;
+
+	private JMenuItem menuUnlinkNode, menuShowStartingValues, menuShowBestML,
+			menuShowBestLS;
+
+	private JPopupMenu menu;
+
+	private MessageObjectContainer messageObjectContainer;
+
+	public MessageObjectContainer getMessageObjectContainer() {
+		return messageObjectContainer;
+	}
+
+	// this dummy is needed to trigger loading routines in MessageObject...
+	private static final MessageObject dummy = new MessageObject();
+
+	private static final MessageObject messageObjectRunning = new MessageObject(
+			"Model parameters are being estimated right now!",
+			MessageObject.imageGears);
+	private static final MessageObject messageOverspecified = new MessageObject(
+			"Model is overspecified.", MessageObject.imageWarning);
+	private static final MessageObject messageSingular = new MessageObject(
+			"The model-implied covariance matrix is singular!",
+			MessageObject.imageWarning);
+    private static final MessageObject messageError = new MessageObject(
+            "An unspecified error has occured!",
+            MessageObject.imageError);
+
+	private static final double EDGE_CLICK_RADIUS = 4;
+
+	private JMenuItem menuIconify;
+
+	ParameterDrawer parameterView;
+	private JMenuItem menuToggleFixed;
+	private LabeledInputBox nameInput;
+	private LabeledInputBox valueInput;
+	private LabeledInputBox svalueInput;
+	private int dragAnchor;
+	private boolean dragDetected;
+
+	ParameterReader startingValues;
+
+	private LabeledInputBox nodeNameInput;
+	private LabeledInputBox nodeGroupInput;
+	private JMenuItem menuAddTriangle;
+	private JMenuItem menuExport, menuExportWithData;
+
+	private JMenu menuStyle;
+	private JMenuItem menuStyleSimple, menuStyleFancy, menuStyleSimpleBW;
+
+	private File file;
+
+	private MessageObject sparklingObject;
+	private List<ModelRunUnit> currentEstimates;
+	private List<ModelRunUnit> currentEstimatesShownInMenu;
+
+	private ParameterReader showingEstimate;
+
+	public ParameterReader getShowingEstimate() {
+		return showingEstimate;
+	}
+
+	private JMenuItem menuSwapManifestLatent;
+	private JMenuItem menuRunners;
+	private JMenuItem[] menuRunnerItems;
+	private JMenuItem menuAgents;
+	private JMenuItem[] menuAgentItems;
+	private JMenuItem menuClone;
+	private LabeledInputBox modelName;
+	private JMenuItem menuEdgeColor;
+	private JMenuItem menuNodeColor;
+	private JMenuItem menuExportLaTeX;
+	private JMenuItem menuExportSVG;
+	private JMenu menuSimulation;
+	private JMenuItem menuSimulationStart;
+	private LabeledInputBox menuAnzRowsSimulation;
+
+	private boolean newNodeIsLatent;
+	private double zoom = 1.0;
+	private List<Node> selectedNodes;
+
+	private NodeGroupManager nodeGroupManager;
+	private boolean commandOrControlDown;
+	private int mouseAtY;
+	private int mouseAtX;
+	private JMenuItem menuNodeFillColor;
+	// private boolean shiftDown;
+
+	private JMenuItem menuExportMplus, menuExportLavaan;
+
+	private int atomicModelChangeCount;
+
+	public boolean hideMessageObjectContainer = false;
+
+	private JMenuItem menuShowCorrelationMatrix;
+
+	private JMenuItem menuShowLavaanCode;
+
+	private long directTypeTimestamp;
+
+	private boolean directType;
+
+	private String directTypeBuffer;
+
+	private JMenuItem menuSetDefaultStartingValues;
+
+	private Edge directTypeEdge;
+
+	private double edgeLabelRelativePositionPrev;
+
+	public ModelView(Desktop desktop) {
+		super(desktop);
+
+		// create new Graph representation for nodes and edges
+		graph = new Graph(this);
+
+		// establish link to the backend
+		mri = new OnyxModel();
+		((OnyxModel) mri).addModelListener(this);
+
+		String name = OnyxModel.defaultName;
+		if (desktop != null) {
+		int i = desktop.getNumberForUnnamedModel();
+		if (i > 1) {
+			name += " " + i;
+		}
+		}
+
+		mri.requestChangeModelName(name);
+
+		// mri.requestChangeName("Model");
+
+		startingValues = mri.getStartingValuesUnit();
+		showPolicy = showPolicyType.MANUAL;
+
+		// default tooltip TODO: update when model name changes!
+		this.setToolTipText("<html>" + mri.getName() + "</html>");
+
+		this.addKeyListener(this);
+
+		messageObjectContainer = new MessageObjectContainer();
+
+		// activate dnd support for connection between ModelView and DataView
+		DropTarget dropTarget = new DropTarget(this, this);
+
+		// set visual appearance
+
+		// this.setSize(300, 300);
+		this.setSize(600, 400);
+		this.setLocation(100, 100);
+		this.setOpaque(true);
+		this.setBackground(Color.white);
+		this.gridStroke = new BasicStroke(1, BasicStroke.CAP_ROUND,
+				BasicStroke.JOIN_ROUND);
+
+		this.setUnsavedChanges(false);
+
+		// node groups
+		nodeGroupManager = new NodeGroupManager();
+
+		// set View options
+		this.movable = true;
+		this.resizable = true;
+
+		// add a docked View for parameters
+		parameterView = new ParameterDrawer(this);
+		if (desktop != null) {
+			desktop.add(parameterView);
+		}
+		parameterView.updatePosition();
+
+		// establish node counter for automatically labelling nodes
+		nodeIdCounter = 1;
+
+		// model creation is also a model change
+		modelChangedEvent();
+
+		// set status for new nodes to latent
+		newNodeIsLatent = true;
+
+		try {
+			lockToGrid = Boolean.parseBoolean(MainFrame.userPreferences
+					.getProperty("lockToGridDefault"));
+		} catch (Exception e) {
+			lockToGrid = false;
+		}
+		try {
+			showGrid = Boolean.parseBoolean(MainFrame.userPreferences
+					.getProperty("showGridDefault"));
+		} catch (Exception e) {
+			showGrid = false;
+		}
+		try {
+			String style = MainFrame.userPreferences
+					.getProperty("menuStyleDefault");
+			if (style.equals("SimpleStyle")) {
+				this.graph.graphStyle = new Style();
+			} else if (style.equals("SimpleblackAndWhiteStyle")) {
+				this.graph.graphStyle = new SimpleBlackAndWhiteStyle();
+			} else
+				this.graph.graphStyle = new FancyStyle();
+		} catch (Exception e) {
+			this.graph.graphStyle = new FancyStyle();
+		}
+		try {
+			setStroke(Integer.parseInt(MainFrame.userPreferences
+					.getProperty("defaultStroke")));
+		} catch (Exception e) {
+			setStroke(1);
+		}
+		
+		
+		Desktop.getLinkHandler().addLinkListener(this);
+	}
+
+	public void paintComponent(Graphics g) {
+
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+
+		super.paintComponent(g2d);
+
+		if (isIconified()) {
+
+			Rectangle bounds = this.graph.getBoundingBox();
+
+			// if graph is empty, don't paint anything
+			if ((bounds.getWidth() == 0) || (bounds.getHeight() == 0)) {
+				return;
+			}
+
+			int maxbound = Math.max(bounds.getWidth(), bounds.getHeight());
+
+			Image image = this.createImage(maxbound, maxbound);
+
+			Graphics gtemp = image.getGraphics();
+			Graphics2D gtemp2d = (Graphics2D) gtemp;
+			gtemp2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_ON);
+
+			gtemp.setColor(Color.white);
+
+			// double ratio = ICON_SIZE_X / ICON_SIZE_Y;
+
+			int bw, bh;
+
+			bw = maxbound;
+			bh = maxbound;
+
+			gtemp.fillRect(0, 0, bw, bh);
+			g2d.scale(zoom, zoom);
+			this.graph.draw(gtemp, nodeGroupManager);
+			g2d.scale(1, 1);
+
+			final int pad = 16;
+			g.drawImage(image, pad, pad, ICON_SIZE_X - pad * 2, ICON_SIZE_Y
+					- pad * 2, this);
+
+			return;
+		}
+
+		// draw grid if active
+		if (showGrid) {
+
+			g.setColor(Color.LIGHT_GRAY);
+			((Graphics2D) g).setStroke(gridStroke);
+			int pad = 1 * gridSize;
+			for (int x = pad; x < getWidth() - pad; x += gridSize) {
+				g.drawLine(x, pad, x, getHeight() - pad);
+			}
+			for (int y = pad; y < getHeight() - pad; y += gridSize) {
+				g.drawLine(pad, y, getWidth() - pad, y);
+			}
+
+		}
+
+		// draw Graph with all nodes and edges
+		this.graph.draw(g2d, nodeGroupManager);
+
+		// draw edge selection for creating a new edge
+		if (drawEdgeToX != -1) {
+			g.drawLine(drawEdgeFromX, drawEdgeFromY, drawEdgeToX, drawEdgeToY);
+		}
+
+		// draw message objects in top right corner
+		if (!hideMessageObjectContainer) {
+		messageObjectContainer.setLocation(this.getWidth() - 20
+				- messageObjectContainer.getWidth(), 20);
+		messageObjectContainer.draw(g);
+		}
+
+		
+		// DEBUG
+		// draw labels
+	/*	for (Edge edge : graph.getEdges()) {
+			if (edge.isDoubleHeaded()) continue;
+		double labelX = edge.scx+edge.edgeLabelRelativePosition*(edge.tcx-edge.scx);
+		double labelY = edge.scy+edge.edgeLabelRelativePosition*(edge.tcy-edge.scy);
+		int lwh = edge.labelWidth/2;
+		int lhh = edge.labelHeight/2;
+		g.setColor(Color.green);
+		g.drawRect((int)labelX-lwh, (int)labelY-lhh, (int)2*lwh, (int)2*lhh);
+		g.setColor(Color.red);
+		g.drawRect((int)edge.lx-lwh, (int)edge.ly-lhh,  (int)2*lwh, (int)2*lhh);
+		
+		}*/
+		
+	}
+
+	@Override
+	public void addEdge(Edge edge) {
+
+		MainFrame.undoStack.add(new EdgeCreateStep(this, edge));
+
+		setUnsavedChanges(true);
+
+		graph.addEdge(edge);
+		modelChangedEvent();
+		this.redraw();
+
+	}
+
+	public void setUnsavedChanges(boolean b) {
+		this.unsavedChanges = b;
+
+		String name = mri.getName();
+
+		String title = "";
+
+		if (b) {
+
+			title = name + " *";
+
+		} else {
+			title = name;
+
+		}
+
+		this.setBorder(new DropShadowBorder(title, 3, Color.gray));
+		/*
+		 * LineBorder roundedLineBorder = new LineBorder(Color.gray, 1, true);
+		 * TitledBorder roundedTitledBorder = new
+		 * TitledBorder(roundedLineBorder, title);
+		 */
+
+		// this.setBorder( roundedTitledBorder );
+	}
+
+	public ModelRequestInterface getModelRequestInterface() {
+		return this.mri;
+	}
+
+	public ParameterDrawer getParameterView() {
+		return this.parameterView;
+	}
+
+	private void activateEstimate(int i)
+	{
+		activateEstimate(i, true);
+	}
+	
+	private void activateEstimate(int i, boolean forcePolicyChange) {
+		List<ModelRunUnit> estimates = stackCurrentEstimates();
+		if (estimates != null) {
+			ParameterReader pm = null;
+			if (i >= 1) {
+				if (forcePolicyChange) showPolicy = showPolicyType.MANUAL;
+				pm = estimates.get(i - 1);
+			} else if (i == 0) {
+				if (forcePolicyChange) showPolicy = showPolicyType.STARTING;
+				pm = mri.getStartingValuesUnit();
+			}
+
+			/*
+			 * showingEstimate = pm; parameterView.setParameterReader(pm);
+			 * graph.updateWithEstimates(pm); this.redraw();
+			 */
+			updateShownEstimates(pm);
+		}
+	}
+
+	public void mouseClicked(MouseEvent arg0) {
+
+		super.mouseClicked(arg0);
+		if (arg0.isConsumed())
+			return;
+
+		if (isIconified()) {
+			// desktop.mouseClicked(arg0);
+			return;
+		}
+
+		// was this a left-click on the model-view ?
+
+		if (SwingUtilities.isLeftMouseButton(arg0)) {
+
+			// node clicked?
+
+			Node selectedNode = getNodeAt(arg0.getX(), arg0.getY());
+			if (selectedNode == null) {
+
+				if (!messageObjectContainer.isPointWithin(arg0.getX(),
+						arg0.getY())) {
+
+					if (arg0.getClickCount() == 2) {
+
+						// create a new node and send request to model
+						Node node = new Node("x" + nodeIdCounter,
+								(newNodeIsLatent && !arg0.isShiftDown()));
+						nodeIdCounter += 1;
+						node.setX(arg0.getX() - node.getWidth() / 2);
+						node.setY(arg0.getY() - node.getHeight() / 2);
+
+						if (this.lockToGrid)
+							node.alignToGrid(gridSize);
+
+						for (CodeView cv : codeView) {
+							cv.delayUpdate = true;
+						}
+
+						mri.requestAddNode(node);
+
+						// add with a variance
+						Edge edge = new Edge(node, node, true);
+						edge.setFixed(false);
+						mri.requestAddEdge(edge);
+
+						for (CodeView cv : codeView) {
+							cv.updateDelayed();
+						}
+					} else {
+
+					}
+
+				} else {
+					// force a tooltip on single-left click on message object
+					this.forceTooltip();
+				}
+			} else {
+
+				// left-click on node, toggles selection
+				// selectedNode.setSelected(!selectedNode.isSelected());
+				// redraw();
+			}
+		}
+
+		// update selected nodes
+		// selectedNodes = getSelectedNodes(); no!
+
+		// otherwise: context !
+		if (SwingUtilities.isRightMouseButton(arg0)) {
+
+			menu = new JPopupMenu();
+			// menu.setLightWeightPopupEnabled(false);
+			menu.removeAll();
+			// node under the mouse? if yes, then context for node
+			boolean nodeUnderMouse = false;
+			Iterator<Node> iterNode = graph.getNodeIterator();
+			while (iterNode.hasNext()) {
+				Node node = iterNode.next();
+				if (node.isPointWithin(arg0.getX(), arg0.getY())) {
+					nodeUnderMouse = true;
+
+					menuContextNode = node;
+					break;
+				}
+			}
+
+			Edge edgeUnderMouse = null;
+
+			if (nodeUnderMouse) {
+
+				/*
+				 * if (menuRenameNode == null) { menuRenameNode = new
+				 * JMenuItem("Rename node");
+				 * menuRenameNode.addActionListener(this); }
+				 * menu.add(menuRenameNode);
+				 */
+				if (!menuContextNode.isMeanTriangle()) {
+					nodeNameInput = new LabeledInputBox("Variable Name");
+					menu.add(nodeNameInput);
+					nodeNameInput.setText(menuContextNode.getCaption());
+					nodeNameInput.getDocument().addDocumentListener(this);
+				}
+				if (menuContextNode.isGrouping()) {
+					nodeGroupInput = new LabeledInputBox("Group");
+					menu.add(nodeGroupInput);
+					nodeGroupInput.setText(Statik.doubleNStellen(
+							menuContextNode.groupValue, 0));
+					nodeGroupInput.getDocument().addDocumentListener(this);
+				}
+				// nodeNameInput.addKeyListener(this);
+
+				if (menuSwapLatent == null) {
+					menuSwapLatent = new JMenuItem("Swap Latent / Manifest");
+					menuSwapLatent.addActionListener(this);
+				}
+				menu.add(menuSwapLatent);
+
+				if (menuSwapNormalized == null && menuContextNode.isManifest()) {
+					menuSwapNormalized = new JMenuItem(
+							(menuContextNode.isNormalized() ? "Unstandardize"
+									: "Standardize"));
+					menuSwapNormalized.addActionListener(this);
+				}
+				if (menuContextNode.isManifest())
+					menu.add(menuSwapNormalized);
+
+				if (menuContextNode.isManifest()) {
+					if (menuSwapGrouping == null) {
+						menuSwapGrouping = new JMenuItem("");
+						menuSwapGrouping.addActionListener(this);
+					}
+					menuSwapGrouping
+							.setText((menuContextNode.isGrouping() ? "Remove Grouping"
+									: "Add Grouping"));
+					menu.add(menuSwapGrouping);
+				}
+
+				if (menuUnlinkGrouping == null && menuContextNode.isGrouping()) {
+					menuUnlinkGrouping = new JMenuItem("Unlink Grouping");
+					menuUnlinkGrouping.addActionListener(this);
+				}
+				if (menuContextNode.isGrouping())
+					menu.add(menuUnlinkGrouping);
+
+				if (!menuContextNode.isLatent()) {
+					if (menuUnlinkNode == null) {
+						menuUnlinkNode = new JMenuItem(
+								"Unlink Variable from Dataset");
+						menuUnlinkNode.addActionListener(this);
+					}
+					menu.add(menuUnlinkNode);
+				}
+
+				if (menuDeleteNode == null) {
+					menuDeleteNode = new JMenuItem("Delete Variable");
+					menuDeleteNode.addActionListener(this);
+				}
+				menu.add(menuDeleteNode);
+
+				if (menuNodeColor == null) {
+					menuNodeColor = new JMenuItem("Change line color");
+					menuNodeColor.addActionListener(this);
+				}
+
+				if (menuNodeFillColor == null) {
+					menuNodeFillColor = new JMenuItem("Change fill color");
+					menuNodeFillColor.addActionListener(this);
+				}
+
+				if (menuToggleMarkUnconnectedManifests == null) {
+					menuToggleMarkUnconnectedManifests = new JMenuItem(
+							"Toggle mark unconnected manifests");
+					menuToggleMarkUnconnectedManifests.addActionListener(this);
+					menuToggleMarkUnconnectedManifests
+							.setSelected(graph.markUnconnectedNodes);
+				}
+
+				JMenu Customize = new JMenu("Customize variable");
+				menu.add(Customize);
+				Customize.add(menuNodeColor);
+				Customize.add(menuNodeFillColor);
+				Customize.add(menuToggleMarkUnconnectedManifests);
+				// menuCustomize.add(menuNodeColor);
+
+			} else {
+				// hit an edge?
+				/*
+				 * Iterator<Edge> iterEdge = graph.getEdgeIterator(); Edge best
+				 * = null; double bestDist = Double.MAX_VALUE; while
+				 * (iterEdge.hasNext()) { Edge edge = iterEdge.next(); double
+				 * dist = Math.abs(edge.distanceFromPoint(arg0.getX(),
+				 * arg0.getY())); if (dist < bestDist) { bestDist = dist; best =
+				 * edge; } }
+				 */
+				edgeUnderMouse = getEdgeAt(arg0.getX(), arg0.getY(), EDGE_CLICK_RADIUS);
+				// closest edge close enough?
+				if (edgeUnderMouse != null) {
+
+					if (!edgeUnderMouse.isFixed()) {
+						nameInput = new LabeledInputBox("Path name");
+						// nameInput.addKeyListener(this);
+						menu.add(nameInput);
+						nameInput.setText(edgeUnderMouse.getParameterName());
+						nameInput.getDocument().addDocumentListener(this);
+					}
+
+					if (edgeUnderMouse.isFixed()) {
+
+						valueInput = new LabeledInputBox("Path value");
+						menu.add(valueInput);
+						valueInput.setText(Double.toString(edgeUnderMouse
+								.getValue()));
+						valueInput.getDocument().addDocumentListener(this);
+
+					} else {
+						svalueInput = new LabeledInputBox("Starting value");
+						menu.add(svalueInput);
+						double svalue = getModelRequestInterface()
+								.getStartingValuesUnit().getParameterValue(
+										edgeUnderMouse.getParameterName());
+						svalueInput.setText(Double.toString(svalue));
+
+						svalueInput.getDocument().addDocumentListener(this);
+					}
+
+					menu.addSeparator();
+
+					if (menuDeleteEdge == null) {
+						menuDeleteEdge = new JMenuItem("Delete path");
+						menuDeleteEdge.addActionListener(this);
+					}
+					menu.add(menuDeleteEdge);
+
+					if (menuToggleEdgeHeads == null) {
+						menuToggleEdgeHeads = new JMenuItem("Toggle path heads");
+						menuToggleEdgeHeads.addActionListener(this);
+					}
+
+					String fixedLabel = "";
+					if (edgeUnderMouse.isFixed()) {
+						fixedLabel = "Free parameter";
+					} else {
+						fixedLabel = "Fix parameter";
+					}
+
+					menuToggleFixed = new JMenuItem(fixedLabel);
+					menuToggleFixed.addActionListener(this);
+					menu.add(menuToggleFixed);
+
+					if (!edgeUnderMouse.source.isMeanTriangle())
+						menu.add(menuToggleEdgeHeads);
+
+					if (menuEdgeColor == null) {
+						menuEdgeColor = new JMenuItem("Change path color");
+						menuEdgeColor.addActionListener(this);
+
+					}
+
+					menu.add(menuEdgeColor);
+
+					menuContextEdge = edgeUnderMouse;
+				}
+			}
+
+			if (menuPriorityHigh == null) {
+				menuPriorityHigh = new JRadioButtonMenuItem("High");
+				menuPriorityHigh.addActionListener(this);
+			}
+			if (menuPriorityNormal == null) {
+				menuPriorityNormal = new JRadioButtonMenuItem("Normal");
+				menuPriorityNormal.addActionListener(this);
+			}
+			if (menuPriorityLow == null) {
+				menuPriorityLow = new JRadioButtonMenuItem("Low");
+				menuPriorityLow.addActionListener(this);
+			}
+			if (menuPriorityHold == null) {
+				menuPriorityHold = new JRadioButtonMenuItem("Pause");
+				menuPriorityHold.addActionListener(this);
+			}
+
+			System.out.println(getModelRequestInterface().getRunPriority());
+			menuPriorityHigh.setSelected(false);
+			if (getModelRequestInterface().getRunPriority() == Priority.HIGH)
+				menuPriorityHigh.setSelected(true);
+			menuPriorityHold.setSelected(false);
+			if (getModelRequestInterface().getRunPriority() == Priority.HOLD)
+				menuPriorityHold.setSelected(true);
+			menuPriorityLow.setSelected(false);
+			if (getModelRequestInterface().getRunPriority() == Priority.LOW)
+				menuPriorityLow.setSelected(true);
+			menuPriorityNormal.setSelected(false);
+			if (getModelRequestInterface().getRunPriority() == Priority.NORMAL)
+				menuPriorityNormal.setSelected(true);
+
+			JMenu priorityMenu = new JMenu("Priority");
+			priorityMenu.add(menuPriorityHigh);
+			priorityMenu.add(menuPriorityNormal);
+			priorityMenu.add(menuPriorityLow);
+			priorityMenu.addSeparator();
+			priorityMenu.add(menuPriorityHold);
+
+			if (menuDeleteModel == null) {
+				menuDeleteModel = new JMenuItem("Close Model");
+				menuDeleteModel.addActionListener(this);
+			}
+
+			if (menuToggleShowGrid == null) {
+				menuToggleShowGrid = new JMenuItem("Toggle display of grid");
+				menuToggleShowGrid.addActionListener(this);
+			}
+
+			if (menuToggleLockToGrid == null) {
+				menuToggleLockToGrid = new JMenuItem("Toggle lock to grid");
+				menuToggleLockToGrid.addActionListener(this);
+			}
+
+			if (menuTidyUp == null) {
+				menuTidyUp = new JMenuItem("Tidy up");
+				menuTidyUp.addActionListener(this);
+			}
+
+			if (menuAutoLayout == null) {
+				menuAutoLayout = new JMenuItem("Auto layout");
+				menuAutoLayout.addActionListener(this);
+			}
+
+			if (menuSaveModel == null) {
+				menuSaveModel = new JMenuItem("Save Model");
+				menuSaveModel.addActionListener(this);
+			}
+			if (menuLoadStartingValues == null) {
+				menuLoadStartingValues = new JMenuItem("Load Parameter");
+				menuLoadStartingValues.addActionListener(this);
+			}
+
+			if (menuSimulation == null) {
+				menuSimulation = new JMenu("Simulation");
+				menuSimulation.addActionListener(this);
+			}
+
+			if (menuSimulationStart == null) {
+				menuSimulationStart = new JMenuItem("Start Simulation");
+				menuSimulationStart.addActionListener(this);
+			}
+
+			if (menuAnzRowsSimulation == null) {
+				menuAnzRowsSimulation = new LabeledInputBox("     Data Rows: ");
+				menuAnzRowsSimulation.setText("100");
+				menuAnzRowsSimulation.getDocument().addDocumentListener(this);
+				menuAnzRowsSimulation.addActionListener(this);
+			}
+			menuSimulation.add(menuSimulationStart);
+			menuSimulation.add(menuAnzRowsSimulation);
+
+			if (menuExportJPEG == null) {
+				menuExportJPEG = new JMenuItem("Export JPEG");
+				menuExportJPEG.addActionListener(this);
+			}
+
+			if (menuExportLaTeX == null) {
+				menuExportLaTeX = new JMenuItem("Export LaTeX");
+				menuExportLaTeX.addActionListener(this);
+			}
+
+			if (menuExportSVG == null) {
+				menuExportSVG = new JMenuItem("Export SVG");
+				menuExportSVG.addActionListener(this);
+			}
+
+			if (menuShowCode == null) {
+				menuShowCode = new JMenu("Show Code");
+				menuShowCode.addActionListener(this);
+			}
+
+			if (menuShowOpenMXCode == null) {
+				menuShowOpenMXCode = new JMenuItem("Open MX");
+				menuShowOpenMXCode.addActionListener(this);
+			}
+			if (menuShowMPlusCode == null) {
+				menuShowMPlusCode = new JMenuItem("MPlus");
+				menuShowMPlusCode.addActionListener(this);
+			}
+			if (menuShowLavaanCode == null) {
+				menuShowLavaanCode = new JMenuItem("Lavaan");
+				menuShowLavaanCode.addActionListener(this);
+			}
+			if (menuShowRAMMatrices == null) {
+				menuShowRAMMatrices = new JMenuItem("RAM Matrices");
+				menuShowRAMMatrices.addActionListener(this);
+			}
+
+			if (menuShowCorrelationMatrix == null) {
+				menuShowCorrelationMatrix = new JMenuItem("Correlation Matrix");
+				menuShowCorrelationMatrix.addActionListener(this);
+			}
+			
+			if (menuShowOnyxJavaCode == null) {
+				menuShowOnyxJavaCode = new JMenuItem("Onyx Java");
+				menuShowOnyxJavaCode.addActionListener(this);
+			}
+			menuShowCode.add(menuShowOpenMXCode);
+			menuShowCode.add(menuShowMPlusCode);
+			//menuShowCode.add(menuShowLavaanCode);
+			menuShowCode.add(menuShowRAMMatrices);
+			menuShowCode.add(menuShowOnyxJavaCode);
+			menuShowCode.add(menuShowCorrelationMatrix);
+
+			if (menuIconify == null) {
+				menuIconify = new JMenuItem("Iconify");
+				menuIconify.addActionListener(this);
+			}
+
+			if (menuSelectEdgeStyle == null) {
+				menuSelectEdgeStyle = new JMenuItem("Select path style");
+				menuSelectEdgeStyle.addActionListener(this);
+			}
+
+			if (menuStroke == null) {
+				menuStroke = new JMenu("Change line weight");
+			}
+
+			if (thinStroke == null) {
+				thinStroke = new JMenuItem("Thin");
+				thinStroke.addActionListener(this);
+				menuStroke.add(thinStroke);
+			}
+			if (mediumStroke == null) {
+				mediumStroke = new JMenuItem("Medium");
+				mediumStroke.addActionListener(this);
+				menuStroke.add(mediumStroke);
+			}
+			if (thickStroke == null) {
+				thickStroke = new JMenuItem("Thick");
+				thickStroke.addActionListener(this);
+				menuStroke.add(thickStroke);
+			}
+
+			if (menuExportMplus == null) {
+				menuExportMplus = new JMenuItem("Export model to MPlus");
+				menuExportMplus.addActionListener(this);
+			}
+
+			if (menuExportLavaan == null) {
+				menuExportLavaan = new JMenuItem("Export model to lavaan");
+				menuExportLavaan.addActionListener(this);
+			}
+			
+			if (menuExport == null) {
+				menuExport = new JMenuItem("Export model to OpenMx");
+				menuExport.addActionListener(this);
+			}
+
+			if (menuExportWithData == null) {
+				menuExportWithData = new JMenuItem(
+						"Export model and data to OpenMx");
+				menuExportWithData.addActionListener(this);
+			}
+
+			if (menuAddTriangle == null) {
+				menuAddTriangle = new JMenuItem("Add constant");
+				menuAddTriangle.addActionListener(this);
+			}
+
+			if (menuSwapManifestLatent == null) {
+				menuSwapManifestLatent = new JMenuItem(
+						(newNodeIsLatent ? "New Nodes: Manifests"
+								: "New Nodes: Latent"));
+				menuSwapManifestLatent.addActionListener(this);
+			}
+
+			if (menuClone == null) {
+				menuClone = new JMenuItem("Clone Model");
+				menuClone.addActionListener(this);
+			}
+
+			if (menuStyle == null) {
+				menuStyle = new JMenu("Style");
+				menuStyleFancy = new JMenuItem("Fancy");
+				menuStyleSimple = new JMenuItem("Simple");
+				menuStyleSimpleBW = new JMenuItem("Simple (Black&White)");
+				menuStyle.add(menuStyleSimple);
+				menuStyle.add(menuStyleSimpleBW);
+				menuStyle.add(menuStyleFancy);
+				menuStyleSimple.addActionListener(this);
+				menuStyleSimpleBW.addActionListener(this);
+				menuStyleFancy.addActionListener(this);
+			}
+
+			if (menuAgents == null) {
+				menuAgents = new JMenu("Start External Estimate");
+				menuAgents.addActionListener(this);
+			}
+			menuAgents.removeAll();
+
+			Hashtable<String, ExternalRunUnit> agents = ExternalRunUnit
+					.getValidExternalAgents();
+			if (agents.size() > 0) {
+				menuAgentItems = new JMenuItem[agents.size()];
+				int i = 0;
+				for (String agentLabel : agents.keySet()) {
+					menuAgentItems[i] = new JMenuItem(agentLabel);
+					menuAgentItems[i].addActionListener(this);
+
+					menuAgents.add(menuAgentItems[i]);
+				}
+			}
+
+			if (menuRunners == null) {
+				menuRunners = new JMenu("Select estimate");
+				menuRunners.addActionListener(this);
+			}
+
+			menuRunners.removeAll();
+
+			boolean hasRunners = (this.currentEstimates != null);
+
+			if (hasRunners) {
+				currentEstimatesShownInMenu = stackCurrentEstimates();
+				int numEst = currentEstimatesShownInMenu.size();
+				menuRunnerItems = new JMenuItem[numEst];
+
+				for (int i = 0; i < numEst; i++) {
+					/*
+					 * parameterView.setParameterSet(estimates.get(0));
+					 * graph.updateWithEstimates(estimates.get(0));
+					 * this.redraw();
+					 */
+					String name = currentEstimatesShownInMenu.get(i).name
+							+ " ("
+							+ Math.round(currentEstimatesShownInMenu.get(i).fit * 1000.0)
+							/ 1000.0 + ")";
+					// if (i==0) name += " (BEST)";
+					if (showingEstimate instanceof ModelRunUnit
+							&& currentEstimatesShownInMenu.get(i).isSameAs(
+									(ModelRunUnit) showingEstimate))
+						name += " *";
+					menuRunnerItems[i] = new JMenuItem(name);
+					menuRunnerItems[i].addActionListener(this);
+
+					if (currentEstimatesShownInMenu.get(i).hasWarning()) {
+						Icon warningIcon = new ImageIcon(
+								MessageObject.imageWarning);
+						menuRunnerItems[i].setIcon(warningIcon);
+					}
+
+					menuRunners.add(menuRunnerItems[i]);
+				}
+			}
+
+			if (menuShowStartingValues == null) {
+				menuShowStartingValues = new JMenuItem("Show starting values");
+				menuShowStartingValues.addActionListener(this);
+			}
+			if (menuShowBestML == null) {
+				menuShowBestML = new JMenuItem("Show best ML estimate");
+				menuShowBestML.addActionListener(this);
+			}
+			if (menuShowBestLS == null) {
+				menuShowBestLS = new JMenuItem("Show best LS estimate");
+				menuShowBestLS.addActionListener(this);
+			}
+			if (menuShowTextOutput == null) {
+				menuShowTextOutput = new JMenuItem("Show estimate summary");
+				menuShowTextOutput.addActionListener(this);
+			}
+
+			if (!nodeUnderMouse && edgeUnderMouse == null) {
+
+				modelName = new LabeledInputBox("     Model name: ");
+				modelName.getDocument().addDocumentListener(this);
+				modelName.setText(this.mri.getName());
+				menu.add(modelName);
+
+			}
+
+			/*
+			 * Siny's attempt to tidy up context menu
+			 */
+
+			menu.addSeparator();
+
+			menu.add(menuSwapManifestLatent);
+			menu.add(menuAddTriangle);
+
+			menu.addSeparator();
+
+			JMenu menuCustomize = new JMenu("Customize graph");
+			menu.add(menuCustomize);
+			menuCustomize.add(menuStyle);
+			menuCustomize.add(menuStroke);
+			menuCustomize.add(menuSelectEdgeStyle);
+
+			JMenu menuGrid = new JMenu("Grid");
+			menu.add(menuGrid);
+			menuGrid.add(menuToggleShowGrid);
+			menuGrid.add(menuToggleLockToGrid);
+
+			menu.add(menuTidyUp);
+			menu.add(menuAutoLayout);
+
+			menu.addSeparator();
+
+			JMenu menuSave = new JMenu("Save / Export");
+			menu.add(menuSave);
+			menuSave.add(menuSaveModel);
+			menuSave.add(menuExportJPEG);
+			menuSave.add(menuExportLaTeX);
+			menuSave.add(menuExport);
+			if (this.getGraph().hasAllNodesConnected())
+				menuSave.add(menuExportWithData);
+			menuSave.add(menuExportMplus);
+			menuSave.add(menuExportLavaan);
+			
+			menu.add(menuLoadStartingValues);
+
+			if (MainFrame.DEVELOPMENT_VERSION) {
+				menuSave.add(menuExportSVG);
+			}
+
+			menu.add(menuShowCode);
+			menu.add(menuSimulation);
+			/*
+			 * menu.add(menuExportJPEG); menu.add(menuExport); if
+			 * (this.getGraph().hasAllNodesConnected())
+			 * menu.add(menuExportWithData); if (MainFrame.DEVELOPMENT_VERSION)
+			 * { menu.add(menuExportLaTeX); menu.add(menuExportSVG); }
+			 */
+
+			menu.add(menuClone);
+
+			/*
+			 * menu.add(menuStyle); menu.add(menuStroke);
+			 * menu.add(menuSelectEdgeStyle);
+			 */
+
+			menu.addSeparator();
+
+			/*
+			 * menu.add(menuClone); menu.add(menuDeleteModel);
+			 * menu.add(menuIconify);
+			 */
+
+			// this part doesn't work yet
+
+			JMenu menuAdvanced = new JMenu("Estimation");
+			menu.add(menuAdvanced);
+			if (ExternalRunUnit.getValidExternalAgents().size() > 0)
+				menuAdvanced.add(menuAgents);
+
+			if (hasRunners) {
+				// menuAdvanced.addSeparator();
+
+				menuAdvanced.add(menuRunners);
+			}
+			
+			if (menuSetDefaultStartingValues == null) {
+				menuSetDefaultStartingValues = new JMenuItem("Set default starting values");
+				menuSetDefaultStartingValues.addActionListener(this);
+			}
+
+			menuAdvanced.add(menuShowStartingValues);
+			menuAdvanced.add(menuShowBestML);
+			menuAdvanced.add(menuShowBestLS);
+			menuAdvanced.add(menuShowTextOutput);
+			menuAdvanced.addSeparator();
+			menuAdvanced.add(priorityMenu);
+			menuAdvanced.addSeparator();
+			menuAdvanced.add(menuSetDefaultStartingValues);
+
+			// if (ExternalRunUnit.getValidExternalAgents().size() > 0)
+			// menu.add(menuAgents);
+			//
+			// if (hasRunners) {
+			// menu.addSeparator();
+			//
+			// menu.add(menuRunners);
+			// }
+			//
+			//
+			// menu.add(priorityMenu);
+
+			menu.addSeparator();
+
+			menu.add(menuIconify);
+			menu.add(menuDeleteModel);
+
+			menu.show(arg0.getComponent(), arg0.getX(), arg0.getY());
+			menu.requestFocus();
+		}
+
+	}
+
+	private List<ModelRunUnit> stackCurrentEstimates() {
+		return ModelRunUnit.stackEqualEstimates(currentEstimates);
+	}
+
+	/**
+	 * forces display of a tooltip immediately
+	 * 
+	 * TODO: not working!
+	 */
+	private void forceTooltip() {
+
+		JComponent component = this.desktop;
+
+		Action toolTipAction = component.getActionMap().get("postTip");
+		if (toolTipAction != null) {
+			ActionEvent postTip = new ActionEvent(component,
+					ActionEvent.ACTION_PERFORMED, "");
+			toolTipAction.actionPerformed(postTip);
+		}
+	}
+
+	public void mouseMoved(MouseEvent arg0) {
+
+		super.mouseMoved(arg0);
+
+		this.mouseAtX = arg0.getX();
+		this.mouseAtY = arg0.getY();
+
+		Node hit = null;
+		for (Node node : graph.getNodes()) {
+			if (node.isPointWithin(mouseAtX, mouseAtY)) {
+				hit = node;
+				DatasetField df = Desktop.getLinkHandler().getDatasetField(
+						graph, node);
+				if (df == null)
+					continue;
+				for (View view : desktop.getViews()) {
+					if (view instanceof DataView) {
+						((DataView) view).highlight(-1);
+						if (((DataView) view).getDataset() == df.dataset) {
+							((DataView) view).highlight(df.columnId);
+							// break;
+						}
+					}
+				}
+				break;
+			}
+		}
+
+		/*
+		 * if (hit == null) {
+		 * MainFrame.getContextHelpPanel().setHelpID(ContextHelpPanel.CTXT_) }
+		 */
+
+	}
+
+	/**
+	 * mouse pressed on an object, selects object
+	 * 
+	 * 
+	 */
+	public void mousePressed(MouseEvent arg0) {
+
+		super.mousePressed(arg0);
+
+		if (isIconified()) {
+			desktop.mousePressedOnIconifiedModelView(this, arg0);
+			return;
+		}
+
+		lastMousePressedTime = System.currentTimeMillis();
+
+		// update information for potential right-drag
+
+		drawEdgeFromX = arg0.getX();
+		drawEdgeFromY = arg0.getY();
+
+		setCursor(defaultCursor);
+		this.dragAnchor = -1;
+		boolean anchorPressed = false;
+		// anchor clicked?
+		Iterator<Node> iterNode = graph.getNodeIterator();
+		while (iterNode.hasNext()) {
+			Node node = iterNode.next();
+			if (node.isSelected()) {
+				int dragAnchor = node
+						.getAnchorAtPoint(arg0.getX(), arg0.getY());
+				if ((dragAnchor != -1)) {
+
+					dragNode = node;
+					dragNode.clickX = arg0.getX() - node.getX();
+					dragNode.clickY = arg0.getY() - node.getY();
+					dragNode.oldHeight = dragNode.getHeight();
+					dragNode.oldWidth = dragNode.getWidth();
+					dragNode.oldX = dragNode.getX();
+					dragNode.oldY = dragNode.getY();
+
+					anchorPressed = true;
+
+					super.selectAction = false;
+
+					this.dragAnchor = dragAnchor;
+
+					switch (dragAnchor) {
+					case 0:
+						setCursor(resizeNCursor);
+						break;
+					case 1:
+						setCursor(resizeNECursor);
+						break;
+					case 2:
+						setCursor(resizeECursor);
+						break;
+					case 3:
+						setCursor(resizeSECursor);
+						break;
+					case 4:
+						setCursor(resizeSCursor);
+						break;
+					case 5:
+						setCursor(resizeSWCursor);
+						break;
+					case 6:
+						setCursor(resizeWCursor);
+						break;
+					case 7:
+						setCursor(resizeNWCursor);
+						break;
+
+					}
+
+				}
+			}
+		}
+
+		// click on a label?
+		Iterator<Edge> iterEdge = graph.getEdgeIterator();
+		while (iterEdge.hasNext()) {
+			Edge edge = iterEdge.next();
+			if (edge.isOnLabel(arg0.getX(), arg0.getY())) {
+				System.out.println("Drag Label!");
+				this.draggedLabelEdge = edge;
+				this.edgeLabelRelativePositionPrev = edge.edgeLabelRelativePosition;
+				return;
+			}
+		}
+
+		// clicked a node?
+		Node clickedNode = getNodeAt(arg0.getX(), arg0.getY());
+
+		// remove all selections
+		boolean clear = true;
+		if ((clickedNode != null) && (clickedNode.isSelected()))
+			clear = false;
+		if (arg0.isShiftDown())
+			clear = false;
+
+		if (clear) {
+			// System.out.println("CLEAR!");
+			// left-click on desktop deselects all nodes
+			iterNode = graph.getNodeIterator();
+			while (iterNode.hasNext()) {
+				Node node = iterNode.next();
+				node.setSelected(false);
+			}
+
+			this.redraw();
+		}
+
+		// click on a node ?
+		if (clickedNode != null) {
+			// Node node = clickedNode;
+			// if (node.isPointWithin(arg0.getX(), arg0.getY())) {
+			dragNode = clickedNode;
+			dragNode.clickX = arg0.getX() - clickedNode.getX();
+			dragNode.clickY = arg0.getY() - clickedNode.getY();
+
+			clickedNode.setSelected(true);
+			this.redraw();
+
+			super.selectAction = false;
+
+			if (!anchorPressed)
+				setCursor(handCursor);
+
+			// return;
+			// }
+
+		}
+
+		selectedNodes = getSelectedNodes();
+		// System.
+
+	}
+
+	public void mouseDragged(MouseEvent arg0) {
+
+		// store undo for node move when node is moved the first time
+		if (!dragDetected && dragNode != null) {
+
+			MainFrame.undoStack.add(new MovedStep(this, dragNode));
+		}
+		
+		// store undo for node reshape
+		if (!dragDetected && dragAnchor != -1) {
+			MainFrame.undoStack.add(new ReshapeStep(this, dragNode));
+		}
+
+		dragDetected = true;
+
+		// if no node is selected, go to default drag behavior from View class
+		if ((dragNode == null) && (draggedLabelEdge == null)) {
+			super.mouseDragged(arg0);
+			arg0.consume();
+			return;
+		} else {
+
+			if (isIconified()) {
+				// desktop.mouseDragged(arg0);
+				return;
+			}
+
+			// left-drag?
+			if (SwingUtilities.isLeftMouseButton(arg0)) {
+
+				// clicked on anchor?
+				// int anchorId = dragNode.getAnchorAtPoint(arg0.getX(),
+				// arg0.getY());
+				// if (dragNode.isSelected() && anchorId != -1) {
+				if (dragAnchor != -1) {
+					// TODO: do node resize action here!
+
+					if (dragAnchor == AnchorType.S.ordinal()) {
+
+						int height = dragNode.oldHeight + arg0.getY()
+								- dragNode.getY() - dragNode.clickY;
+						dragNode.setHeight(height);
+						// this.redraw();
+					} else if (dragAnchor == AnchorType.SE.ordinal()) {
+
+						int height = dragNode.oldHeight + arg0.getY()
+								- dragNode.getY() - dragNode.clickY;
+						int width = dragNode.oldWidth + arg0.getX()
+								- dragNode.getX() - dragNode.clickX;
+						dragNode.setHeight(height);
+						dragNode.setWidth(width);
+						this.redraw();
+					} else if (dragAnchor == AnchorType.E.ordinal()) {
+						int width = dragNode.oldWidth + arg0.getX()
+								- dragNode.getX() - dragNode.clickX;
+						dragNode.setWidth(width);
+						// this.redraw();
+					} else if (dragAnchor == AnchorType.NE.ordinal()) {
+
+						int y = arg0.getY() - dragNode.clickY;
+						int h = dragNode.oldHeight + (dragNode.oldY - y);
+
+						if (h > Node.MIN_NODE_HEIGHT) {
+							dragNode.setY(y);
+							dragNode.setHeight(h);
+						}
+
+						int width = dragNode.oldWidth + arg0.getX()
+								- dragNode.getX() - dragNode.clickX;
+						dragNode.setWidth(width);
+
+					} else if (dragAnchor == AnchorType.N.ordinal()) {
+
+						int y = arg0.getY() - dragNode.clickY;
+						int h = dragNode.oldHeight + (dragNode.oldY - y);
+
+						if (h > Node.MIN_NODE_HEIGHT) {
+							dragNode.setY(y);
+							dragNode.setHeight(h);
+						}
+
+						// this.redraw();
+
+					} else if (dragAnchor == AnchorType.NW.ordinal()) {
+
+						int y = arg0.getY() - dragNode.clickY;
+						int h = dragNode.oldHeight + (dragNode.oldY - y);
+
+						if (h > Node.MIN_NODE_HEIGHT) {
+							dragNode.setY(y);
+							dragNode.setHeight(h);
+						}
+
+						int x = arg0.getX() - dragNode.clickX;
+						int w = dragNode.oldWidth + (dragNode.oldX - x);
+						if (w >= Node.MIN_NODE_WIDTH) {
+							dragNode.setX(x);
+							dragNode.setWidth(w);
+						}
+
+					} else if (dragAnchor == AnchorType.W.ordinal()) {
+
+						int x = arg0.getX() - dragNode.clickX;
+						int w = dragNode.oldWidth + (dragNode.oldX - x);
+						if (w >= Node.MIN_NODE_WIDTH) {
+							dragNode.setX(x);
+							dragNode.setWidth(w);
+						}
+
+						// this.redraw();
+
+					} else {
+
+						int x = arg0.getX() - dragNode.clickX;
+						int w = dragNode.oldWidth + (dragNode.oldX - x);
+						if (w >= Node.MIN_NODE_WIDTH) {
+							dragNode.setX(x);
+							dragNode.setWidth(w);
+						}
+
+						int height = dragNode.oldHeight + arg0.getY()
+								- dragNode.getY() - dragNode.clickY;
+						dragNode.setHeight(height);
+						
+					}
+
+					// TODO: align to grid
+					/*
+					 * if (lockToGrid) { dragNode.alignToGrid(gridSize); }
+					 */
+
+					this.redraw();
+
+				} else {
+
+					if (dragNode != null) {
+
+						int dragStartX = dragNode.getX();
+						int dragStartY = dragNode.getY();
+
+						if (selectedNodes == null) {
+							selectedNodes = new ArrayList<Node>();
+						}
+
+						for (Node node : selectedNodes) {
+
+							// otherwise drag node
+							int toX = arg0.getX() - dragNode.clickX
+									+ (-dragStartX + node.getX());
+							int toY = arg0.getY() - dragNode.clickY
+									+ (-dragStartY + node.getY());
+
+							/*
+							 * System.out.println("Move "+node+
+							 * " DELTA "+(-dragNode.getX()+node.getX()) +";"+
+							 * (arg0.getX() - dragNode.clickX) );
+							 */
+							// do not allow leaving the drawable area with a
+							// node
+							int pad = 8;
+							toX = Math.max(pad, toX);
+							toY = Math.max(pad, toY);
+							toX = Math.min(toX,
+									this.getWidth() - node.getWidth() - pad);
+							toY = Math.min(toY,
+									this.getHeight() - node.getHeight() - pad);
+
+							if (lockToGrid) {
+								toX = Math.round(toX / gridSize) * gridSize;
+								toY = Math.round(toY / gridSize) * gridSize;
+							}
+
+							node.setX(toX);
+							node.setY(toY);
+
+						}
+						this.redraw();
+
+					} else {
+
+						// drag label here
+
+						double dy;
+
+						// decide to which direction of the edge the label is moved
+						if (draggedLabelEdge.source.getY() < draggedLabelEdge.target.getY()) {
+							dy = (-mouseClickY + arg0.getY()) / 100.0 + edgeLabelRelativePositionPrev;
+						} else {
+							dy = (+mouseClickY - arg0.getY()) / 100.0 + edgeLabelRelativePositionPrev;
+						}
+						dy = Math.max(Math.min(dy, 0.9), 0.1);
+
+						this.draggedLabelEdge.edgeLabelRelativePosition = dy;
+						this.redraw();
+
+					}
+
+				}
+
+			} else {
+
+				drawEdgeToX = arg0.getX();
+				drawEdgeToY = arg0.getY();
+				redraw();
+
+			}
+
+		}
+
+	}
+
+	private List<Node> getSelectedNodes() {
+		ArrayList<Node> list = new ArrayList<Node>();
+		for (Node node : graph.getNodes()) {
+			if (node.isSelected())
+				list.add(node);
+		}
+		return (list);
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+
+		super.mouseReleased(arg0);
+
+		if (isIconified()) {
+
+			desktop.mouseReleasedOnIconifiedModelView(this, arg0);
+
+			return;
+		}
+
+		if (dragDetected && (getSelection() != null)) {
+
+			Iterator<Node> iterNode = graph.getNodeIterator();
+			while (iterNode.hasNext()) {
+				Node node = iterNode.next();
+
+				if (node.isWithinRectangle(getSelection())) {
+
+					node.setSelected(true);
+				}
+			}
+
+		}
+
+		// update selected nodes
+		// selectedNodes = getSelectedNodes(); no!
+
+		// right-drag?
+		if (drawEdgeToX != -1) {
+
+			// did user hit another node?
+			Iterator<Node> iterNode = graph.getNodeIterator();
+			Node targetNode = null;
+			while (iterNode.hasNext()) {
+				Node node = iterNode.next();
+				if (node.isPointWithin(drawEdgeToX, drawEdgeToY)) {
+					targetNode = node;
+					break;
+				}
+			}
+			
+			
+			// Connect !
+			if (targetNode == null) {
+				targetNode = new Node();
+				targetNode.setX(drawEdgeToX);
+				targetNode.setY(drawEdgeToY);
+				targetNode.setCaption("x" + nodeIdCounter);
+				nodeIdCounter++;
+				this.getModelRequestInterface().requestAddNode(targetNode);
+			}
+			
+			connect(dragNode, targetNode, arg0);
+			
+			
+
+		}
+
+		// reset variables
+		dragNode = null;
+		draggedLabelEdge = null;
+		dragAnchor = -1;
+		drawEdgeToX = -1;
+		drawEdgeToY = -1;
+
+		dragDetected = false;
+
+		menuContextNode = null;
+		menuContextEdge = null;
+
+		// repaint
+		redraw();
+
+		setCursor(defaultCursor);
+
+	}
+
+	private void connect(Node dragNode, Node node, MouseEvent arg0) {
+
+		// only allow self-reference if we are sure
+		// that drag was not an accidentally gone wrong right-click
+		if ((dragNode == node)
+				& (System.currentTimeMillis()
+						- lastMousePressedTime < 200)) {
+			return;
+		}
+
+		// do not allow edges to mean triangles
+		if (node.isMeanTriangle()) {
+			return;
+		}
+
+		// multi group edge ?
+		List<Integer> sourceGroups = nodeGroupManager
+				.getActiveGroupMembership(dragNode);
+		List<Integer> targetGroups = nodeGroupManager
+				.getActiveGroupMembership(node);
+
+		if (sourceGroups.size() > 0 || targetGroups.size() > 0) {
+
+			List<Node> source = new ArrayList<Node>();
+			List<Node> target = new ArrayList<Node>();
+
+			if (targetGroups.size() == 1) {
+				target = nodeGroupManager.get(targetGroups.get(0));
+			} else {
+				target.add(node);
+			}
+
+			if (sourceGroups.size() == 1) {
+				source = nodeGroupManager.get(sourceGroups.get(0));
+			} else {
+				source.add(dragNode);
+			}
+
+			if (arg0.isAltDown() && source instanceof NodeGroup
+					&& target instanceof NodeGroup) {
+				// connect 1:1
+
+				((NodeGroup) source).sort();
+				((NodeGroup) target).sort();
+
+				int k = Math.min(source.size(), target.size());
+
+				for (int i = 0; i < k; i++) {
+					Node from = source.get(i);
+					Node to = target.get(i);
+					Edge edge = new Edge(from, to);
+					boolean doubleHeaded = arg0.isShiftDown()
+							|| dragNode == node;
+					edge.setDoubleHeaded(doubleHeaded);
+					this.mri.requestAddEdge(edge);
+				}
+
+			} else {
+
+				// connect all
+				for (Node from : source) {
+					for (Node to : target) {
+						Edge edge = new Edge(from, to);
+						boolean doubleHeaded = arg0.isShiftDown()
+								|| dragNode == node;
+						edge.setDoubleHeaded(doubleHeaded);
+						this.mri.requestAddEdge(edge);
+					}
+				}
+
+			}
+
+		} else {
+
+			Edge edge = new Edge(dragNode, node);
+
+			boolean doubleHeaded = arg0.isShiftDown()
+					|| dragNode == node;
+			edge.setDoubleHeaded(doubleHeaded);
+
+			this.mri.requestAddEdge(edge);
+
+		}
+	}
+
+	@Override
+	public void addNode(Node node) {
+
+		MainFrame.undoStack.add(new NodeCreateStep(this, node));
+
+		setUnsavedChanges(true);
+
+		// by definition, addNode has to increment all node ids in the
+		// graph that are higher than or equal to id
+		int id = node.getId();
+		Iterator<Node> iterNode = graph.getNodeIterator();
+		while (iterNode.hasNext()) {
+			Node otherNode = iterNode.next();
+			if (otherNode.getId() >= id) {
+				otherNode.setId(otherNode.getId() + 1);
+			}
+		}
+		graph.addNode(node);
+		modelChangedEvent();
+		this.redraw();
+	}
+
+	@Override
+	public void swapLatentToManifest(Node node) {
+
+		MainFrame.undoStack.add(new NodeStateChangedStep(this, node));
+
+		node.setIsLatent(!node.isLatent());
+
+		setUnsavedChanges(true);
+		// node.setIsLatent(!node.isLatent());
+		modelChangedEvent();
+		this.redraw();
+
+	}
+
+	@Override
+	public void changeName(String name) {
+		setUnsavedChanges(true);
+
+	}
+
+	public void setStroke(int stroke) {
+		if (stroke == THINSTROKE)
+			this.graph.setStroke(Graph.strokeThin, Graph.strokeMedium);
+		else if (stroke == MEDIUMSTROKE)
+			this.graph.setStroke(Graph.strokeMedium, Graph.strokeThick);
+		else if (stroke == THICKSTROKE)
+			this.graph.setStroke(Graph.strokeThick, Graph.strokeVeryThick);
+		MainFrame.updateProps("defaultStroke", "" + stroke);
+		this.redraw();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+
+		if (e.getSource() == menuSetDefaultStartingValues) {
+			
+			setDefaultStartingValues();
+			
+		}
+		
+		if (e.getSource() == menuToggleMarkUnconnectedManifests) {
+
+			this.graph.markUnconnectedNodes = !this.graph.markUnconnectedNodes;
+			this.repaint();
+		}
+
+		if (e.getSource() == menuStyleFancy) {
+			this.graph.graphStyle = new FancyStyle();
+			MainFrame.updateProps("menuStyleDefault", "FancyStyle");
+			this.repaint();
+		}
+
+		if (e.getSource() == menuStyleSimple) {
+			this.graph.graphStyle = new Style();
+			MainFrame.updateProps("menuStyleDefault", "SimpleStyle");
+			this.repaint();
+		}
+
+		if (e.getSource() == menuStyleSimpleBW) {
+			this.graph.graphStyle = new SimpleBlackAndWhiteStyle();
+			MainFrame.updateProps("menuStyleDefault",
+					"SimpleBlackAndWhiteStyle");
+			this.repaint();
+		}
+
+		if (e.getSource() == menuSwapLatent) {
+			for (Node node : getSelectedNodes())
+				mri.requestSwapLatentToManifest(node);
+			this.redraw();
+		}
+
+		if (e.getSource() == menuSwapNormalized) {
+			
+			for (Node node : getSelectedNodes())
+				node.toggleNormalized();
+			
+			
+			this.modelChangedEvent();
+			this.redraw();
+		}
+
+		if (e.getSource() == menuSwapGrouping) {
+			((Node) menuContextNode).toggleGrouping();
+			menuContextNode.updateAnchors();
+			this.modelChangedEvent();
+			this.redraw();
+		}
+
+		if (e.getSource() == menuUnlinkGrouping) {
+			((Node) menuContextNode).unlinkGrouping();
+			this.modelChangedEvent();
+			this.redraw();
+		}
+
+		if (e.getSource() == menuDeleteModel) {
+			if (isUnsavedChanges()) {
+				int result = JOptionPane.showConfirmDialog(null,
+						"Do you want to save your unsaved changes in model '"
+								+ this.getName() + "' before closing it?",
+						"Save Model", JOptionPane.YES_NO_CANCEL_OPTION);
+				boolean exportAborted = false;
+				if (result == JOptionPane.YES_OPTION) {
+					XMLExport export = new XMLExport(this);
+					if (file != null)
+						export.export(file);
+					else {
+						if (export.export() == null)
+							exportAborted = true;
+					}
+					if (!exportAborted) {
+						setUnsavedChanges(false);
+					}
+				}
+				if (result != JOptionPane.CANCEL_OPTION && !exportAborted)
+					mri.requestDeleteModel();
+			} else
+				mri.requestDeleteModel();
+		}
+
+		if (e.getSource() == menuToggleShowGrid) {
+			toggleShowGrid();
+		}
+
+		if (e.getSource() == menuTidyUp) {
+			graph.tidyUp();
+			redraw();
+		}
+
+		if (e.getSource() == menuAutoLayout) {
+			MainFrame.undoStack.add(new NodePositionMultiStep(graph));
+			graph.autoLayout();
+			redraw();
+		}
+
+		if (e.getSource() == menuClone) {
+			desktop.cloneModelView(this);
+		}
+
+		if (e.getSource() == menuToggleLockToGrid) {
+			lockToGrid = !lockToGrid;
+			MainFrame.updateProps("lockToGridDefault", "" + lockToGrid);
+		}
+
+		if (e.getSource() == menuExportMplus) {
+			Export exp = new MplusExport(this);
+			exp.export();
+		}
+
+		if (e.getSource() == menuExportLavaan) {
+			Export exp = new LavaanExport(this);
+			exp.export();
+		}
+		
+		if (e.getSource() == menuExport) {
+			Export exp = new OpenMxExport(this);
+			exp.export();
+		}
+
+		if (e.getSource() == menuExportWithData) {
+			OpenMxExport exp = new OpenMxExport(this);
+			exp.setWithData(true);
+			exp.export();
+		}
+
+		if (e.getSource() == menuExportLaTeX) {
+			Export exp = new LaTeXExport(this);
+			exp.export();
+		}
+
+		if (e.getSource() == menuExportSVG) {
+			Export exp = new SVGExport(this);
+			exp.export();
+		}
+
+		if (e.getSource() == menuSwapManifestLatent) {
+			newNodeIsLatent = !newNodeIsLatent;
+			menuSwapManifestLatent
+					.setText((newNodeIsLatent ? "New variable: Manifest"
+							: "New variable: Latent"));
+		}
+
+		if (e.getSource() == menuAddTriangle) {
+
+			Node node = new Node(-1, mouseClickX, mouseClickY);
+			node.setTriangle(true);
+			this.getModelRequestInterface().requestAddNode(node);
+
+		}
+
+		if (e.getSource() == thinStroke)
+			setStroke(THINSTROKE);
+		if (e.getSource() == mediumStroke)
+			setStroke(MEDIUMSTROKE);
+		if (e.getSource() == thickStroke)
+			setStroke(THICKSTROKE);
+
+		if (e.getSource() == menuSelectEdgeStyle) {
+			if (edgeStyleFrame == null) {
+				edgeStyleFrame = new EdgeStyleFrame(this);
+			}
+			setUnsavedChanges(true);
+			edgeStyleFrame.setVisible(true);
+		}
+
+		if (e.getSource() == menuDeleteEdge) {
+			mri.requestRemoveEdge(menuContextEdge);
+		}
+
+		if (e.getSource() == menuDeleteNode) {
+
+			setAtomicOperationInProgress(true);
+			
+			boolean ok = false;
+
+			if (menuContextNode.isMeanTriangle()) {
+				List<Edge> edges = graph.getAllEdgesAtNode(menuContextNode);
+				for (int i = 0; i < edges.size(); i++) {
+					ok = ok & mri.requestRemoveEdge(edges.get(i));
+				}
+			}
+
+			ok = mri.requestRemoveNode(menuContextNode);
+
+			setAtomicOperationInProgress(false);
+			
+			if (!ok) {
+				MessageObject mo = new MessageObject(
+						"Error! Backend could not delete a node!",
+						MessageObject.imageError);
+				this.messageObjectContainer.add(mo);
+				this.redraw();
+			}
+		}
+
+		if (e.getSource() == menuToggleEdgeHeads) {
+			mri.requestCycleArrowHeads(menuContextEdge);
+		}
+		if (e.getSource() == menuLoadStartingValues) {
+			loadStartingValues();
+		}
+
+		if (e.getSource() == menuSaveModel) {
+
+			// XMLExport.save(mri, graph);
+			XMLExport export = new XMLExport(this);
+			this.file = export.export();
+			setUnsavedChanges(false);
+		}
+
+		if (e.getSource() == menuEdgeColor) {
+
+			MainFrame.undoStack.add(new ColorChangeStep(this, menuContextEdge));
+
+			setUnsavedChanges(true);
+			Color newColor = JColorChooser.showDialog(this,
+					"Choose Path Color", menuContextEdge.getLineColor());
+
+			// for (Ed)
+			menuContextEdge.setLineColor(newColor);
+			this.redraw();
+		}
+
+		if (e.getSource() == menuNodeColor) {
+
+			MainFrame.undoStack.add(new ColorChangeStep(this, menuContextNode));
+
+			setUnsavedChanges(true);
+			Color newColor = JColorChooser.showDialog(this,
+					"Choose Line Color", menuContextNode.getLineColor());
+			for (Node node : graph.getNodes()) {
+				if (node.isSelected())
+					node.setLineColor(newColor);
+			}
+
+			if (!this.graph.graphStyle.supportsLineColor()) {
+				JOptionPane
+						.showMessageDialog(
+								null,
+								"You are using a graph style that does not support line colors for variables. Please select a different graph style. ");
+			}
+
+			this.redraw();
+		}
+
+		if (e.getSource() == menuNodeFillColor) {
+
+			MainFrame.undoStack.add(new ColorChangeStep(this, menuContextNode));
+
+			setUnsavedChanges(true);
+			Color newColor = JColorChooser.showDialog(this,
+					"Choose Fill Color", menuContextNode.getFillColor());
+
+			for (Node node : graph.getNodes()) {
+				if (node.isSelected())
+					node.setFillColor(newColor);
+			}
+
+			if (!this.graph.graphStyle.supportsFillColor()) {
+				JOptionPane
+						.showMessageDialog(
+								null,
+								"You are using a graph style that does not support fill colors for variables. Please select a different graph style. ");
+			}
+
+			this.redraw();
+		}
+
+		if (e.getSource() == menuUnlinkNode) {
+			setUnsavedChanges(true);
+
+			DatasetField df = Desktop.getLinkHandler().getDatasetField(graph,
+					menuContextNode);
+
+			MainFrame.undoStack.add(new UnlinkStep(menuContextNode, df.dataset,
+					df.columnId, mri, graph));
+
+			Desktop.getLinkHandler().unlink(graph, menuContextNode);
+
+			menuContextNode.setCaption("x" + menuContextNode.getId());
+			// redraw();
+			desktop.redraw();
+
+		}
+
+		if (e.getSource() == menuIconify) {
+			super.setIconified(!this.isIconified());
+		}
+
+		if (e.getSource() == menuToggleFixed) {
+			mri.requestSwapFixed(menuContextEdge);
+		}
+
+		if (e.getSource() == menuSimulationStart) {
+			int anzRows = 0;
+			try {
+				String content = menuAnzRowsSimulation.getDocument().getText(0,
+						menuAnzRowsSimulation.getDocument().getLength());
+				anzRows = Integer.parseInt(content);
+			} catch (Exception ex) {
+				anzRows = 0;
+			}
+			if (anzRows > 0) {
+				mri.setParameter(this.showingEstimate);
+				mri.requestCreateData(anzRows);
+			}
+		}
+
+		if (e.getSource() == menuPriorityHigh) {
+			mri.setRunPriority(Priority.HIGH);
+		}
+
+		if (e.getSource() == menuPriorityNormal) {
+			MainFrame.undoStack.add(new PriorityChangeStep(this, mri
+					.getRunPriority()));
+
+			mri.setRunPriority(Priority.NORMAL);
+		}
+
+		if (e.getSource() == menuPriorityLow) {
+			MainFrame.undoStack.add(new PriorityChangeStep(this, mri
+					.getRunPriority()));
+
+			mri.setRunPriority(Priority.LOW);
+		}
+
+		if (e.getSource() == menuPriorityHold) {
+			MainFrame.undoStack.add(new PriorityChangeStep(this, mri
+					.getRunPriority()));
+
+			mri.setRunPriority(Priority.HOLD);
+		}
+
+		boolean hasRunners = this.currentEstimatesShownInMenu != null;
+
+		if (hasRunners) {
+			for (int i = 0; i < this.currentEstimatesShownInMenu.size(); i++) {
+
+				if (e.getSource() == menuRunnerItems[i]) {
+					/*
+					 * parameterView.setParameterReader(currentEstimatesShownInMenu
+					 * .get(i));
+					 * graph.updateWithEstimates(currentEstimatesShownInMenu
+					 * .get(i)); showingEstimate =
+					 * currentEstimatesShownInMenu.get(i); this.redraw();
+					 */
+					ModelRunUnit runner = currentEstimatesShownInMenu.get(i);
+					showPolicy = showPolicyType.MANUAL;
+					updateShownEstimates(runner);
+				}
+			}
+		}
+
+		Hashtable<String, ExternalRunUnit> outsideAgent = ExternalRunUnit
+				.getValidExternalAgents();
+		if (menuAgentItems != null) {
+			for (int i = 0; i < menuAgentItems.length; i++) {
+				if (e.getSource() == menuAgentItems[i]) {
+					ExternalRunUnit rep = outsideAgent.get(menuAgentItems[i]
+							.getText());
+
+					ExternalRunUnit newRun = ExternalRunUnit.getInstance(rep,
+							getModelRequestInterface().getStartingValuesUnit(),
+							Objective.MAXIMUMLIKELIHOOD, 0.01,
+							"ML " + rep.getAgentLabel(), 3, "");
+					getModelRequestInterface().addRunner(newRun);
+				}
+			}
+		}
+
+		if (e.getSource() == menuShowStartingValues) {
+			showPolicy = showPolicyType.STARTING;
+			updateShownEstimates(mri.getStartingValuesUnit());
+		}
+		if (e.getSource() == menuShowBestML) {
+			// showPolicy could be set to BESTML (will automatically switch to
+			// best ML estimate) if we want that behavior.
+			showPolicy = showPolicyType.MANUAL;
+			if (mri.getAnzConverged() > 0) {
+				ModelRunUnit mru = (currentEstimates == null
+						|| currentEstimates.size() == 0 ? null
+						: currentEstimates.get(0));
+				if (mru != null)
+					updateShownEstimates(mru);
+			}
+		}
+		if (e.getSource() == menuShowBestLS) {
+			// showPolicy could be set to BESTSL (will automatically switch to
+			// best LS estimate) if we want that behavior.
+			showPolicy = showPolicyType.MANUAL;
+			if (mri.getAnzConverged() > 0) {
+				ModelRunUnit mru = getBestLeastSquaresEstimate();
+				if (mru != null)
+					updateShownEstimates(mru);
+			}
+		}
+
+		if (e.getSource() == menuExportJPEG) {
+			Export exp = new JPEGExport(this);
+			exp.export();
+		}
+
+		if (e.getSource() == menuShowOpenMXCode) {
+			CodeView view = new CodeView(desktop, this, new OpenMxExport(this));
+			this.codeView.add(view);
+			this.desktop.add(view);
+		}
+		if (e.getSource() == menuShowMPlusCode) {
+			CodeView view = new CodeView(desktop, this, new MplusExport(this));
+			this.codeView.add(view);
+			this.desktop.add(view);
+		}
+		if (e.getSource() == menuShowLavaanCode) {
+			CodeView view = new CodeView(desktop, this, new LavaanExport(this));
+			this.codeView.add(view);
+			this.desktop.add(view);
+		}
+		if (e.getSource() == menuShowRAMMatrices) {
+			CodeView view = new CodeView(desktop, this, new MatrixTextExport(
+					this));
+			this.codeView.add(view);
+			this.desktop.add(view);
+		}
+		
+		if (e.getSource() == menuShowCorrelationMatrix) {
+			CodeView view = new CodeView(desktop, this, new CorrelationMatrixExport(
+					this));
+			this.codeView.add(view);
+			this.desktop.add(view);
+		}
+		
+		if (e.getSource() == menuShowOnyxJavaCode) {
+			CodeView view = new CodeView(desktop, this,
+					new OnyxJavaExport(this));
+			this.codeView.add(view);
+			this.desktop.add(view);
+		}
+		if (e.getSource() == menuShowTextOutput) {
+			CodeView view = new CodeView(desktop, this, new EstimateTextExport(
+					this));
+			this.codeView.add(view);
+			this.desktop.add(view);
+		}
+	}
+
+	private void setDefaultStartingValues() {
+		for (Edge edge : graph.getEdges()) {
+			
+			if (edge.isFree()) {
+				
+				if (edge.isDoubleHeaded()) {
+					if (edge.source == edge.target) {
+						edge.setValue(1);
+						getModelRequestInterface().requestChangeParameterOnEdge(edge);
+					} else {
+						edge.setValue(0.1);
+						getModelRequestInterface().requestChangeParameterOnEdge(edge);
+					}
+				} else {
+					edge.setValue(.5);
+					getModelRequestInterface().requestChangeParameterOnEdge(edge);
+				}
+				
+			}
+			
+		}
+		
+	}
+
+	private void toggleShowGrid() {
+		showGrid = !showGrid;
+		MainFrame.updateProps("showGridDefault", "" + showGrid);
+		redraw();
+	}
+
+	/*
+	 * @Override public void removeEdge(Edge edge) { graph.removeEdge(edge);
+	 * redraw();
+	 * 
+	 * }
+	 * 
+	 * @Override public void removeNode(Node node) { graph.removeNode(node);
+	 * redraw(); }
+	 */
+	@Override
+	public void deleteModel() {
+
+		deleteView();
+
+	}
+
+	public void deleteView() {
+		super.deleteView();
+
+		this.desktop.remove(parameterView);
+		this.desktop.removeView(parameterView);
+		this.parameterView = null;
+
+		Desktop.getLinkHandler().removeLinkListener(this);
+		
+		Desktop.getLinkHandler().unlink(this.graph);
+		
+		this.desktop.redraw();
+		// this.removeAll();
+		// TODO
+	}
+
+	@Override
+	public void cycleArrowHeads(Edge edge) {
+		// edge.setDoubleHeaded(!edge.isDoubleHeaded());
+		modelChangedEvent();
+		redraw();
+	}
+
+	@Override
+	public void dragEnter(DropTargetDragEvent dtde) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void dragExit(DropTargetEvent dte) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void dragOver(DropTargetDragEvent dtde) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void updateShownEstimates(ParameterReader pr) {
+		/*
+		 * /*parameterView.setParameterReader(currentEstimatesShownInMenu
+		 * .get(i)); graph.updateWithEstimates(currentEstimatesShownInMenu
+		 * .get(i)); showingEstimate = currentEstimatesShownInMenu.get(i);
+		 * this.redraw();
+		 */
+		parameterView.setParameterReader(pr);
+		graph.updateWithEstimates(pr);
+		showingEstimate = pr;
+		
+		for (CodeView cv:codeView) {
+		    if (cv.isEstimateView()) cv.update();
+		}
+
+		if (currentEstimates != null && currentEstimates.size() > 0
+				&& currentEstimates.get(0) == pr) {
+			if (messageObjectContainer.contains(sparklingObject))
+				messageObjectContainer.remove(sparklingObject);
+		}
+
+		this.redraw();
+	}
+
+	@Override
+	public void drop(DropTargetDropEvent dtde) {
+
+		if (isIconified()) {
+			dtde.rejectDrop();
+			return;
+		}
+
+		try {
+			Transferable tr = dtde.getTransferable();
+
+			Node existingNode = getNodeAt(dtde.getLocation().x,
+					dtde.getLocation().y);
+
+			Edge existingEdge = null;
+			if (existingNode == null) {
+				existingEdge = getEdgeAt(dtde.getLocation().x,
+						dtde.getLocation().y, 5);
+			}
+
+			// if existing node is not manifest then reject
+			if ((existingNode != null) && (existingNode.isLatent())) {
+				dtde.rejectDrop();
+				return;
+			}
+
+			// clicked on an edge?
+
+			if (existingEdge != null) {
+
+				dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+				dtde.getDropTargetContext().dropComplete(true);
+
+				Dataset dataset = (Dataset) tr
+						.getTransferData(TransferableVariableList.datasetFlavor);
+				@SuppressWarnings("unchecked")
+				List<Integer> index = (List<Integer>) tr
+						.getTransferData(TransferableVariableList.integerListFlavor);
+
+				if (index.size() != 1) {
+					dtde.rejectDrop();
+
+					return;
+				}
+
+				existingEdge.setDefinitionVariable(dataset, index.get(0));
+
+				setUnsavedChanges(true);
+				mri.notifySetDefinitionVariable(existingEdge);
+
+				this.redraw();
+
+				this.modelChangedEvent();
+
+				return;
+
+			} else {
+
+				/*
+				 * dropped on a node or background
+				 */
+
+				dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+				dtde.getDropTargetContext().dropComplete(true);
+
+				// TODO: check cast safety
+				Dataset dataset = (Dataset) tr
+						.getTransferData(TransferableVariableList.datasetFlavor);
+
+				@SuppressWarnings("unchecked")
+				List<Integer> indices = (List<Integer>) tr
+						.getTransferData(TransferableVariableList.integerListFlavor);
+
+				if (existingNode != null) {
+
+					if (indices.size() != 1) {
+						dtde.rejectDrop();
+						return;
+					}
+
+					// TODO the existingNode.isGrouping could be taken out to
+					// allow creation of grouping variable by drag & drop.
+					// TODO the modelRequestInterface is not informed about the
+					// grouping variable. Necessary?
+					// TODO grouping is not added to the undoStack.
+					if (existingNode.isGrouping()
+							&& existingNode.isPointOnGroupingVariable(
+									dtde.getLocation().x, dtde.getLocation().y)) {
+						existingNode.setGroupingVariable(dataset,
+								indices.get(0));
+						setUnsavedChanges(true);
+					} else {
+						Desktop.getLinkHandler().link(dataset, indices.get(0),
+								this.graph, mri, existingNode);
+
+						MainFrame.undoStack.add(new LinkStep(graph,
+								existingNode));
+					}
+					
+					modelChangedEvent();
+
+				} else {	// existing node is null
+
+					setAtomicOperationInProgress(true);
+
+					for (int i = 0; i < indices.size(); i++) {
+
+						// create node
+						Node node = new Node();
+						node.setX(dtde.getLocation().x + i * 100);
+						node.setY(dtde.getLocation().y);
+						node.setIsLatent(false);
+						mri.requestAddNode(node);
+
+						if (this.lockToGrid)
+							node.alignToGrid(gridSize);
+
+						Desktop.getLinkHandler().link(dataset, indices.get(i),
+								this.graph, mri, node);
+
+						// create a variance
+						Edge edge = new Edge(node, node, true);
+						edge.setFixed(false);
+						edge.setParameterName(node.getCaption() + "-variance");
+						mri.requestAddEdge(edge);
+
+					} // end for
+
+					setAtomicOperationInProgress(false);
+
+				}
+
+				desktop.notifyDropEvent();
+
+				
+
+				redraw();
+
+			}
+
+		} catch (Exception e) {
+			// TODO
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void dropActionChanged(DropTargetDragEvent dtde) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * returns node on coordinates (x,y). If there is no node, null is returned
+	 * 
+	 * @param x
+	 * @param y
+	 * @return Node
+	 */
+	public Node getNodeAt(int x, int y) {
+
+		Iterator<Node> iterNode = graph.getNodeIterator();
+		while (iterNode.hasNext()) {
+			Node node = iterNode.next();
+			if (node.isPointWithin(x, y)
+					|| node.isPointOnGroupingVariable(x, y)) {
+
+				return (node);
+			}
+		}
+
+		return (null);
+	}
+
+	@Override
+	public void removeEdge(int source, int target, boolean isDoubleHeaded) {
+		setUnsavedChanges(true);
+
+		Edge edge;
+		if (source != -1) {
+			Node snode = graph.getNodeById(source);
+			Node tnode = graph.getNodeById(target);
+			edge = graph.getEdge(snode, tnode, isDoubleHeaded);
+		} else {
+			edge = graph.findEdgeFromTriangleToNode(target);
+		}
+		graph.removeEdge(edge);
+
+		modelChangedEvent();
+	}
+
+	/**
+	 * removes all nodes and all edges between them
+	 * 
+	 * TODO: move this to Graph class
+	 */
+	public void removeAllSelectedNodes() {
+		List<Node> nodes = new ArrayList<Node>();
+		for (Node node : graph.getNodes()) {
+			if (node.isSelected()) {
+				nodes.add(node);
+			}
+		}
+
+		// find all edges adjacent to the selected nodes
+		List<Edge> edges = new ArrayList<Edge>();
+
+		for (Node node : nodes) {
+			for (Edge edge : graph.getEdges()) {
+				if (edge.getSource() == node || edge.getTarget() == node) {
+					if (!edges.contains(edge)) {
+						edges.add(edge);
+					}
+				}
+			}
+
+		}
+
+		// delete all edges
+		for (Edge edge : edges) {
+			mri.requestRemoveEdge(edge);
+		}
+
+		// delete all nodes
+		for (Node node : nodes) {
+			mri.requestRemoveNode(node);
+		}
+	}
+
+	@Override
+	public void removeNode(int id) {
+		setUnsavedChanges(true);
+
+		Node node = graph.getNodeById(id);
+
+		desktop.getLinkHandler().unlink(this.graph, node);
+
+		graph.removeNode(node);
+
+		// by definition, removeNode has to decrement all node ids in the
+		// graph that are higher than id
+		Iterator<Node> iterNode = graph.getNodeIterator();
+		while (iterNode.hasNext()) {
+			Node otherNode = iterNode.next();
+			if (otherNode.getId() > id) {
+				otherNode.setId(otherNode.getId() - 1);
+			}
+		}
+
+		// remove node from Nodegroup
+		for (int i = 0; i < nodeGroupManager.SIZE; i++) {
+			NodeGroup ng = nodeGroupManager.get(i);
+			if (ng != null) {
+				if (ng.contains(node)) {
+					ng.remove(node);
+
+				}
+			}
+		}
+
+		modelChangedEvent();
+	}
+
+	@Override
+	public void swapFixed(Edge edge) {
+		// edge.setFixed(!edge.isFixed());
+		this.redraw();
+		modelChangedEvent();
+	}
+
+	public double[][] assembleData() {
+
+		LinkHandler link = Desktop.getLinkHandler();
+
+		Set<Dataset> uniqueDataset = new HashSet<Dataset>();
+
+		// are all observed variables connected?
+		int numObserved = 0;
+		int numConnected = 0;
+		List<Node> observedNodes = new ArrayList<Node>();
+		for (Node node : graph.getNodes()) {
+			if (node.isObserved()) {
+				numObserved += 1;
+				if (node.isConnected()) {
+					numConnected += 1;
+					DatasetField df = link.getDatasetField(graph, node);
+					if (df != null)
+						uniqueDataset.add(df.dataset);
+
+				}
+				observedNodes.add(node);
+			}
+
+		}
+
+		// construct a dataset
+		if (numObserved != numConnected) {
+			messageObjectContainer
+					.add(new MessageObject(
+							"Connect all manifest variables in order to obtain parameter estimates!",
+							MessageObject.imageInformation, this));
+
+			return null;
+		}
+
+		if (numObserved == 0) {
+			messageObjectContainer
+					.add(new MessageObject(
+							"Add observed variables by dragging them from a dataset onto the model!",
+							MessageObject.imageInformation, this));
+			return null;
+		}
+
+		// TODO have all datasets the same number of rows ?!
+
+		double[][] data = null;
+
+		if (uniqueDataset.size() == 1) {
+
+			int[] filter = mri.getObservedIds();
+
+			Node linkNode = graph.getNodeById(filter[0]);
+			GraphField gf = new GraphField(graph, linkNode);
+			DatasetField df = link.getDatasetField(graph, linkNode);
+
+			if (df == null) {
+
+				messageObjectContainer
+						.add(new MessageObject(
+								"An error occurred with the mapping of your variables. Blame Andy.",
+								MessageObject.imageError, this));
+
+				System.err
+						.println("An error occurred with the variable mapping! Variable is linked to NULL dataset");
+				return null;
+			}
+
+			data = new double[df.dataset.getNumRows()][numObserved];
+
+			// fill data
+
+			for (int i = 0; i < filter.length; i++) {
+				Node node = graph.getNodeById(filter[i]);
+				DatasetField datasetField = link.getDatasetField(graph, node);
+				if (datasetField == null)
+					return null;
+				for (int j = 0; j < df.dataset.getNumRows(); j++) {
+
+					data[j][i] = datasetField.dataset.get(j,
+							datasetField.columnId);
+				}
+
+			}
+
+		} else {
+
+			// combine multiple datasets
+
+			// (1) pre-checks: do all datasets have ID columns ?
+			for (Dataset dataset : uniqueDataset) {
+				if (!dataset.hasIdColumn()) {
+
+					messageObjectContainer
+							.add(new MessageObject(
+									"If multiple datasets are associated with a single model, all datasets must have an identifier column!",
+									MessageObject.imageError, this));
+					return null;
+				}
+			}
+			// (2) get the union of all ID columns and create
+			// a mapping of IDS to real column indices
+
+			HashMap<Double, Integer> idMap = new HashMap<Double, Integer>();
+
+			TreeSet<Double> unionIds = new TreeSet<Double>();
+			for (Dataset dataset : uniqueDataset) {
+
+				double[] ids = dataset.getColumn(dataset.getIdColumn());
+				for (double id : ids) {
+					unionIds.add(id);
+				}
+			}
+
+			int k = 0;
+			for (Double key : unionIds) {
+				idMap.put(key, k);
+				k++;
+			}
+
+			// (3) create the union dataset
+			int N = unionIds.size();
+			System.out.println("Creating dataset with " + N + " observations");
+
+			data = new double[N][numObserved];
+			for (int i = 0; i < N; i++) {
+				for (int j = 0; j < numObserved; j++) {
+					data[i][j] = Model.MISSING;
+				}
+			}
+
+			// (4) fill the union dataset
+
+			int[] filter = mri.getObservedIds();
+			for (int i = 0; i < filter.length; i++) {
+				Node node = graph.getNodeById(filter[i]);
+				DatasetField datasetField = link.getDatasetField(graph, node);
+				if (datasetField == null)
+					return null;
+
+				int idColumn = datasetField.dataset.getIdColumn();
+
+				for (int j = 0; j < datasetField.dataset.getNumRows(); j++) {
+
+					int row = idMap.get(datasetField.dataset.get(j, idColumn));
+					data[row][i] = datasetField.dataset.get(j,
+							datasetField.columnId);
+				}
+			}
+
+		}
+
+		// perform normalization
+		int[] filter = mri.getObservedIds();
+		for (int i = 0; i < filter.length; i++) {
+			Node node = graph.getNodeById(filter[i]);
+			if (node.isGroupingVariableConnected()) {
+				for (int j = 0; j < data.length; j++)
+					if (node.groupingDataset.get(j, node.groupingColumn) != node.groupValue)
+						data[j][i] = Model.MISSING;
+			}
+			if (node.isNormalized()) {
+				double sum = 0, sqsum = 0;
+				int anz = 0;
+				for (int j = 0; j < data.length; j++) {
+					if (!Model.isMissing(data[j][i])) {
+						anz++;
+						sum += data[j][i];
+						sqsum += data[j][i] * data[j][i];
+					}
+				}
+				if (anz > 0) {
+					double mean = sum / (double) anz, stdv = Math.sqrt(sqsum
+							/ (double) anz - mean * mean);
+					for (int j = 0; j < data.length; j++) {
+						if (!Model.isMissing(data[j][i]))
+							data[j][i] = (data[j][i] - mean) / stdv;
+					}
+				}
+			}
+		}
+
+		return data;
+	}
+
+	public boolean modelChangedEvent() {
+
+		if (atomicOperationInProgress) {
+			atomicModelChangeCount++;
+			return false; // what is the definition of the return TODO
+		}
+
+		// remove all model messages
+		messageObjectContainer.clear();
+		redraw();
+		
+		// clear drawer
+		parameterView.clear();
+
+		// --
+		/*int numObs = 0;
+		int numCon = 0;
+		for (Node node : graph.getNodes()) {
+			if (node.isObserved())  {numObs++;}
+			if (node.isConnected()) { numCon++;}
+		}
+		if (numObs == 0 || numObs != numCon) return false;
+*/
+		double[][] data = assembleData();
+
+		if (data == null) return false;
+		
+		// assemble definition data
+
+		List<Edge> definitionEdges = new ArrayList<Edge>();
+		Iterator<Edge> edges = graph.getEdgeIterator();
+		while (edges.hasNext()) {
+			Edge edge = edges.next();
+			if (edge.isDefinitionVariable()) {
+				definitionEdges.add(edge);
+			}
+		}
+
+		// - assemble data matching definition edges
+		double[][] definitionVariableData = null;
+		if (data != null) {
+			definitionVariableData = new double[data.length][definitionEdges
+					.size()];
+			for (int i = 0; i < definitionEdges.size(); i++) {
+				Dataset dataset = definitionEdges.get(i).definitionDataset;
+				int index = definitionEdges.get(i).definitionColumn;
+				for (int j = 0; j < data.length; j++) {
+					definitionVariableData[j][i] = dataset.get(j, index);
+				}
+			}
+		}
+
+		if (data != null) {
+			if (definitionEdges.isEmpty()) {
+				mri.triggerRun(data);
+			} else {
+				mri.triggerRun(data, definitionVariableData,
+						definitionEdges.toArray(new Edge[] {}));
+			}
+
+		}
+		// mri.triggerRun(data);
+		
+		
+		messageObjectContainer.addOnce(messageObjectRunning);
+		this.repaint();
+
+		return (true);
+	}
+
+	@Override
+	public String getToolTipText(MouseEvent event) {
+
+		int x = event.getX();
+		int y = event.getY();
+
+		MessageObject mo = messageObjectContainer.getMessageObjectAt(x, y);
+
+		if (mo != null) {
+			return mo.getTextMessage();
+		}
+
+		Node node = getNodeAt(x, y);
+
+		if (node != null) {
+			String idString = " (#" + node.getId() + ")";
+			if (node.isSelected()) {
+				List<Node> selected = getSelectedNodes();
+				if (selected.size() >= 1) {
+					boolean isConnected = true;
+					for (Node n : selected)
+						if (!n.isConnected())
+							isConnected = false;
+					String erg = "<html>";
+					if (isConnected) {
+						int[] columnIDs = new int[selected.size()];
+						String[] varNames = new String[selected.size()];
+						int i = 0;
+						for (Node n : selected) {
+							varNames[i] = n.getCaption();
+							columnIDs[i++] = Desktop.getLinkHandler()
+									.getDatasetField(graph, n).columnId;
+						}
+						erg += Desktop.getLinkHandler().getDatasetField(graph,
+								node).dataset.getDataDistribution(columnIDs,
+								varNames);
+						if (erg.length() > 0)
+							erg += "<br><br>";
+					}
+					erg += mri.getModelDistribution(selected,
+							this.showingEstimate);
+					return erg + "</html>";
+				}
+			}
+
+			if (node.isConnected()) {
+				DatasetField df = Desktop.getLinkHandler().getDatasetField(
+						graph, node);
+				return df.dataset.getColumnTooltip(df.columnId);
+			} else {
+				if (node.isLatent()) {
+					return "Latent variable " + node.getCaption() + idString;
+				} else if (node.isMeanTriangle()) {
+					return "Constant term";
+				} else {
+					return "Observed variable " + node.getCaption() + idString
+							+ " without associated data";
+				}
+			}
+		}
+
+		// TODO edge check
+		Edge edge = getEdgeAt(x, y, 4);
+		if (edge != null) {
+
+			if (edge.isDefinitionVariable()) {
+				String str = "Definition variable ";
+				if (edge.definitionDataset != null) {
+					str += edge.definitionDataset
+							.getColumnName(edge.definitionColumn);
+				} else {
+					str += " (unconnected)";
+				}
+
+				return (str);
+			}
+
+			String name = edge.getParameterName();
+			if (name == "")
+				name = "<unnamed>";
+			String str = name + "=" + edge.getValue();
+
+			if (edge.isFixed()) {
+				str += " (fixed)";
+			}
+
+			return (str);
+		}
+
+		return null;
+		// return super.getToolTipText(event);
+	}
+
+	private Edge getEdgeAt(int x, int y, double range) {
+		// hit an edge?
+		Iterator<Edge> iterEdge = graph.getEdgeIterator();
+		Edge best = null;
+		double bestDist = Double.MAX_VALUE;
+		while (iterEdge.hasNext()) {
+			Edge edge = iterEdge.next();
+			double dist = Math.abs(edge.distanceFromPoint(x, y));
+
+			if (!edge.isDoubleHeaded()) {
+				int xMinBound = Math.min(edge.fromX, edge.toX);
+				int xMaxBound = Math.max(edge.fromX, edge.toX);
+
+				if (xMaxBound - xMinBound > 4) {
+					if ((xMinBound > x) || (x > xMaxBound)) {
+						dist = Double.MAX_VALUE;
+					}
+				} else {
+					int yMinBound = Math.min(edge.fromY, edge.toY);
+					int yMaxBound = Math.max(edge.fromY, edge.toY);
+					if ((yMinBound > y) || (y > yMaxBound)) {
+						dist = Double.MAX_VALUE;
+					}
+				}
+			}
+
+			if (dist < bestDist) {
+				bestDist = dist;
+				best = edge;
+			}
+		}
+
+		if (bestDist <= range)
+			return best;
+		else
+			return null;
+	}
+
+/**
+ * 
+ * A notification of change of status of the backend.
+ * 
+ * 
+ * @Override
+ * 
+ */
+	public void changeStatus(Status status) {
+		// if (messageObjectRunning == null)
+
+		//System.out.println(status);
+		// parameterView.setParameterSet(null);
+
+		if (status == Status.RUNNING) {
+			// System.out.println("RUNNING");
+			
+
+				
+
+		} else if (status == Status.RESULTSVALID) {
+			
+			if (messageObjectContainer.contains(messageObjectRunning))
+				messageObjectContainer.remove(messageObjectRunning);
+			//messageObjectContainer.
+			this.repaint();
+			
+			List<ModelRunUnit> estimates = mri.getAllConvergedUnits();
+			if (estimates != null) {
+				// TvO: Behavior changed, estimates will not be shown here; this
+				// will be done by notifyOfConvergedUnitsChanged.
+				if (estimates.size() > 0) {
+					// updateShownEstimates(estimates.get(0));
+					// showingEstimate = estimates.get(0);
+					// parameterView.setParameterReader(estimates.get(0));
+					// graph.updateWithEstimates(estimates.get(0));
+					// this.redraw();
+				}
+			} else {
+				System.err
+						.println("PARAMETER SET IS NULL (FROM BACKEND). STATUS RESULTSVALID");
+			}
+			// redraw();
+
+		} else if (status == Status.DEAD) {
+			MessageObject messageObjectError = new MessageObject(
+					"All computations in the backend have been terminated!",
+					MessageObject.imageError);
+			messageObjectContainer.addOnce(messageObjectError);
+
+		} else if (status == Status.RESETTING) {
+			showingEstimate = null;
+			if (messageObjectContainer.contains(messageOverspecified)) {
+				messageObjectContainer.remove(messageOverspecified);
+			}
+			// messageObjectContainer.clear();
+			// recheckModelState();
+			
+
+
+//			messageObjectRunning.set
+
+		} else if (status == Status.WAITING) {
+
+			// Nothing to do
+			
+		}
+
+	}
+
+	/**
+	 * DocumentListener method that waits for events from a JTextfield for value
+	 * changes of edges
+	 * 
+	 * @param arg0
+	 */
+	@Override
+	public void changedUpdate(DocumentEvent arg0) {
+
+		updateFromPopupMenu(arg0);
+	}
+
+	@Override
+	public void insertUpdate(DocumentEvent arg0) {
+
+		updateFromPopupMenu(arg0);
+	}
+
+	private void updateFromPopupMenu(DocumentEvent arg0) {
+
+		// update starting value of parameter on an Edge
+		if ((svalueInput != null)
+				&& arg0.getDocument() == svalueInput.getDocument()) {
+			try {
+				double newValue = Double.parseDouble(arg0.getDocument()
+						.getText(0, arg0.getDocument().getLength()));
+				menuContextEdge.setValue(newValue);
+
+				// pass change to backend
+				// TvO, 10.12.2012: Added first line to ensure the value is changed on a fixed edge.
+                mri.requestSetValue(menuContextEdge);
+                mri.requestSetStartingValue(menuContextEdge.getParameterName(),newValue);
+
+				
+				// update all matching edges	(TODO: check mechanism for automatically updating this! e.g., backend informs all changed edges automatically?!)
+				for (Edge edge : this.graph.getEdges()) {
+					if (edge.isFree() && edge.getParameterName().equals(menuContextEdge.getParameterName())) {
+						edge.setValue(newValue);
+					}
+				}
+
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+			}
+
+			
+			modelChangedEvent();
+			this.redraw();
+		}
+
+		// update value of parameter on an Edge
+		if ((valueInput != null)
+				&& arg0.getDocument() == valueInput.getDocument()) {
+			try {
+				double newValue = Double.parseDouble(arg0.getDocument()
+						.getText(0, arg0.getDocument().getLength()));
+				menuContextEdge.setValue(newValue);
+
+				// pass change to backend
+				// if (showingEstimate == null ||
+				// showingEstimate.isStartingParameters())
+				// mri.requestSetStartingValue(menuContextEdge.getParameterName(),newValue);
+				// else {
+                mri.requestSetValue(menuContextEdge);
+				
+
+				
+				// }
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+			}
+			modelChangedEvent();
+			//this.repaint();
+			//this.redraw();
+		}
+
+		// update model name
+		if ((modelName != null)
+				&& arg0.getDocument() == modelName.getDocument()) {
+			String text;
+			try {
+				text = arg0.getDocument().getText(0,
+						arg0.getDocument().getLength());
+				this.mri.requestChangeModelName(
+						text
+						);
+				desktop.makeUniqueModelName(this) ;
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+
+		if ((nameInput != null)
+				&& arg0.getDocument() == nameInput.getDocument()) {
+
+			try {
+				String text = arg0.getDocument().getText(0,
+						arg0.getDocument().getLength());
+
+				text = text.replaceAll(" ", "_");
+
+				menuContextEdge.setParameterNameByUser(text);
+				mri.requestChangeParameterOnEdge(menuContextEdge);
+
+				this.redraw();
+
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if ((nodeNameInput != null)
+				&& arg0.getDocument() == nodeNameInput.getDocument()) {
+			String text;
+			try {
+				text = arg0.getDocument().getText(0,
+						arg0.getDocument().getLength());
+
+				text = text.replaceAll(" ", "_");
+
+				// this.graph.renameNode(menuContextNode, text);
+				this.mri.requestChangeNodeCaption(menuContextNode, text);
+
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+
+		if ((nodeGroupInput != null)
+				&& arg0.getDocument() == nodeGroupInput.getDocument()) {
+			String text;
+			try {
+				text = arg0.getDocument().getText(0,
+						arg0.getDocument().getLength());
+
+				try {
+					double value = Double.parseDouble(text);
+					menuContextNode.groupValue = value;
+				} catch (Exception e) {
+
+				}
+
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	/*
+	 * private void updateEdgeValueFromMenu(DocumentEvent arg0) { try {
+	 * menuContextEdge.setValue(Double.parseDouble(arg0.getDocument()
+	 * .getText(0, arg0.getDocument().getLength())));
+	 * mri.requestSetValue(menuContextEdge);
+	 * 
+	 * } catch (NumberFormatException e) { // TODO Auto-generated catch block
+	 * e.printStackTrace(); } catch (BadLocationException e) { // TODO
+	 * Auto-generated catch block e.printStackTrace(); } modelChangedEvent(); }
+	 */
+
+	@Override
+	public void removeUpdate(DocumentEvent arg0) {
+
+		updateFromPopupMenu(arg0);
+
+	}
+
+	private ModelRunUnit getBestLeastSquaresEstimate() {
+		return getBestLeastSquaresEstimate(currentEstimates);
+	}
+
+	private ModelRunUnit getBestLeastSquaresEstimate(List<ModelRunUnit> list) {
+		if (list == null || list.size() == 0)
+			return null;
+		ModelRunUnit mru = null;
+		for (ModelRunUnit mru2 : list)
+			if (!mru2.isMaximumLikelihoodObjective())
+				mru = mru2;
+		return mru;
+	}
+
+	/**
+	 * this is called, whenever another ModelRunUnit has converged. If a
+	 * ModelRunUnit is better than any we had before, notify the user of this
+	 * new better set of estimates
+	 * 
+	 */
+	@Override
+	public void notifyOfConvergedUnitsChanged() {
+
+		if (mri.getAnzConverged() > 0) {
+
+			// did we find the first estimate?
+			if ((currentEstimates == null) || (currentEstimates.size() == 0)) {
+				ModelRunUnit mru = mri.getAllConvergedUnits().get(0);
+				if (showPolicy == showPolicyType.MANUAL
+						|| (showPolicy == showPolicyType.BESTML && mru
+								.isMaximumLikelihoodObjective())
+						|| (showPolicy == showPolicyType.BESTLS && !mru
+								.isMaximumLikelihoodObjective()))
+					updateShownEstimates(mru);
+			} else if (ModelRun.convergedComparator.compare(mri.getAllConvergedUnits().get(0),currentEstimates.get(0))==-1 && 
+			           !mri.getAllConvergedUnits().get(0).isSameAs(currentEstimates.get(0))) {
+
+				// We found a better estimate than we had before
+
+				if (sparklingObject == null) {
+					sparklingObject = new MessageObject(
+							"New results are available!",
+							MessageObject.imageSparkling);
+				}
+                if (!this.messageObjectContainer.contains(sparklingObject) && mri.getBigClockTime() > IMMEDIATEREDRAWTIME) {
+//                if (!this.messageObjectContainer.contains(sparklingObject)) {
+					messageObjectContainer.add(sparklingObject);
+					this.redraw();
+				}
+
+				ModelRunUnit mru = mri.getAllConvergedUnits().get(0);
+				if (mri.getBigClockTime() < IMMEDIATEREDRAWTIME
+						&& showPolicy != showPolicy.BESTLS)
+					updateShownEstimates(mru);
+				else {
+					if (showPolicy == showPolicyType.BESTML
+							&& mru.isMaximumLikelihoodObjective())
+						updateShownEstimates(mru);
+					if (showPolicy == showPolicyType.BESTLS) {
+						mru = getBestLeastSquaresEstimate(mri
+								.getAllConvergedUnits());
+						if (mru != null)
+							updateShownEstimates(mru);
+					}
+				}
+
+			}
+
+		} else {
+			// the converged are reset to empty (restart of estimate)
+			updateShownEstimates(mri.getStartingValuesUnit());
+		}
+
+		// update current estimates
+		currentEstimates = mri.getAllConvergedUnits();
+	}
+
+	@Override
+	public void setValue(Edge edge) {
+		setUnsavedChanges(true);
+
+	}
+
+	@Override
+	public void notifyOfStartValueChange() {
+		// TODO
+
+	}
+
+	@Override
+	public void changeParameterOnEdge(Edge edge) {
+		setUnsavedChanges(true);
+
+	}
+
+	@Override
+	public void notifyOfWarningOrError(Warning warning) {
+
+		if (warning == Warning.ERROR) {
+            if (!messageObjectContainer.contains(messageError)) {
+                messageObjectContainer.add(messageError);
+                repaint();
+            }
+		} else if (warning == Warning.COVARIANCESONSTANTSINGULAR) {
+			if (!messageObjectContainer.contains(messageSingular)) {
+				messageObjectContainer.add(messageSingular);
+				repaint();
+			}
+			// messageObjectContainer.add(messageObjectWarning);
+		} else if (warning == Warning.MODELOVERSPECIFIED) {
+			// if (m)
+			// MessageObject messageObjectWarning
+			if (!messageObjectContainer.contains(messageOverspecified)) {
+				messageObjectContainer.add(messageOverspecified);
+				repaint();
+			}
+		}
+
+	}
+
+    @Override
+    public void notifyOfClearWarningOrError(Warning warning) {
+
+        if (warning == Warning.ERROR) {
+            if (messageObjectContainer.contains(messageError)) {
+                messageObjectContainer.remove(messageError);
+                repaint();
+            }
+        } else if (warning == Warning.COVARIANCESONSTANTSINGULAR) {
+            if (messageObjectContainer.contains(messageSingular)) {
+                messageObjectContainer.remove(messageSingular);
+                repaint();
+            }
+            // messageObjectContainer.add(messageObjectWarning);
+        } else if (warning == Warning.MODELOVERSPECIFIED) {
+            // if (m)
+            // MessageObject messageObjectWarning
+            if (messageObjectContainer.contains(messageOverspecified)) {
+                messageObjectContainer.remove(messageOverspecified);
+                repaint();
+            }
+        }
+
+    }
+	
+	
+	@Override
+	public void keyPressed(KeyEvent arg0) {
+
+		Edge edgeUnderMouse = getEdgeAt(mouseAtX,mouseAtY, EDGE_CLICK_RADIUS);
+
+		if (edgeUnderMouse != null) {
+		    if (directTypeEdge != edgeUnderMouse) directTypeBuffer = ""; 
+			directTypeEdge = edgeUnderMouse;
+		}
+		
+		if (directTypeEdge != null) {
+			
+			if (arg0.getKeyCode() == 38) {
+				directTypeEdge.Curvature+=10;
+			} else if (arg0.getKeyCode() == 40) {
+				directTypeEdge.Curvature-=10;
+			}
+			
+		//	directTypeEdge.Curvature = Math.min(10, directTypeEdge.Curvature);
+			this.redraw();
+		}
+		
+		if (!arg0.isConsumed()) {
+			desktop.keyPressed(arg0);
+		}
+
+	}
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+
+		/*
+		 * if (arg0.getKeyCode()==17 || arg0.getKeyCode()==157)
+		 * commandOrControlDown = false; if (arg0.getKeyCode()==16) shiftDown =
+		 * false;
+		 */
+
+		commandOrControlDown = arg0.isControlDown() || arg0.isMetaDown();
+
+		// ENTF / DEL key
+		if (arg0.getKeyCode() == KeyEvent.VK_BACK_SPACE
+				|| arg0.getKeyCode() == KeyEvent.VK_DELETE) {
+			removeAllSelectedNodes();
+		}
+
+		if (commandOrControlDown && arg0.getKeyCode() == KeyEvent.VK_R) {
+			this.parameterView.stateOpen = !this.parameterView.stateOpen;
+			this.parameterView.redraw();
+		}
+
+		if (commandOrControlDown && arg0.getKeyCode() == KeyEvent.VK_F) {
+
+			if (arg0.isShiftDown()) {
+				graph.getSelectedNodes().flipVertically();
+			} else {
+				graph.getSelectedNodes().flipHorizontally();
+			}
+			setUnsavedChanges(true);
+			repaint();
+
+		}
+
+		if (commandOrControlDown && arg0.getKeyCode() == KeyEvent.VK_G) {
+			toggleShowGrid();
+			lockToGrid = this.showGrid;
+		}
+
+		if (commandOrControlDown && arg0.getKeyCode() == KeyEvent.VK_A) {
+			selectAll();
+		}
+
+		if (commandOrControlDown
+				&& (arg0.getKeyCode() == KeyEvent.VK_C || arg0.getKeyCode() == KeyEvent.VK_INSERT)) {
+			MainFrame.clipboard.copy(this.graph);
+			getToolkit().getSystemClipboard().setContents(this, this);
+		}
+
+		if ((commandOrControlDown && arg0.getKeyCode() == KeyEvent.VK_V)
+				|| (arg0.isShiftDown() && arg0.getKeyCode() == KeyEvent.VK_INSERT)) {
+
+			/*
+			 * PointerInfo info = MouseInfo.getPointerInfo(); Point location =
+			 * info.getLocation(); location.x =
+			 * location.x-this.getX()-this.desktop.mainFrame.getX(); location.y
+			 * = location.y-this.getY()-this.desktop.mainFrame.getY();
+			 * System.out.println(location); // location
+			 */
+			MainFrame.clipboard.paste(this.mri, mouseAtX, mouseAtY);
+		}
+
+		if (commandOrControlDown && arg0.getKeyCode() == KeyEvent.VK_Z) {
+			MainFrame.undoStack.undo();
+		}
+
+		// save file
+		if (commandOrControlDown && arg0.getKeyCode() == KeyEvent.VK_S) {
+			// this.desktop.
+			System.out.println("Saving " + file);
+			if (file != null) {
+				XMLExport export = new XMLExport(this);
+				export.export(this.file);
+				setUnsavedChanges(false);
+			} else {
+				XMLExport export = new XMLExport(this);
+				this.file = export.export();
+				setUnsavedChanges(false);
+			}
+		}
+
+		int asciiCode = (int) arg0.getKeyChar();
+		System.out.println(arg0.getKeyCode());
+		if (asciiCode >= 48 && asciiCode <= 57) {
+
+			// System.out.println("Group created!");
+
+			int groupId = asciiCode - 48;
+
+			if (commandOrControlDown) {
+
+				NodeGroup nodeGroup = new NodeGroup(getSelectedNodes());
+				if (!nodeGroupManager.contains(nodeGroup)) {
+					nodeGroupManager.set(groupId, nodeGroup);
+				}
+				nodeGroupManager.setActive(groupId, true);
+				repaint();
+
+			} else if (arg0.isAltDown()) {
+
+				activateEstimate(groupId);
+
+			} else {
+
+				nodeGroupManager.toggleActive(groupId);
+
+				if (nodeGroupManager.isActive(groupId)) {
+					graph.selectAll(false);
+					graph.selectNodes(nodeGroupManager.get(groupId), true);
+				} else {
+					graph.selectNodes(nodeGroupManager.get(groupId), false);
+				}
+
+				repaint();
+			}
+		}
+
+		// System.out.println(arg0.getKeyChar()+" "+(arg0.getKeyChar()=='t'));
+		// if (arg0.getKeyCode() == KeyEvent.VK_T) {
+		if (commandOrControlDown && arg0.getKeyCode() == KeyEvent.VK_T) {
+			graph.tidyUp();
+			this.repaint();
+			// System.out.println("Tidy up!");
+		}
+
+		if ((commandOrControlDown) && arg0.getKeyCode() == KeyEvent.VK_K) {
+			CodeView view = new CodeView(desktop, this, new OpenMxExport(this));
+			this.codeView.add(view);
+			this.desktop.add(view);
+		}
+
+		// ALT+'1'
+		/*
+		 * if (arg0.getKeyCode()==KeyEvent.VK_0 && arg0.isAltDown()) {
+		 * activateEstimate(0); }
+		 * 
+		 * if (arg0.getKeyCode()==KeyEvent.VK_1 && arg0.isAltDown()) {
+		 * activateEstimate(1); }
+		 * 
+		 * // ALT+'3' if (arg0.getKeyCode()==KeyEvent.VK_2 && arg0.isAltDown())
+		 * { activateEstimate(2); }
+		 */
+
+		if (!arg0.isConsumed()) {
+			desktop.keyReleased(arg0);
+		}
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+
+		// enable directyping of edge values?
+		//if (arg0.getKeyChar()=='=') {
+		
+		//System.out.println(arg0);
+		
+		Edge edgeUnderMouse = getEdgeAt(mouseAtX,mouseAtY, EDGE_CLICK_RADIUS);
+		
+		// delete buffer if edge was changed
+		if (edgeUnderMouse != directTypeEdge) {
+			directTypeBuffer = "";
+		}
+		
+		//if (edgeUnderMouse != null) // maybe remove this if-clause
+		directTypeEdge = edgeUnderMouse;
+		
+		if (edgeUnderMouse != null) {
+			
+	/*	if (!directType) {
+			directType = true;
+			directTypeTimestamp = System.currentTimeMillis();
+			directTypeBuffer = "";
+		}
+		*/
+		// Timeout?
+		if (directTypeTimestamp+2000 < System.currentTimeMillis())
+		{
+			//directType = false;
+			directTypeBuffer = "";
+		}
+		
+		directTypeTimestamp = System.currentTimeMillis();
+		
+		//if (directType) {
+			
+			//if (arg0.getKeyChar().equals='') {};
+			//if (arg0.getKeyChar() != '=')
+			directTypeBuffer += arg0.getKeyChar();
+			
+			try {
+				System.out.println("Parsing Buffer: "+directTypeBuffer);
+				Double dvalue = Double.parseDouble(directTypeBuffer);
+				
+				
+				
+				//System.out.println(edgeUnderMouse);
+				
+				// TvO 10.12.2012: Added requestSetValue for fixed edges.
+				edgeUnderMouse.setValue(dvalue);
+				this.getModelRequestInterface().requestChangeParameterOnEdge(edgeUnderMouse);
+				this.getModelRequestInterface().requestSetValue(edgeUnderMouse);
+				this.redraw();
+				
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				if (directTypeBuffer.length() > 0)
+				directTypeBuffer = directTypeBuffer.substring(0, directTypeBuffer.length()-1);
+			}
+			
+			arg0.consume();
+			return; //TODO - really break here?
+		//}
+		
+		}
+		
+		
+		// pass on event to super-class and desktop
+		super.keyTyped(arg0);
+		if (!arg0.isConsumed()) {
+			desktop.keyTyped(arg0);
+
+		}
+
+		
+		
+		/*
+		 * if (arg0.getKeyCode() == KeyEvent.VK_1) { activateEstimate(0); } else
+		 * if (arg0.getKeyCode() == KeyEvent.VK_2) { activateEstimate(1); } else
+		 * if (arg0.getKeyCode() == KeyEvent.VK_3) { activateEstimate(2); } else
+		 * if (arg0.getKeyCode() == KeyEvent.VK_4) { activateEstimate(3); }
+		 */
+
+		/*
+		 * if (arg0.getKeyChar() == KeyEvent.VK_PLUS) {
+		 * System.out.println("ZOOM!"); zoom = zoom * 2.0; this.repaint(); }
+		 */
+
+		// JTextField source = (JTextField) arg0.getSource();
+
+		/*
+		 * String text = source.getText(); text = text.replaceAll("\\alpha",
+		 * "\u03B1"); System.out.println(text);
+		 */
+	}
+
+	private void selectAll() {
+		this.graph.selectAll(true);
+		this.redraw();
+
+	}
+
+	@Override
+	public void newData() {
+
+		int[] filter = mri.getModel().filter;
+		String[] allNames = getGraph().getAllVariableNames();
+		String[] columnNames = new String[filter.length];
+
+		for (int i = 0; i < filter.length; i++)
+			columnNames[i] = allNames[filter[i]];
+
+		// create new object and view and add them to desktop
+		Dataset dataset = new SimulatedDataset(Arrays.asList(columnNames), mri
+				.getModel().copy());
+
+		DataView dv = new DataView(desktop, dataset);
+		desktop.add(dv);
+		// this.add(dv);
+		dv.invalidate();
+		dv.validate();
+		dv.repaint();
+		desktop.redraw();
+	}
+
+	public void clearModel() {
+		/*
+		 * for (Edge edge : graph.getEdges()) { mri.requestRemoveEdge(edge); }
+		 * for (Node node : graph.getNodes()) { mri.requestRemoveNode(node); }
+		 */
+		int ne = graph.getEdges().size();
+		for (int i = 0; i < ne; i++) {
+			System.out.println("Remove ");
+			mri.requestRemoveEdge(graph.getEdges().get(0));
+		}
+		int nn = graph.getNodes().size();
+		for (int i = 0; i < nn; i++) {
+			mri.requestRemoveNode(graph.getNodes().get(0));
+		}
+	}
+
+	@Override
+	public void changeNodeCaption(Node node, String text) {
+		this.graph.renameNode(node, text);
+
+	}
+
+	@Override
+	public void setDefinitionVariable(Edge edge) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public File getFile() {
+		return file;
+	}
+
+	public void setFile(File file) {
+		this.file = file;
+	}
+
+	@Override
+	public void setName(String name) {
+		mri.requestChangeModelName(name);
+	}
+
+	@Override
+	public Object getTransferData(DataFlavor flavor) {
+		if (flavor.equals(DataFlavor.imageFlavor)) {
+			JPEGExport exp = new JPEGExport(this);
+			return exp.getImage();
+		}
+		return null;
+	}
+
+	@Override
+	public DataFlavor[] getTransferDataFlavors() {
+		return new DataFlavor[] { DataFlavor.imageFlavor };
+	}
+
+	@Override
+	public boolean isDataFlavorSupported(DataFlavor arg0) {
+		return arg0.equals(DataFlavor.imageFlavor);
+	}
+
+	@Override
+	public void lostOwnership(Clipboard arg0, Transferable arg1) {
+		// Ignored so far
+	}
+
+	/**
+	 * if one or more nodes were unlinked,
+	 * show starting values again.
+	 * 
+	 */
+	@Override
+	public void notifyUnlink(Graph graph) {
+		activateEstimate(0, false);
+		//repaint();
+		
+	}
+}
