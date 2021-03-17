@@ -18,3 +18,9 @@ Onyx uses various (unmodified) libraries, which are here redistributed under the
 - Diff Match and Patch by Google Inc is distributed under the Apache License 2.0
 - GRAL by Erich Seifert is distributed under the LGPL
 - jtouchbar by Thizzer is distributed under the MIT license
+
+Furthermore, Onyx uses the following resources:
+
+- the mono icons by https://icons.mono.company/ distributed under the MIT
+  license
+
