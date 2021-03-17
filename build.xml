@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
          
-<project default="create_run_jar" name="Create Runnable Jar for Project Onyx">
+<project default="create_run_jar" name="Create Runnable Jar for Project Onyx" xmlns:ivy="antlib:org.apache.ivy.ant">
 
 	<property name="src" location="src" />
 	<property name="lib" location="lib" />
 	<property name="build" location="build" />
 	<property name="launch4j.dir" location="../launch4j" />
 
+
+	<available classname="org.apache.ivy.Main" property="ivy.installed"/> 
+
+	
     <target name="init">
        <!-- Create the time stamp -->
        <tstamp/>
@@ -17,6 +21,18 @@
 
 	 <target name="compile" depends="init"
 	        description="compile the source " >
+		
+			<!--
+			<ivy:cachepath pathid="compile.path">
+			
+				<dependency>
+				    <groupId>jakarta.xml.bind</groupId>
+				    <artifactId>jakarta.xml.bind-api</artifactId>
+				    <version>2.3.2</version>
+				</dependency>
+			    </ivy:cachepath>
+				-->
+		
 	    <!-- Compile the java code from ${src} into ${build} -->
 	    <javac srcdir="${src}" destdir="${build}" encoding="iso-8859-1" failonerror="false">
 			<classpath>
@@ -24,6 +40,7 @@
 					<pathelement path="lib/jtouchbar-0.1.0.jar"/>
 					<pathelement path="lib/junit-4.13.2.jar"/>
 			    </classpath>
+
 		</javac>
 	  </target>
 	  
@@ -69,7 +86,7 @@
                 
                 <attribute name="Built-Date" value="${TODAY}"/>            
             </manifest>
-            <fileset dir="./bin"
+            <fileset dir="${build}"
             excludes="test" />
             <!--zipfileset excludes="META-INF/*.SF" src="/Applications/eclipse/plugins/org.junit_4.8.2.v4_8_2_v20110321-1705/junit.jar"/>
             <zipfileset excludes="META-INF/*.SF"
