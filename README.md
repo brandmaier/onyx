@@ -16,7 +16,7 @@ Then, package all compiled classes into a single jar file by issuing:
 ant dist
 ```
 
-This creates a single file `onyx.jar` in subfolder `build/jar`.
+This creates a single file `onyx.jar` in subfolder `dist`.
 
 # Run
 
@@ -24,6 +24,7 @@ After you have successfully created the distributable jar file, you can run
 it from the command line:
 
 ```{bash}
+cd dist
 java -jar onyx.jar
 ```
 

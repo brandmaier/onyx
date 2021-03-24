@@ -6,6 +6,7 @@ name="Create Runnable Jar for Project Onyx" xmlns:ivy="antlib:org.apache.ivy.ant
 	<property name="src" location="src" />
 	<property name="lib" location="lib" />
 	<property name="build" location="build" />
+	<property name="dist" location="dist" />
 	<property name="launch4j.dir" location="../launch4j" />
 
 	<available classname="org.apache.ivy.Main" property="ivy.installed"/> 
@@ -76,7 +77,7 @@ name="Create Runnable Jar for Project Onyx" xmlns:ivy="antlib:org.apache.ivy.ant
      <format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
    </tstamp>
     <echo>Creating JAR</echo>
-        <jar destfile="${build}/jar/onyx.jar" filesetmanifest="mergewithoutmain" includes="**/*.class">
+        <jar destfile="${dist}/onyx.jar" filesetmanifest="mergewithoutmain" includes="**/*.class">
 
             <manifest>
                 <attribute name="Built-By" value="Andreas Brandmaier"/>
