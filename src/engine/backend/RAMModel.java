@@ -76,7 +76,8 @@ public class RAMModel extends NumericalDerivativeModel {
     public double[][] sigmaBig, sigmaBigInv, facWork1, B, BTrans, C, BC, DBig, sigmaInvB, BTC, sigmaMinusD;
     
     // A representation of all variables as polynomial. Each variable is a polynomial expression of independent normally distributed
-    // variables with variance polynomialRepresentationVariances, which are the polynomial's variables. Used in particular for product-SEMs. Values are only created with explicit call of
+    // variables with variance polynomialRepresentationVariances, which are the polynomial's variables. Used in particular for product-SEMs. 
+    // Values are only created with explicit call of
     // computePolynomialRepresentation, exists only on acyclic A-matrices.
     private DoublePolynomial[] polynomialRepresentation;
     private double[] polynomialRepresentationVariances;

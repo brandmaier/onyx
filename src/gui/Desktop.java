@@ -710,7 +710,7 @@ public class Desktop extends JLayeredPane implements
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 
-	//	System.out.println("mouse clicked on Desktop"+arg0);
+		//MainFrame.logger.log("mouse clicked"+arg0);
 
 		
 		if (Utilities.isLeftMouseButton(arg0)) {
@@ -1271,12 +1271,16 @@ public class Desktop extends JLayeredPane implements
 			
 			// some post-processing checks
 			
+			// TvO: This warning seems to pop up whenever a .xml file is dragged onto the desktop; I disable it for now
+			// TODO repair
+			/*
 			boolean warn=false;
 			for (Node node : mv.getGraph().getNodes()) {
 				if (node.getX() < 0 || node.getY() < 0 || node.getX() > mv.getWidth() || mv.getY() > mv.getHeight()) warn=true;
 			}
 			if (warn) JOptionPane.showMessageDialog(null, 
 					"Warning! One or more variables may be outside the visible area!","Warning",JOptionPane.WARNING_MESSAGE);
+					*/
 		
 			return(mv);
 	}

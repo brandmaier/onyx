@@ -63,7 +63,7 @@ public class Statik {
 	        0.001350,0.001306,0.001264,0.001223,0.001183,0.001144,0.001107,0.001070,0.001035,0.001001,0.000968,0.000935,0.000904,0.000874,0.000845,0.000816,0.000789,0.000762,0.000736,0.000711,0.000687,0.000664,0.000641,0.000619,0.000598,0.000577,0.000557,0.000538,0.000519,0.000501,0.000483,0.000466,0.000450,0.000434,0.000419,0.000404,0.000390,0.000376,0.000362,0.000349,0.000337,0.000325,0.000313,0.000302,0.000291,0.000280,0.000270,0.000260,0.000251,0.000242,0.000233,0.000224,0.000216,0.000208,0.000200,0.000193,0.000185,0.000178,0.000172,0.000165,0.000159,0.000153,0.000147,0.000142,0.000136,0.000131,0.000126,0.000121,0.000117,0.000112,0.000108,0.000104,0.000100,0.000096,0.000092,0.000088,0.000085,0.000082,0.000078,0.000075,0.000072,0.000069,0.000067,0.000064,0.000062,0.000059,0.000057,0.000054,0.000052,0.000050,0.000048,0.000046,0.000044,0.000042,0.000041,0.000039,0.000037,0.000036,0.000034,0.000033,
 	        0.000032,0.000030,0.000029,0.000028,0.000027,0.000026,0.000025,0.000024,0.000023,0.000022,0.000021,0.000020,0.000019,0.000018,0.000017,0.000017,0.000016,0.000015,0.000015,0.000014,0.000013,0.000013,0.000012,0.000012,0.000011,0.000011,0.000010,0.000010,0.000009,0.000009,0.000009,0.000008,0.000008,0.000007,0.000007,0.000007,0.000007,0.000006,0.000006,0.000006,0.000005,0.000005,0.000005,0.000005,0.000004,0.000004,0.000004,0.000004,0.000004,0.000004,0.000003,0.000003,0.000003,0.000003,0.000003,0.000003,0.000003,0.000002,0.000002,0.000002,0.000002,0.000002,0.000002,0.000002,0.000002,0.000002,0.000002,0.000002,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000
 	};
-	// Werte für 0.05 - Power der Chiquadrat - Verteilungen
+	// Werte fï¿½r 0.05 - Power der Chiquadrat - Verteilungen
 //	public static final double[] FIVEPERCENTTHRESHOLD = new double[]{3.84145915,5.99146455,7.81472776,9.48772904,11.07049775,12.59158724,14.06714043};
 	public static final double[] FIVEPERCENTTHRESHOLD = new double[]{3.841459149,5.99146454,7.814727764,9.487729037,11.07049775,
 	    12.59158724,14.06714043,15.50731306,16.91897762,18.30703805,19.67513757,21.02606982,22.3620325,23.68479131,24.99579013,
@@ -82,7 +82,7 @@ public class Statik {
 	 *
 	
 		Berechnet den Abstand von *praefix* zum Prï¿½fix von Wort. Ein Abstand von 0 zeigt an, dass praefix tatsï¿½chlich
-		präfix von wort ist.
+		prï¿½fix von wort ist.
 	
 	 * Creation date: (02.10.2002 23:38:41)
 	 * @return int
@@ -389,29 +389,39 @@ public class Statik {
 		}
 	}
 
-	/*
-	public static double integral(Function foo, double start, double end, double epsilon)
+	/**
+	 * numerically approximates the integral of a univariate real function
+	 * @param foo
+	 * @param start
+	 * @param end
+	 * @param epsilon
+	 * @return
+	 */
+	public static double integral(DoubleFunction foo, double start, double end, double epsilon)
 	{
+	    double[] args = new double[1];
 	    final int MAXSTEPS = 10000000;
-	    int anzsteps = 0;
+	    int anzsteps = 1;
 	    double step = (end - start);
-	    double val = foo.foo(end)*(end-start);
-	    double lastMove = val;
+	    args[0] = start; double sum = foo.foo(args);
+	    args[0] = end; sum += foo.foo(args);
+	    double val = sum*(end - start) / 2.0;
+	    double lastMove = epsilon+1;
 	    while ((lastMove > epsilon) && (anzsteps < MAXSTEPS))
 	    {
-	        lastMove = val;
-	        val /= 2.0;
 	        step /= 2.0;
-	        anzsteps = (anzsteps==0?1:anzsteps*2);
-	        double sum = 0.0;
-	        for (int i=0; i<anzsteps; i++)
-	            sum += foo.foo(start+step*(2*i+1));
-	        val += sum * (end-start) / (2*anzsteps);
-	        lastMove = Math.abs(lastMove - val);	        
+	        anzsteps = anzsteps*2;
+	        for (int i=0; i<anzsteps/2; i++) {
+	            args[0] = start+step*(2*i+1);
+	            sum += foo.foo(args);
+	        }
+	        double lastPos = val;
+	        val = sum * (end-start) / (anzsteps+1);
+	        lastMove = Math.abs(lastPos - val);	        
 	    }
 	    return val;
 	}
-	*/
+	
 	
     /**
      * Insert the method's description here.
@@ -2216,6 +2226,92 @@ public class Statik {
                 for (int r=0; r<i; r++) erg[i][j] += work[i][r]*work[j][r];
                 erg[j][i] = erg[i][j];
             }
+        }
+    }
+    
+    /**
+     * Algorithm taken from the BB / BC variant of R.C.H. Cheng (1978), "Generating Beta Variates with Nonintegral Shape Parameters"
+     * 
+     * @param a0 (alpha parameter)
+     * @param b0 (beta parmaeter)
+     * @return beta-distributed random variable
+     */
+    public static double sampleFromBetaDistribution(double a0, double b0) {return sampleFromBetaDistribution(a0, b0, new Random());}
+    public static double sampleFromBetaDistribution(double a0, double b0, Random rand) {
+        if (a0==1.0 && b0==1.0) return rand.nextDouble();
+        if (a0<=1 || b0<=1) {
+            // BC variant
+            double a = a0; if (b0>a0) a = b0;
+            double b = a0; if (b0<a0) b = b0;
+            double alpha = a+b;
+            double beta = 1.0/b;
+            double delta = 1+a-b; 
+            double kappa1 = delta*(0.0138889 + 0.04166667*b)/(a*beta-0.7777778);
+            double kappa2 = 0.25 + (0.5+0.25/delta)*b;
+            double Z,W = 0;
+            
+            boolean repeat = true, acceptWithoutCheck = false;
+            while (repeat) {
+                repeat = false;
+                // step 1
+                double u1 = rand.nextDouble(), u2 = rand.nextDouble();
+                if (u1 < 0.5) {
+                    // step 2
+                    double Y = u1*u2; Z = u1*Y;
+                    if (0.25*u2+Z-Y >= kappa1) repeat = true;
+                } else {
+                    // step 3
+                    Z = u1*u1*u2;
+                    if (Z<=0.25) {
+                        acceptWithoutCheck = true;
+                    } else {
+                        // step 4
+                        if (Z > kappa2) repeat = true;
+                    }
+                }
+                if (!repeat) {
+                    // step 3 and step 5 computation of V and W
+                    double V = beta*Math.log(u1/(1-u1)); 
+                    W = a*Math.exp(V);
+                    // step 5
+                    if (!acceptWithoutCheck && alpha*(Math.log(alpha/(b+W)) + V) - 1.3862944 < Math.log(Z)) repeat = true;
+                }
+            }
+            // step 6
+            if (a==a0) return W/(b+W); else return b/(b+W);
+            
+        } else {
+            // BB variant
+            double a = a0; if (b0<a0) a = b0;
+            double b = a0; if (b0>a0) b = b0;
+            double alpha = a+b;
+            double beta = Math.sqrt((alpha-2)/(2*a*b-alpha));
+            double gamma = a + 1.0/beta; 
+            double Z,W = 0;
+
+            boolean repeat = true, acceptWithoutCheck = false;
+            while (repeat) {
+                repeat = false;
+                // step 1
+                double u1 = rand.nextDouble(), u2 = rand.nextDouble();
+                double V = beta*Math.log(u1/(1-u1));
+                W = a*Math.exp(V);
+                Z = u1*u1*u2;
+                double R = gamma*V-1.3862944;
+                double S = a + R - W;
+                // step 2
+                if (S + 2.609438 < 5*Z) {
+                    // step 3
+                    double T = Math.log(Z);
+                    if (S<T) 
+                    {
+                        // step 4
+                        if (R+alpha*Math.log(alpha/(b+W)) < T) repeat = true;
+                    }
+                } 
+            }
+            // step 5
+            if (a == a0) return W/(b+W); else return b/(b+W);
         }
     }
 
@@ -6115,5 +6211,18 @@ public class Statik {
 
         ImageProducer ip = new FilteredImageSource(im.getSource(), filter);
         return Toolkit.getDefaultToolkit().createImage(ip);
+    }
+
+    public static double[] sampleFromGaussian(double[] mean, double[][] cov) {return sampleFromGaussian(mean, cov, new Random());}
+    public static double[] sampleFromGaussian(double[] mean, double[][] cov, Random rand) {
+        
+        int anzVar = mean.length;
+        double[] work = new double[anzVar];
+        for (int i=0; i<anzVar; i++) work[i] = rand.nextGaussian();
+        double[][] chol = Statik.choleskyDecompose(cov);
+        double[] erg = Statik.multiply(chol,  work);
+        Statik.add(erg, mean, erg);
+        
+        return erg;
     }
 }

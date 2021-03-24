@@ -1361,6 +1361,8 @@ public abstract class Model
     
     /** computes the RMSEA based on the kl index */
     public static double getRMSEAKL(double kl, double nonmissRatio, int df, int n) {
+        double insqrt = (kl*n*nonmissRatio - df) / (df*(n-1)*nonmissRatio);
+//        return (insqrt<0?-Math.sqrt(-insqrt):Math.sqrt(insqrt));
         return (df==0?0.0:Math.sqrt(Math.max((kl*n*nonmissRatio - df),0) / (df*(n-1)*nonmissRatio)));
     }
 

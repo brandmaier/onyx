@@ -553,6 +553,13 @@ public class ModelRunUnit implements ParameterReader {
             			
             			//Model.getRMSEACI(ll, modelRun.precomputedSaturatedLL, modelRun.df, anzPer);
             } catch (Exception e) {}
+            
+//            double[][] debugSaturatedSigma = modelRun.precomputedSaturatedCov;
+//            double[][] debugSigma = model.sigma;
+//            double[] debugSaturatedMu = modelRun.precomputedSaturatedMean;
+//            double[] debugMu = model.mu;
+//            System.out.println(debugMu+""+debugSaturatedMu+""+debugSaturatedSigma+""+debugSigma+"\r\n"+Statik.matrixToString(debugSaturatedSigma));
+            
         }
     }
     
