@@ -240,7 +240,7 @@ public class OpenMxColorExport extends RExport {
 		   
 	}
 
-	/**@deprecated
+	/**@Deprecated
 	*/
 	public String exportNaive(Graph g)
 	{

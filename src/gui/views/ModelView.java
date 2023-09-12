@@ -1393,6 +1393,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			MultiStep mstep = new MultiStep();
 
 			boolean state = menuContextEdge.isFixed();
+//			boolean state = getSelectedEdges().get(0).isFixed();
 			for (Edge edge : getSelectedEdges()) {
 				mstep.add(new EdgeStateChangedStep(this, edge));
 				if (state == edge.isFixed())
@@ -3886,6 +3887,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			// this.desktop.mainFrame.requestFocus();
 
 			populateMenu(arg0);
+
 		}
 
 	}
@@ -4449,8 +4451,10 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 		dragType = DRAGTYPE.NONE;
 
-		menuContextNode = null;
-		menuContextEdge = null;
+		if (arg0.getButton() == MouseEvent.BUTTON1) {
+			menuContextNode = null;
+			menuContextEdge = null;
+		}
 
 		if (holdPathUntilNextClick)
 			holdPathUntilNextClick = false;
@@ -4816,9 +4820,11 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 				nodeUnderMouse = true;
 
 				menuContextNode = node;
+				
 				break;
 			}
 		}
+		
 
 		Edge edgeUnderMouse = null;
 		edgeUnderMouse = getEdgeAt(arg0.getX(), arg0.getY(), EDGE_CLICK_RADIUS);
@@ -4828,6 +4834,10 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			if (temp != null)
 				temp.setSelected(true);
 		}
+		System.out.println(edgeUnderMouse);
+		if (edgeUnderMouse==null)
+			System.out.println("Edge set to NULL");
+		
 		menuContextEdge = edgeUnderMouse;
 
 		// store state of all selected nodes

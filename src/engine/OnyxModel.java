@@ -482,6 +482,12 @@ public class OnyxModel extends RAMModel implements ModelRequestInterface {
     }
     
     public synchronized void requestChangeNodeCaption(Node node, String name) {
+    	
+    	if (node==null) {
+    		System.err.println("requestChangeNodeCaption() called on null Node");
+    		return;
+    	}
+    	
         variableNames[node.getId()] = name;
         for (int i=0; i<modelListener.length; i++) modelListener[i].changeNodeCaption(node, name);
     }

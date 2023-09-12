@@ -285,7 +285,8 @@ public class OpenMxExport extends RExport {
 		   
 	}
 
-	/**@deprecated
+	/**
+	 * @Deprecated
 	*/
 	public String exportNaive(Graph g)
 	{

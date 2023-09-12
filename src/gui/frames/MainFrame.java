@@ -80,7 +80,7 @@ import gui.views.MultiGroupModelView;
  * 
  * 
  * 
- * @author andreas
+ * @author Andreas Brandmaier
  * 
  */
 public class MainFrame extends JFrame implements ActionListener, KeyListener,
@@ -91,7 +91,7 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 	 */
 	
 	public static final String MAJOR_VERSION = "1.0";
-	public static final int SVN_VERSION = 947 + 1 + 92;
+	public static final int SVN_VERSION = 947 + 1 + 93;
 	
 	
 	/**
@@ -100,8 +100,9 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 	
 	public final static boolean GRAPH_DEBUGGING = false;
 	public final static boolean LAYOUT_DEBUGGING = false;
-	
 	public final static boolean WITH_BAYES = false;
+	
+    public static boolean DEVMODE = false;
 	
 	// ---
 	
@@ -129,7 +130,7 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 	
 	public static final boolean DEFAULT_SAVEMODE_XML = true ;
 
-    public static boolean DEVMODE = false;
+
 	
 	private Desktop desktop;
 
@@ -161,8 +162,6 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 	private JMenuItem[] loadTutorialX;
 	private JMenuItem menuTip;
 	private TipOfTheDayFrame tip;
-	
-	//public static Preferences preferences;
 
 	static {
 		contextHelpPanel = new ContextHelpPanel();
@@ -183,7 +182,7 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 
 		// create components
 		desktop = new Desktop(this);
-		// this.setBackground(Color.green);
+	
 		JScrollPane scrollPane = new JScrollPane(desktop);
 		scrollPane
 				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -208,18 +207,6 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 		// add desktop as keylistener
 		this.addKeyListener(desktop);
 
-
-		// determine window size and make visible 
-		// AB 04/2015: deprecated -- will be overriden later!!
-		/*Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		int width = Math.min((int)screenSize.getWidth(), 1024);
-		int height = Math.min((int)screenSize.getHeight(), 800);
-		if (width==0) width=300; if (height==0) height=200; // just to be safe in case getScreenSize() is faulty
-		
-		this.setSize(new Dimension(width, height));
-		 */
-		
-
 		// load recent files in reverse order
 		// "0" is the most recent
 		// recentFiles = new ArrayList<File>();
@@ -231,8 +218,6 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 						false);
 			}
 
-			// System.out.println(key+
-			// " "+userPreferences.contains("recent"+i));
 		}
 
 		// create menu
@@ -251,13 +236,6 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 		//this.setBounds(insets.left, insets.top, sz.width-(insets.left+insets.right), sz.height - (insets.top+insets.bottom));
 		// this.setLocationRelativeTo(null); // center frame on screen
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
-
-		if (Preferences.getAsString("CheckForUpdates").equals("true"))
-		{
-			Thread t = new  Thread(new CheckForUpdates(this));
-			t.start();
-		}
-
 
 		desktop.setLocation(10, 10);
 		

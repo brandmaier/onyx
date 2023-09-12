@@ -3,8 +3,6 @@
  */
 package groebner;
 
-import java.util.Arrays;
-
 import junit.framework.TestCase;
 
 public class GroebnerTest extends TestCase {

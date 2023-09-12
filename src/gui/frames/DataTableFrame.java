@@ -31,7 +31,7 @@ public class DataTableFrame extends JInternalFrame implements DatasetChangedList
 		{
 			for (int j=0; j < dataset.getNumColumns(); j++)
 			{
-				objData[i][j] = new Double(data[i][j]);
+				objData[i][j] = Double.valueOf(data[i][j]);
 			}
 		}
 		

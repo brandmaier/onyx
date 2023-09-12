@@ -177,9 +177,6 @@ public class Desktop extends JLayeredPane implements
 		this(null);
 	}
 	
-	//static {
-		
-//	
 	public Desktop(MainFrame mainFrame)
 	{
 		super();
@@ -340,8 +337,6 @@ public class Desktop extends JLayeredPane implements
 		
 		for (DesktopListener dl : desktopListeners) dl.viewAdded();
 		
-//		for (Views views)
-		
 		while(true) {
 			boolean uniquePos = true;
 			
@@ -440,11 +435,7 @@ public class Desktop extends JLayeredPane implements
 		this.repaint();
 	}
 	
-	
-	/*public void redraw()
-	{
-		this.validate(); this.repaint();
-	}*/
+
 	
 	public List<View> getViews()
 	{
@@ -678,17 +669,7 @@ public class Desktop extends JLayeredPane implements
 
 	}
 	
-	/*public void paintComponent(Graphics g)
-	{
-		super.paintComponent(g);
-		
-		Iterator<View> iterViews = this.views.iterator();
-		while(iterViews.hasNext())
-		{
-			iterViews.next().paint(g);
-		}
-		
-	}*/
+
 	
 
 	@Override
