@@ -18,7 +18,6 @@ import gui.actions.CreateSingleFactorModelAction;
 import gui.actions.CreateUARAction;
 import gui.actions.DesktopPasteAction;
 import gui.actions.LoadAction;
-import gui.actions.ModelViewPasteAction;
 import gui.frames.DeveloperControlFrame;
 import gui.frames.MainFrame;
 import gui.graph.Edge;
@@ -83,24 +82,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
+
 
 import javax.imageio.ImageIO;
-import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
-import javax.swing.InputMap;
+
 import javax.swing.JFileChooser;
 import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+
 import javax.swing.JPopupMenu;
-import javax.swing.JToolTip;
-import javax.swing.KeyStroke;
 import javax.swing.RepaintManager;
 import javax.swing.ToolTipManager;
 import javax.xml.parsers.DocumentBuilder;
@@ -123,10 +118,6 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import bayes.Chain;
 import bayes.ParameterSet;
 import scc.Tree;
-//import sun.misc.IOUtils;
-
-//import com.sun.tools.javac.resources.javac;
-
 
 
 public class Desktop extends JLayeredPane implements 
@@ -1781,21 +1772,6 @@ public class Desktop extends JLayeredPane implements
 	    }
         
 	}
-
-  /*  public void importFromBuffer(BufferedReader in, String name) {Point p = getLocationOfMouseRelativeToDesktop(); importFromBuffer(in, null, name, p.x, p.y);}
-    public void importFromBuffer(BufferedReader in, File file) {
-    	
-    	Point p ;
-    	
-    	try {
-    		p = getLocationOfMouseRelativeToDesktop(); 
-    	} catch (Exception e) {
-    		p = new Point(0,0);
-    	}
-    	
-    	importFromBuffer(in, file, file.getName(), p.x, p.y);
-    	
-    }*/
 	
 	public void importFromFile(File file, String name) throws IOException {Point p = getLocationOfMouseRelativeToDesktop(); importFromFile(file, name, p.x, p.y);}
 
@@ -1820,37 +1796,7 @@ public class Desktop extends JLayeredPane implements
     	 importString(message, file, name, x, y);
     	 
     }
-    /*
-    public void importFromBuffer(BufferedReader in, File file, String name, int x, int y) {
-        try { 
-            String firstLines = ""; 
-            in.mark(100000);
-            for (int i=0; i<10; i++) {
-            	String rl = in.readLine();
-            	if (rl != null && rl.length() > 0)
-            	firstLines += rl+"\r\n";
-            }
-            in.reset();
-            ImportType type = determineType(firstLines);
-            System.out.println("Type "+type+ "  File "+file);
-            if (type == ImportType.RAWDATA) initiateDataView(in, name, x, y);
-            else {
-                String total = ""; String s;
-                do {
-                    s = (in.ready()?in.readLine():null);
-                    if (s!=null) total += s+"\r\n";
-                } while (s != null);
-                importString(total, file, name, x, y);
-            }
-            
-            
-        } catch (IOException e) {
-            System.out.println("Error in importFromBuffer: ");
-            e.printStackTrace();
-        }
-    }
-    */
-    
+
     
     public void addDesktopListener(DesktopListener dl) {
         this.desktopListeners.add(dl);
