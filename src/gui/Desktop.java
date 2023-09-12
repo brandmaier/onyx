@@ -1589,7 +1589,6 @@ public class Desktop extends JLayeredPane implements
 	}
 
 	public void importString(String s, File file, String name, int x, int y) {
-		//Point p = getLocationOfMouseRelativeToDesktop();
 		importString(s, file, name, x, y, ImportType.UNKNOWN);
 	}
 
@@ -1599,10 +1598,8 @@ public class Desktop extends JLayeredPane implements
 	}
 	public void importString(String fileContent, File file, String name, int x, int y, ImportType type) {
 	    
-		//System.out.println("Type "+type);
-		//System.out.println(System.currentTimeMillis());
 		if (type == ImportType.UNKNOWN) type = determineType(fileContent);
-	    //System.out.println(System.currentTimeMillis());
+
 	    if (type == ImportType.RAWDATA) {
             if (name == null) initiateDataView(fileContent, "Anonymous Dataset", x, y);
             else initiateDataView(fileContent, name, x, y);
@@ -1796,11 +1793,9 @@ public class Desktop extends JLayeredPane implements
     	 importString(message, file, name, x, y);
     	 
     }
-
-    
+   
     public void addDesktopListener(DesktopListener dl) {
-        this.desktopListeners.add(dl);
-        
+        this.desktopListeners.add(dl);   
     }
     
     public void restore()
@@ -1891,21 +1886,16 @@ public class Desktop extends JLayeredPane implements
 	public boolean clear() {
 		
 		if (views.size()>0) {
-		String[] options = {"Yes","No"};
-		int n = JOptionPane.showOptionDialog(this, "Starting the tutorial requires an empty desktop. If you proceed, all models and datasets are closed now. Do you like to continue and clear the desktop?",
+			String[] options = {"Yes","No"};
+			int n = JOptionPane.showOptionDialog(this, "Starting the tutorial requires an empty desktop. If you proceed, all models and datasets are closed now. Do you like to continue and clear the desktop?",
 				"Clear desktop"
 				, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
 				null, options, options[1]);
 		
-		if (n==1) {
-			return false;
-		}
+			if (n==1) { return false; }
 		}
 		
-		/*Iterator<View> itview = views.iterator();
-		while (itview.hasNext()) {
-			itview.remove();
-		}*/
+
 		for (int i=views.size()-1; i>=0; i--)
 		{
 			if (views.size()>0)	// this looks strange but some views kill their children and we might terminate earlier than expected
@@ -1917,14 +1907,11 @@ public class Desktop extends JLayeredPane implements
 	}
 
 	public void mouseDraggedOnModelView(ModelView view, MouseEvent arg0) {
-		
-		//System.out.println("Mouse Drag!");
-		
+
 		mouseDragX = arg0.getX()+view.getX();
 		mouseDragY = arg0.getY()+view.getY();
 		
 		if (dragSource != null) {
-			//System.out.println("REPAINT!");
 			this.repaint();
 		}
 		
@@ -1953,8 +1940,6 @@ public class Desktop extends JLayeredPane implements
 			{
 				InputStream iStream = this.getClass().getResourceAsStream(
 						MainFrame.tutorialFilenames[i]);
-
-				// System.out.println(url.getFile());
 				if (iStream != null) {
 					try {
 						loadData(iStream, MainFrame.tutorialMenunames[i]);
@@ -1968,11 +1953,6 @@ public class Desktop extends JLayeredPane implements
 		
 		
 		if (arg0.getSource() == closeAll) {
-			//Iterator<View> itViews = views.iterator();
-		/*	for (int i=views.size()-1; i>= 0;i--) {
-				View view = views.get(i);
-				view.requestDeleteView();
-			}*/
 			Vector<View> deleteViews = new Vector<View>();
 			for (View view : views) {
 				if (view instanceof ModelView || view instanceof DataView)
