@@ -6,7 +6,7 @@ package engine.backend;
 import engine.Statik;
 
 /**
- * Wraps the first two moments of a distribution
+ * Wraps the first two moments of a distribution ss
  * @author timo
  */
 public class Distribution {
