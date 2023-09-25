@@ -6,7 +6,7 @@ package dirichletProcess;
 import java.util.Random;
 
 import engine.Statik;
-import clustering.*;
+import machineLearning.clustering.*;
 
 public class ChineseRestaurant {
 

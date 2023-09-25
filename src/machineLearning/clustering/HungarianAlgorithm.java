@@ -1,4 +1,4 @@
-package clustering;
+package machineLearning.clustering;
 
 import java.util.Arrays;
 

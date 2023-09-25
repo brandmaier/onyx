@@ -1,7 +1,7 @@
 /*
  * Created on 08.10.2016
  */
-package clustering;
+package machineLearning.clustering;
 
 import java.util.Arrays;
 import java.util.Comparator;

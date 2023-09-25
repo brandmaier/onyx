@@ -36,14 +36,14 @@ public class LinearModel extends Model
     
     static int NOPARAMETER = -1;
     
-    int anzFac;
+    public int anzFac;
     
-    double[][] structure;
-    int[][] covPar;
+    public double[][] structure;
+    public int[][] covPar;
     public double[][] covVal;
-    int[] meanPar;
-    double[] meanVal;
-    int[] errPar;
+    public int[] meanPar;
+    public double[] meanVal;
+    public int[] errPar;
     public double[] errVal;
     
     // if not null, addErrorInfo is gives an additional additive term to the likelihood based on the value of the error parameters.

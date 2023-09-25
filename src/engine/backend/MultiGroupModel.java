@@ -30,7 +30,7 @@ public class MultiGroupModel extends Model
 
       int anzGroups;
       
-      Model[] submodel;
+      public Model[] submodel;
       
       // Some working variables
       double[][] sigInv;

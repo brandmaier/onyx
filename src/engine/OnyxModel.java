@@ -14,8 +14,6 @@ import bayes.engine.BayesianModelRun;
 import parallelProcesses.ParallelProcess;
 import parallelProcesses.ParallelProcessHandler;
 import parallelProcesses.ParallelProcessHandler.ProcessStatus;
-//import sun.java2d.loops.ProcessPath.ProcessHandler;
-import clustering.Clustering;
 import dirichletProcess.ChineseRestaurant;
 import dirichletProcess.DirichletProcess;
 import dirichletProcess.SEMLikelihoodFunction;
@@ -28,6 +26,7 @@ import gui.Desktop;
 import gui.graph.*;
 import gui.graph.Graph.MeanTreatment;
 import gui.views.ModelView;
+import machineLearning.clustering.Clustering;
 
 
 public class OnyxModel extends RAMModel implements ModelRequestInterface {

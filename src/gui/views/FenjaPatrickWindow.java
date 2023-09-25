@@ -1,6 +1,8 @@
 package gui.views;
 
 import importexport.OpenMxExport;
+import machineLearning.clustering.Clustering;
+import machineLearning.clustering.ClusteringDistribution;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -23,8 +25,6 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import clustering.Clustering;
-import clustering.ClusteringDistribution;
 import engine.ModelRunUnit;
 import engine.ParameterReader;
 import engine.Preferences;

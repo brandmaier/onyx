@@ -3,6 +3,8 @@
  */
 package arithmetik;
 
+import engine.Statik;
+
 public abstract class AnalyticalFunction 
 {
     protected double EPS = 0.0001;
@@ -107,7 +109,6 @@ public abstract class AnalyticalFunction
         };
     }
     
-    /*
     public boolean selftest() {return selftest(null);}
     public boolean selftest(double[] pos)
     {
@@ -145,7 +146,7 @@ public abstract class AnalyticalFunction
                     ((numDD[i][j]==0) || (symDD[i][j]==0) || ( (symDD[i][j]/numDD[i][j]>1?symDD[i][j]/numDD[i][j]:numDD[i][j]/symDD[i][j]) < 0.99))) erg = false;
         return erg;
     }
-    */
+    
     
     public AnalyticalFunction fixParameter(int nr, double val)
     {
@@ -170,6 +171,31 @@ public abstract class AnalyticalFunction
             @SuppressWarnings("unused")
             public AnalyticalFunction getParent() {return fthis;};
         };
-        
     }
+
+    /**
+     * Can be overridden if more efficient methods exist to compute the gradient.
+     * 
+     * @param vals
+     * @return
+     */
+    public double[] getGradient(double[] vals) {
+        double[] erg = new double[anzPar()];
+        for (int i=0; i<erg.length; i++) erg[i] = evalDev(i, vals);
+        return erg;
+    }
+    
+    public AnalyticalFunctionPartlyFixed fixParameters(int[] nr, double[] val)
+    {
+        return new AnalyticalFunctionPartlyFixed(this, nr, val);
+    }
+    
+    public double[] newtonStep(double[] pos, double target) {
+        double y = eval(pos)-target;
+        double[] erg = getGradient(pos);
+        Statik.normalize(erg);
+        for (int i=0; i<erg.length; i++) erg[i] *= y;
+        return erg;
+    }
+
 }

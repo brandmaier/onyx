@@ -16,15 +16,14 @@ import parallelProcesses.ParallelProcess;
 import parallelProcesses.ParallelProcessHandler;
 import parallelProcesses.ParallelProcessHandler.ProcessStatus;
 import parallelProcesses.ParallelProcessView;
-import clustering.Clustering;
-import clustering.ClusteringDistribution;
 import engine.Dataset;
 import engine.OnyxModel;
 import engine.Preferences;
 import engine.RawDataset;
 import engine.Statik;
 import engine.backend.Model;
-
+import machineLearning.clustering.Clustering;
+import machineLearning.clustering.ClusteringDistribution;
 import meanPartition.PartitionDistribution;
 import BayesianNonparametrics.DPMixture;
 import BayesianNonparametrics.DependentNormalsBase;

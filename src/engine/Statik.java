@@ -1563,6 +1563,13 @@ public class Statik {
         for (int i=0; i<anzVar; i++) erg[i] /= anzEx[i];
     }
     public static double[][] covarianceMatrix(double[][] data) {return covarianceMatrix(data, true);}
+    public static double[][] covarianceMatrix(double[][] data, int[] subsample) {
+        int anzVar = data[0].length;
+        double[] mean = new double[anzVar];
+        double[][] cov = new double[anzVar][anzVar];
+        covarianceMatrixAndMeans(data, mean, cov, -999.0, subsample);
+        return cov;
+    }
     public static double[][] covarianceMatrix(double[][] data, boolean fullPopulation) 
     {
         int anzVar = data[0].length;
@@ -4746,6 +4753,7 @@ public class Statik {
      * @return
      */
     public static double[][] invertSymmetricalPositiveDefinite(double[][] matrix, double[] logresult) {double[][] erg = new double[matrix.length][matrix.length]; invertSymmetricalPositiveDefinite(matrix,erg,0.0, logresult); return erg;}
+    public static double[][] invertSymmetricalPositiveDefinite(double[][] matrix, double[][] erg) {invertSymmetricalPositiveDefinite(matrix,erg,0.0, null); return erg;}
     public static void invertSymmetricalPositiveDefinite(double[][] matrix, double[][] erg, double[] logresult) {
         invertSymmetricalPositiveDefinite(matrix, erg, 0.0, logresult);
     }
@@ -5285,6 +5293,23 @@ public class Statik {
         for (int i=0; i<erg.length; i++) erg[i] = first[i] - second[i];
         return erg;
     }
+    /**
+     * Sorts the rows of the matrix and the vector according to the (absolute) vector elements. Is used to sort Eigenvalues 
+     * in descending order along with their Eigenvectors. The matrix can be null. 
+     * 
+     * @param vec
+     * @param matrix
+     * @param absolute
+     */
+    public static void sortMatrixRowsByVector(double[] vec, double[][] matrix, boolean absolute) {
+        for (int i=0; i<vec.length; i++) {
+            double max = -Double.MAX_VALUE; int ix = -1; for (int j=i; j<vec.length; j++) 
+                if ((absolute?Math.abs(vec[j]):vec[j])> max) {max = (absolute?Math.abs(vec[j]):vec[j]); ix = j;}
+            double t = vec[i]; vec[i] = vec[ix]; vec[ix] = t;
+            double[] tr = matrix[i]; matrix[i] = matrix[ix]; matrix[ix] = tr;
+        }
+    }
+
 
     /**
      * Sorts the rows of the matrix and the vector according to the vector elements. Is used to sort Eigenvalues in descending order along with their

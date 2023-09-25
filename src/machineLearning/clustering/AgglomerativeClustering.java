@@ -1,10 +1,10 @@
 /*
  * Created on 04.05.2011
  */
-package clustering;
+package machineLearning.clustering;
 
-import clustering.LloydsAlgorithm.methodType;
 import engine.Statik;
+import machineLearning.clustering.LloydsAlgorithm.methodType;
 
 public class AgglomerativeClustering extends ClusteringAlgorithm {
 

@@ -1,7 +1,7 @@
 /*
  * Created on 04.05.2011
  */
-package clustering;
+package machineLearning.clustering;
 
 import engine.Statik;
 

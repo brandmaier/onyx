@@ -142,7 +142,7 @@ public abstract class Model
       public boolean emMethodIsConverged;
       private double[][] ctrlCov, ctrlCovWork, ctrlTargetCov, targetCtrlCov, ctrlB;
 
-      double[][] sigInv;
+      public double[][] sigInv;
       double[] lastEstimate;
       public double convergenceIndex; // <=1 no convergence, ca. above 1.3 good convergence, 2 theoretically optimal (quadratic convergence); set to 2 if step small than EPS.
       public double lastGain, lastSteplength, lastDamping;
@@ -322,7 +322,7 @@ public abstract class Model
       /** Returns the highest parameter number in the model structure. */
       protected abstract int maxParNumber();
 
-      protected void fixParameter(int nr) {removeParameterNumber(nr); anzPar--;}
+      public void fixParameter(int nr) {removeParameterNumber(nr); anzPar--;}
       
       /** Invents parameter Names. May be overwritten, but doesn't need to.*/
       protected void inventParameterNames(String prefix) {
