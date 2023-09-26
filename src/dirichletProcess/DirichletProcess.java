@@ -24,7 +24,7 @@ import engine.Statik;
 import engine.backend.Model;
 import machineLearning.clustering.Clustering;
 import machineLearning.clustering.ClusteringDistribution;
-import meanPartition.PartitionDistribution;
+//import meanPartition.PartitionDistribution;               // package and Class is missing. 
 import BayesianNonparametrics.DPMixture;
 import BayesianNonparametrics.DependentNormalsBase;
 
@@ -53,7 +53,9 @@ public class DirichletProcess implements ParallelProcess {
 				
 		DPMixture dpm = new DPMixture(new DependentNormalsBase(priorMu, priorPsi, priorKappa, priorNu, observations), preClusteringAlpha);		
 		int[][] samples = dpm.simulate(preClusteringBurnIn, preClusteringSamples, preClusteringThinning);		
-		return new PartitionDistribution(samples).getMeanPartition2();		
+		// @FIXME  Class PartitionDistribution is missing, probably lost in transition to github. 
+//		return new PartitionDistribution(samples).getMeanPartition2();
+		return null;
     }
     
     public DirichletProcess(ChineseRestaurant crp, OnyxModel copy, OnyxModel model, int anzSteps, String targetName) {this(crp, copy, model, anzSteps, false, 0, 0, 0, 0.0, targetName);}
@@ -107,8 +109,9 @@ public class DirichletProcess implements ParallelProcess {
         if (anzClusterings > freq.length) anzClusterings = freq.length;
         int[][] cluster = fullDistribution.toArray();
         
-        //calculation of mean partition
-        int[] meanPartition = new PartitionDistribution(fullDistribution).getMeanPartition2();
+        //calculation of mean partition. TvO 26SEP2023: Class PartitionDistribution is missing, possibly lost in transition to github. @FIXME
+//        int[] meanPartition = new PartitionDistribution(fullDistribution).getMeanPartition2();
+        int[] meanPartition = null;
         		
         for (int cl=0; cl<anzClusterings; cl++) 
         {

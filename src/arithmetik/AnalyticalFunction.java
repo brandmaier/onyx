@@ -34,6 +34,14 @@ public abstract class AnalyticalFunction
     }
     
     /**
+     * Evaluates the 1st deriviative wrt. the first parameter. Assumes there is only one. 
+     * 
+     * @param val
+     * @return
+     */
+    public double evalDev(double val) {return evalDev(0, new double[] {val});}
+    
+    /**
      * Evaluates derivative with parameter pnr set to val and the remaining in the oder or remainingVal. Should be overwritten for efficiency. 
      * 
      * @param pnr
@@ -120,7 +128,7 @@ public abstract class AnalyticalFunction
             for (int i=0; i<pos.length; i++) pos[i] = (rand.nextGaussian()-0.5)*100;  
         } 
         val = Statik.copy(pos);
-//        AnalyticalFunction num = numericalCopy();
+        //        AnalyticalFunction num = numericalCopy();
         double[] symD = new double[anzPar()], numD = new double[anzPar()];
         double[][] symDD = new double[anzPar()][anzPar()], numDD = new double[anzPar()][anzPar()];
         for (int i=0; i<anzPar(); i++)
@@ -150,6 +158,8 @@ public abstract class AnalyticalFunction
     
     public AnalyticalFunction fixParameter(int nr, double val)
     {
+        return fixParameters(new int[] {nr}, new double[] {val});
+        /* old inner class solution
         final AnalyticalFunction fthis = this;
         final int fnr = nr;
         final double fval = val;
@@ -171,6 +181,7 @@ public abstract class AnalyticalFunction
             @SuppressWarnings("unused")
             public AnalyticalFunction getParent() {return fthis;};
         };
+        */
     }
 
     /**
@@ -190,11 +201,17 @@ public abstract class AnalyticalFunction
         return new AnalyticalFunctionPartlyFixed(this, nr, val);
     }
     
-    public double[] newtonStep(double[] pos, double target) {
+    /**
+     * returns a single Newton step assuming there is only one parameter value.
+     *  
+     * @param pos
+     * @param target
+     * @return
+     */
+    public double newtonStep(double pos, double target) {
         double y = eval(pos)-target;
-        double[] erg = getGradient(pos);
-        Statik.normalize(erg);
-        for (int i=0; i<erg.length; i++) erg[i] *= y;
+        double yDev = evalDev(pos);
+        double erg = -y/yDev;
         return erg;
     }
 
