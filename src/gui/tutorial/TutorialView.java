@@ -19,28 +19,22 @@ import gui.Desktop;
 import gui.Utilities;
 import gui.views.View;
 
-
-
 public class TutorialView extends View implements MouseListener, ActionListener {
 
+	private static final long serialVersionUID = 1L;
 	GeneralPath framePath;
-		int stroke;
+	int stroke;
 	JLabel label;
 	private JMenuItem menuClose;
-	
-	public TutorialView(Desktop desktop)
-	{
+
+	public TutorialView(Desktop desktop) {
 		this.desktop = desktop;
-//		this.set
-		//this.setBackground(Color.red);
 		this.setSize(300, 200);
 		this.setOpaque(false);
 		this.setResizable(false);
 		this.setSelectable(false);
 		this.setMinimizable(false);
-		
-		//this.setComponentZOrder(this, 1);
-		
+
 		int w = this.getWidth();
 		int h = this.getHeight();
 		int offset_top = 15;
@@ -48,76 +42,65 @@ public class TutorialView extends View implements MouseListener, ActionListener 
 		int offset_xarrow = 50;
 		int width_arrow = 30;
 		stroke = 2;
-		
+
 		framePath = new GeneralPath();
-		framePath.moveTo(offset_curve, offset_top);	// top left, after curve
-		framePath.lineTo(w-offset_curve-offset_xarrow-2*width_arrow, offset_top);	// top right before arrow
-		framePath.lineTo(w-offset_curve-offset_xarrow-width_arrow, 0);	// peak arrow
-		framePath.lineTo(w-offset_curve-offset_xarrow, offset_top);	// right end arrow
-		framePath.lineTo(w-offset_curve, offset_top);	// top right corner before curve
-		//framePath.quadTo(w,0, w, offset_top+offset_curve); 	//top right curve
-		framePath.lineTo(w-stroke, offset_top+offset_curve);
-		framePath.lineTo(w-stroke, h-stroke);
-		framePath.lineTo(offset_curve, h-stroke);	// bottom left before curve
-		//framePath.quadTo(0, h, 0, h-offset_curve);
-		framePath.lineTo(0, h-offset_curve);
-		framePath.lineTo(0, h-offset_curve-offset_top);
-		framePath.lineTo(0, offset_top+offset_curve);
+		framePath.moveTo(offset_curve, offset_top); // top left, after curve
+		framePath.lineTo(w - offset_curve - offset_xarrow - 2 * width_arrow, offset_top); // top right before arrow
+		framePath.lineTo(w - offset_curve - offset_xarrow - width_arrow, 0); // peak arrow
+		framePath.lineTo(w - offset_curve - offset_xarrow, offset_top); // right end arrow
+		framePath.lineTo(w - offset_curve, offset_top); // top right corner before curve
+		// framePath.quadTo(w,0, w, offset_top+offset_curve); //top right curve
+		framePath.lineTo(w - stroke, offset_top + offset_curve);
+		framePath.lineTo(w - stroke, h - stroke);
+		framePath.lineTo(offset_curve, h - stroke); // bottom left before curve
+		// framePath.quadTo(0, h, 0, h-offset_curve);
+		framePath.lineTo(0, h - offset_curve);
+		framePath.lineTo(0, h - offset_curve - offset_top);
+		framePath.lineTo(0, offset_top + offset_curve);
 		framePath.lineTo(offset_curve, offset_top);
-	
-		 label = new JLabel("No text available");
+
+		label = new JLabel("No text available");
 		this.add(label);
-		
+
 		int inset = 10;
-		label.setSize(w-2*inset,h-2*inset);
+		label.setSize(w - 2 * inset, h - 2 * inset);
 		label.setLocation(inset, inset);
-		
+
 		this.setX(300);
 		this.setY(300);
-		
-//		label.set
+
 		label.addMouseListener(this);
 		this.addMouseListener(this);
 	}
-	
 
+	public void paint(Graphics g) {
 
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-	public void paint(Graphics g)
-	{
-		//this.pain
-		 Graphics2D g2d = (Graphics2D)g;
-	     g2d.setRenderingHint ( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
-
-		
-		
-		//Graphics2D g2d = ((Graphics2D)g);
 		g2d.setStroke(new BasicStroke(stroke));
-		
+
 		g.setColor(Color.WHITE);
 		g2d.fill(framePath);
 		g.setColor(Color.DARK_GRAY);
 		g2d.draw(framePath);
 		super.paint(g);
-	
-		
-		
-	}
 
+	}
 
 	public void setText(String string) {
-		this.label.setText("<html>"+string+"</html>");
-		
+		this.label.setText("<html>" + string + "</html>");
+
 	}
-	
+
 	public void mouseClicked(MouseEvent arg0) {
-		
+
 		System.out.println("Mouse clicked!");
 		if (Utilities.isRightMouseButton(arg0)) {
 
 			JPopupMenu menu = new JPopupMenu();
 			menuClose = new JMenuItem("Close");
-			menu.add( menuClose );
+			menu.add(menuClose);
 			menuClose.addActionListener(this);
 			try {
 				menu.show(arg0.getComponent(), arg0.getX(), arg0.getY());
@@ -125,12 +108,9 @@ public class TutorialView extends View implements MouseListener, ActionListener 
 				e.printStackTrace();
 			}
 		}
-		
+
 		super.mouseClicked(arg0);
 	}
-
-
-
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -139,6 +119,6 @@ public class TutorialView extends View implements MouseListener, ActionListener 
 			desktop.removeView(this);
 
 		}
-		
+
 	}
 }
