@@ -209,10 +209,36 @@ public abstract class AnalyticalFunction
      * @return
      */
     public double newtonStep(double pos, double target) {
-        double y = eval(pos)-target;
+        double y = eval(pos)-target; if (y==0.0) return 0.0;
         double yDev = evalDev(pos);
         double erg = -y/yDev;
         return erg;
     }
+    
+    public AnalyticalFunction exchangeOrderOfParameter(int[] newOrder) {
+        final int[] fNewOrder = newOrder;
+        final AnalyticalFunction fthis = this;
+        return new AnalyticalFunction() {
 
+            private double[] exchangeValues = new double[fthis.anzPar()];
+            
+            public void changeToNew(double[] val) {
+                for (int i=0; i<fthis.anzPar(); i++) exchangeValues[i] = val[fNewOrder[i]];  
+            }
+            
+            @Override
+            public double eval(double[] val) {changeToNew(val); return fthis.eval(exchangeValues);}
+            
+            @Override
+            public double evalDev(int pnr, double[] val) {changeToNew(val); return fthis.evalDev(pnr, exchangeValues);}
+            
+            @Override
+            public double evalDev(int[] pnr, double[] val) {changeToNew(val); return fthis.evalDev(pnr, exchangeValues);}
+            
+            @Override
+            public int anzPar() {return fthis.anzPar();}
+        };
+    }
+    
+    
 }
