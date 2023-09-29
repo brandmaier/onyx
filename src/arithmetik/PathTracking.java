@@ -99,7 +99,10 @@ public class PathTracking {
                 posFree += newStep;
                 newStep = Math.abs(newStep);
                 tries++;
-                if (tries > 1) looksGood = Math.log(newStep) / Math.log(width) > CONVERGENCERATE;
+                if (tries > 1) {
+                    double convergenceRate = Math.log(newStep) / Math.log(width);
+                    looksGood = convergenceRate > CONVERGENCERATE;
+                }
                 width = newStep;
                 succeeded = Math.abs(width) < EPS;
             }

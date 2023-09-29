@@ -33,8 +33,9 @@ public class AnalyticalPathBalanceFunction extends AnalyticalFunction {
         int[] fixedIx = new int[g.anzPar()-2];
         int j=0; for (int i=0; i<fixedIx.length; i++) {while (i+j==freeIx || i+j==controlIx) j++; fixedIx[i] = j+i;}
         AnalyticalFunction h = g.fixParameters(fixedIx, otherValues);
-        if (freeIx > controlIx) f = h.exchangeOrderOfParameter(new int[] {1,0}); 
+        if (freeIx < controlIx) f = h.exchangeOrderOfParameter(new int[] {1,0}); 
         else f = h;
+        this.target = target;
         initialize(startCtrl, startFree);
     }
 
@@ -68,7 +69,7 @@ public class AnalyticalPathBalanceFunction extends AnalyticalFunction {
         double[] start;
         
         if (d1 != null && (d2==null || Math.abs(val-d1[0])<Math.abs(val-d2[0]))) start = d1; else start = d2;
-        double[] end = PathTracking.trackPathWithGoodStart(f, 1, start[0], new double[] {start[1]}, new double[] {val}, target, null, 0.1, anchors);
+        double[] end = PathTracking.trackPathWithGoodStart(f, 1, start[1], new double[] {start[0]}, new double[] {val}, target, null, 0.1, anchors);
         if (end[0] == val) return end[1]; else return Double.NaN;
     }
 

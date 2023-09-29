@@ -5354,6 +5354,42 @@ public class Scripts {
             System.out.println((i/10.0)+"\t"+fb.eval(i/10.0));
         
     }
+
+    public static void miToBacTranslation() {
+        AnalyticalFunction mi = new AnalyticalFunction() {
+
+            @Override
+            public double eval(double[] val) {
+                double p = val[0], q1 = val[1], q2 = 1-val[2];
+                double q = p*q1 + (1-p)*q2;
+                double erg = -  q*Math.log(q)-((1-q)*Math.log(1-q)) + p*(q1*Math.log(q1)+(1-q1)*Math.log(1-q1))+(1-p)*(q2*Math.log(q2)+(1-q2)*Math.log(1-q2));
+                return erg;
+            }
+
+            @Override
+            public int anzPar() {
+                return 3;
+            }
+        };
+        
+        double p = 0.8;
+        System.out.print("q \\ q1 \t");
+        for (int j=0; j<=40; j++)
+            System.out.print((j==0?0.001:(j==40?0.9999:j/40.0))+"\t");
+        System.out.println();
+        for (int i=1; i<=9; i++) {
+            double q = i/10.0;
+            System.out.print(q+"\t");
+            double v = mi.eval(new double[] {p,q,q});
+            AnalyticalFunction f = new AnalyticalPathBalanceFunction(mi, 2, q, 1, q, new double[] {p}, v);
+            for (int j=0; j<=40; j++) {
+                double q1 = (j==0?0.001:(j==40?0.9999:j/40.0));
+                double q2 = f.eval(q1);
+                System.out.print(q2+"\t");
+            }
+            System.out.println();
+        }
+    }
     
     public static void main(String[] args) {
         
@@ -5494,7 +5530,7 @@ public class Scripts {
 //        sabineLDA();
 //        thedeMathewettbewerb();
 //        ingaAndTheNorwegians();
-        pathTrackingCheck();
+        miToBacTranslation();
     }
     
 }
