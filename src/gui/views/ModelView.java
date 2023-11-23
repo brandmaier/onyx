@@ -4476,7 +4476,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			columnNames[i] = allNames[filter[i]];
 
 		// create new object and view and add them to desktop
-		OnyxModel model = mri.getModel().copy();
+		OnyxModel model = mri.getModel().copy(false);
 		Dataset dataset = null;
 		if (isRawData)
 			dataset = new SimulatedDataset(Arrays.asList(columnNames), model, percentMissing);

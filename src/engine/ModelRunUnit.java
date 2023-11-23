@@ -531,7 +531,7 @@ public class ModelRunUnit implements ParameterReader {
         aic = aicc = bic = bicadj = cfi = tli = rmsea = chisqr = chisqrIndep = klIndep = rmseaDfCorrected = rmseaKL = kulbackLeibler = Double.NaN;
         rmseaCI = new double[] { Double.NaN, Double.NaN}; 
         if (!Double.isNaN(ll)) {
-            OnyxModel model = modelRun.model.copy(); model.evaluateMuAndSigma(position);
+            OnyxModel model = modelRun.model.copy(false); model.evaluateMuAndSigma(position);
             aic = Model.getAIC(ll, anzPar);
             aicc = Model.getAICc(ll, anzPar, anzPer);
             bic = Model.getBIC(ll, anzPar, anzPer);

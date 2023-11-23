@@ -16,6 +16,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Random;
@@ -27,6 +28,7 @@ import arithmetik.FastPolynomial;
 import arithmetik.PathTracking;
 import arithmetik.QPolynomial;
 import arithmetik.Qelement;
+import engine.Dataset;
 
 //import arithmetik.AnalyticalFunction;
 
@@ -34,6 +36,8 @@ import arithmetik.Qelement;
 //import differentiableDoubles.DifferentialMatrix;
 import engine.ModelRunUnit;
 import engine.OnyxModel;
+import engine.OnyxModel.Until;
+import engine.RawDataset;
 import engine.Statik;
 //import gui.actions.LoadDataAction;
 
@@ -4832,7 +4836,7 @@ public class Scripts {
         double[][] data = new double[anzPer][2];
         int meanDiff = 100;
         int stdv = 1;
-        OnyxModel restricted = model.copy(); restricted.fixParameter("Weight_TO_Speed", trueEffect);
+        OnyxModel restricted = model.copy(false); restricted.fixParameter("Weight_TO_Speed", trueEffect);
         model.killModelRun();
         
         int total = 0, succ = 0;
@@ -5390,6 +5394,59 @@ public class Scripts {
             System.out.println();
         }
     }
+
+    public static void miraIngaHanne() {
+        RawDataset data = RawDataset.loadRawDataset("miraIngaHanne/timeData.txt");
+        
+        Vector<double[]> resultColumns = new Vector<double[]>();
+        Vector<String> resultHeader = new Vector<String>();
+        File file = new File("miraIngaHanne/Models");
+        for (File f:file.listFiles()) {
+            OnyxModel model = OnyxModel.load(f);
+            
+            // DEBUG
+//            OnyxModel debugModel = OnyxModel.load(new File("miraIngaHanne/PVA_1.xml"));
+//            OnyxModel copy = debugModel.copy(true);
+//            System.out.println();
+////            boolean ok = debugModel.runUntil(data, 3600000);
+//            boolean ok = copy.runUntil(data, 3600000);
+//            double[][] res = copy.getLatentScores();
+            
+            for (int age=1; age<=18; age++) {
+                System.out.println("Starting Model "+model.name+" age "+age+".");
+                OnyxModel modelAtAge = model.copy(true);
+                int latentIx = -1;
+                for (int i=0; i<modelAtAge.variableNames.length; i++) {
+                    if (modelAtAge.variableNames[i].startsWith("M")) {
+                        String name = modelAtAge.variableNames[i]+"_"+age;
+                        String reversedItemName = modelAtAge.variableNames[i]+"r_"+age;
+                        if (data.getColumnNumber(reversedItemName)!=-1) name = reversedItemName;
+                        modelAtAge.variableNames[i] = name;
+                    } else  if (modelAtAge.variableNames[i].equals(model.name)) latentIx = i;
+                }
+                boolean allok = modelAtAge.runUntil(data, Until.CONVERGED, 60000);
+                if (!allok) System.err.println("Model "+model.name+" at age "+age+" did not converge reliably.");
+                double[][] zwerg = modelAtAge.getLatentAndMissingScores(modelAtAge.modelRun.getBestUnit());
+                double[] zwergCol = new double[zwerg.length];
+                for (int i=0; i<zwerg.length; i++) zwergCol[i] = zwerg[i][latentIx];
+                resultColumns.add(zwergCol);
+                resultHeader.add("FIML_EQ_"+model.name+"_"+age);
+            }
+        }
+        System.out.println("Finished, starting output generation.");
+        try {
+            PrintStream resultStream = new PrintStream("result.txt");
+            for (String colHeader:resultHeader) resultStream.print(colHeader+"\t");
+            resultStream.println();
+            for (int i=0; i<data.getNumRows(); i++) {
+                for (int j=0; j<resultColumns.size(); j++) resultStream.print(resultColumns.elementAt(j)[i]+"\t");
+                resultStream.println();
+            }
+            resultStream.close();
+        } catch (Exception e) {
+            System.err.println("Something's wrong at saving result, "+e);
+        }
+    }
     
     public static void main(String[] args) {
         
@@ -5530,7 +5587,8 @@ public class Scripts {
 //        sabineLDA();
 //        thedeMathewettbewerb();
 //        ingaAndTheNorwegians();
-        miToBacTranslation();
+//        miToBacTranslation();
+        miraIngaHanne();
     }
     
 }

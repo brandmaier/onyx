@@ -876,7 +876,7 @@ public class RAMModel extends NumericalDerivativeModel {
 
     @Override
     public RAMModel removeObservation(int obs) {
-        RAMModel copy = (RAMModel)this.copy();
+        RAMModel copy = new RAMModel((RAMModel)this);
         copy.filter = Statik.subvector(copy.filter, obs);
         copy.anzVar--;
         return copy;

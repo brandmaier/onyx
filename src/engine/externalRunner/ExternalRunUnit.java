@@ -142,7 +142,7 @@ public class ExternalRunUnit extends ModelRunUnit {
      * overwritten to implement specific outside agents. 
      */
     protected void makeOutsideCall() {
-        OnyxModel model = modelView.getModelRequestInterface().getModel().copy();
+        OnyxModel model = modelView.getModelRequestInterface().getModel().copy(false);
         position = (objective == Objective.MAXIMUMLIKELIHOOD?model.estimateML(starting):model.estimateLS(starting));
 
         // sets the agent message and status according to the status returned from the agent.
@@ -152,7 +152,7 @@ public class ExternalRunUnit extends ModelRunUnit {
     
     private void makeOutsideCallFrame() {
         // Create the outside agent's version of the model.
-        OnyxModel model = modelView.getModelRequestInterface().getModel().copy();
+        OnyxModel model = modelView.getModelRequestInterface().getModel().copy(false);
         
         // takes time stamp and runs outside agent
         if (modelRun != null)

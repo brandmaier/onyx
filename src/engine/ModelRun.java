@@ -113,7 +113,7 @@ public class ModelRun extends Thread {
     private void createWorkModel() {
 
         // synchronized call
-        OnyxModel workCopy = model.copy();
+        OnyxModel workCopy = model.copy(false);
 
         // TODO TvO to himself, 26.04.2017: If the strategy is DefaultWithEMSupport, then we don't build the full tree of submodels; does that mean it is sufficient
         // to just make the modelWork Copy the workCopy like with indirect data and be done with it? Needs checking!
@@ -158,7 +158,7 @@ public class ModelRun extends Thread {
             Model[] definitionSubmodel = new Model[anzDefinitionGroups];
             int defSubmodelCounter = 0;
             for (FIMLDefinitionKey defkey:hash.keySet()) {
-                OnyxModel sub = workCopy.copy();
+                OnyxModel sub = workCopy.copy(false);
     
                 // Filling definition Variable values
                 for (int j=0; j<sub.definitionVariableEdges.length; j++) {
@@ -180,7 +180,7 @@ public class ModelRun extends Thread {
                 int[][] observation = new int[anzMissGroups][];
                 int missSubmodelCounter = 0;
                 for (FIMLMissingKey misskey:missingHash.keySet()) {
-                    OnyxModel subsub = sub.copy();
+                    OnyxModel subsub = sub.copy(false);
                     Vector<FIMLMissingKey> dat = missingHash.get(misskey); 
                 
                     // Creating subdataset and making missing slots latent

@@ -70,11 +70,11 @@ public class OnyxModel extends RAMModel implements ModelRequestInterface {
         this.setStrategy(Strategy.defaul);    // replace with classical Onyx Strategy if needed.
     }
     
-    public OnyxModel(OnyxModel toCopy) {
+    public OnyxModel(OnyxModel toCopy, boolean startNewModelRun) {
         super(toCopy);
         startingValues = Statik.copy(toCopy.startingValues);
         modelListener = toCopy.modelListener;
-        modelRun = toCopy.modelRun;
+        
         definitionVariableEdges = toCopy.definitionVariableEdges;
         definitionVariableData = toCopy.definitionVariableData;
         meanTreatment = toCopy.meanTreatment;
@@ -85,6 +85,11 @@ public class OnyxModel extends RAMModel implements ModelRequestInterface {
         implicitlyEstimatedMeans = Statik.copy(toCopy.implicitlyEstimatedMeans);
         copyStrategy(toCopy);
         lastChosenStrategyPreset = toCopy.lastChosenStrategyPreset;
+        // TvO 23.11.2023: just taking the same model run malfunctions on copies that should have a working modelRun.  
+        // I add a parameter to this function that determines whether to just copy the model run or create a new one. 
+        if (startNewModelRun) modelRun = new ModelRun(this);
+//        else modelRun = toCopy.modelRun;
+        else modelRun = null;
     }
     
     public OnyxModel(RAMModel ramModel) {
@@ -191,8 +196,9 @@ public class OnyxModel extends RAMModel implements ModelRequestInterface {
         return erg;
     }
 
-    public synchronized OnyxModel copy() {
-        return new OnyxModel(this);
+    public synchronized OnyxModel copy() {return copy(true);}
+    public synchronized OnyxModel copy(boolean startNewModelRun) {
+        return new OnyxModel(this, startNewModelRun);
     }
 
     public void addModelListener(ModelListener listener) {
@@ -656,7 +662,8 @@ public class OnyxModel extends RAMModel implements ModelRequestInterface {
         if (definitionVariableData != null) 
             this.definitionVariableData = definitionVariableData;
 
-        if (modelRun.getStatus() == Status.DEAD) modelRun = new ModelRun(this);
+        if (modelRun.getStatus() == Status.DEAD) 
+            modelRun = new ModelRun(this);
         modelRun.dataValid = (data != null && data.length > 0 && data[0].length == anzVar);
         modelRun.definitionDataValid = checkDefinitionVariables();
         
@@ -1196,7 +1203,7 @@ public class OnyxModel extends RAMModel implements ModelRequestInterface {
         if (this.isIndirectData) {System.out.println("Dirichlet Clustering impossible on non-raw data set."); return null;}
         if (!this.modelRun.dataValid) {System.out.println("Dirichlet Clustering impossible before data is valid."); return null;}
         
-        final OnyxModel copy = this.copy();
+        final OnyxModel copy = this.copy(false);
         SEMLikelihoodFunction likelihood = new SEMLikelihoodFunction(copy.data, copy, this.dataCov, this.dataMean, priorStrength);
         final ChineseRestaurant crp = new ChineseRestaurant(likelihood, data.length, alphaDirichlet, anzBurnin);
         crp.DEBUGFLAG = false;
