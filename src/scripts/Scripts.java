@@ -4836,7 +4836,7 @@ public class Scripts {
         double[][] data = new double[anzPer][2];
         int meanDiff = 100;
         int stdv = 1;
-        OnyxModel restricted = model.copy(false); restricted.fixParameter("Weight_TO_Speed", trueEffect);
+        OnyxModel restricted = model.copy(); restricted.fixParameter("Weight_TO_Speed", trueEffect);
         model.killModelRun();
         
         int total = 0, succ = 0;
@@ -5395,47 +5395,94 @@ public class Scripts {
         }
     }
 
-    public static void miraIngaHanne() {
+    public static void miraIngaHanne(boolean useSum) {
         RawDataset data = RawDataset.loadRawDataset("miraIngaHanne/timeData.txt");
+        double[][] d = data.getData();
+        for (int i=0; i<d.length; i++) for (int j=0; j<d.length; j++) if (d[i][j]==99) d[i][j] = Model.MISSING;
+        
+        String[] scaleName = new String[] {"PVA","PNVEA","PPA","EN","PN","WITP","WITS","PEERE","PEERP","SEXA"};
+        int[] scaleCutoff = new int[] {3,2,3,4,2,3,2,3,2,1};
+        int[] anzItems = new int[] {4,5,6,7,6,6,5,4,4,8};
         
         Vector<double[]> resultColumns = new Vector<double[]>();
         Vector<String> resultHeader = new Vector<String>();
         File file = new File("miraIngaHanne/Models");
-        for (File f:file.listFiles()) {
+        for (int snr=0; snr<scaleName.length; snr++) {
+            File f = new File (file, scaleName[snr]+".xml");
             OnyxModel model = OnyxModel.load(f);
-            
-            // DEBUG
-//            OnyxModel debugModel = OnyxModel.load(new File("miraIngaHanne/PVA_1.xml"));
-//            OnyxModel copy = debugModel.copy(true);
-//            System.out.println();
-////            boolean ok = debugModel.runUntil(data, 3600000);
-//            boolean ok = copy.runUntil(data, 3600000);
-//            double[][] res = copy.getLatentScores();
+            int latentIx = -1;
+            for (int i=0; i<model.variableNames.length; i++)
+                if (model.variableNames[i].equals(model.name)) latentIx = i;
+
+            System.out.println("Starting Model "+model.name+" general question.");
+            boolean allok = model.runUntil(data, Until.CONVERGED, 60000);
+            if (!allok) System.err.println("Model "+model.name+" (general question) did not converge reliably.");
+            double sign = Math.signum(model.modelRun.getBestUnit().getParameterValue("load"));
+            double[][] zwerg = model.getLatentAndMissingScores(model.modelRun.getBestUnit());
+            double[] zwergCol = new double[zwerg.length];
+            double[] zwergMultiCol = new double[zwerg.length];
+            double[] zwergTenCol = new double[zwerg.length];
+            for (int i=0; i<zwerg.length; i++) 
+                if (!useSum) {
+                    zwergCol[i] = sign * zwerg[i][latentIx];
+                } else {
+                    zwergCol[i] = 0;
+                    for (int j=0; j<zwerg[i].length; j++) if (j!=latentIx) zwergCol[i] += zwerg[i][j];
+                    if (zwergCol[i] < 0) zwergCol[i] = 0; if (zwergCol[i] > anzItems[snr]) zwergCol[i] = anzItems[snr];
+                    zwergMultiCol[i] = (zwergCol[i] >= scaleCutoff[snr]?1:0);
+                    zwergTenCol[i] = zwergCol[i]*10 / (double)anzItems[snr];
+                }
+            resultColumns.add(zwergCol);
+            resultHeader.add("FIML_EQ_"+scaleName[snr]);
+            if (useSum) {
+                resultColumns.add(zwergMultiCol);
+                resultHeader.add("FIML_EQ_MULTI_"+scaleName[snr]);
+                resultColumns.add(zwergTenCol);
+                resultHeader.add("FIML_EQ_TEN_"+scaleName[snr]);
+            }
+            model.killModelRun();
             
             for (int age=1; age<=18; age++) {
                 System.out.println("Starting Model "+model.name+" age "+age+".");
-                OnyxModel modelAtAge = model.copy(true);
-                int latentIx = -1;
-                for (int i=0; i<modelAtAge.variableNames.length; i++) {
+                OnyxModel modelAtAge = model.copy();
+                for (int i=0; i<modelAtAge.variableNames.length; i++)
                     if (modelAtAge.variableNames[i].startsWith("M")) {
                         String name = modelAtAge.variableNames[i]+"_"+age;
                         String reversedItemName = modelAtAge.variableNames[i]+"r_"+age;
                         if (data.getColumnNumber(reversedItemName)!=-1) name = reversedItemName;
                         modelAtAge.variableNames[i] = name;
-                    } else  if (modelAtAge.variableNames[i].equals(model.name)) latentIx = i;
-                }
-                boolean allok = modelAtAge.runUntil(data, Until.CONVERGED, 60000);
+                    }
+                
+                allok = modelAtAge.runUntil(data, Until.CONVERGED, 60000);
                 if (!allok) System.err.println("Model "+model.name+" at age "+age+" did not converge reliably.");
-                double[][] zwerg = modelAtAge.getLatentAndMissingScores(modelAtAge.modelRun.getBestUnit());
-                double[] zwergCol = new double[zwerg.length];
-                for (int i=0; i<zwerg.length; i++) zwergCol[i] = zwerg[i][latentIx];
+                sign = Math.signum(modelAtAge.modelRun.getBestUnit().getParameterValue("load"));
+                zwerg = modelAtAge.getLatentAndMissingScores(modelAtAge.modelRun.getBestUnit());
+                zwergCol = new double[zwerg.length];
+                zwergMultiCol = new double[zwerg.length];
+                zwergTenCol = new double[zwerg.length];
+                for (int i=0; i<zwerg.length; i++) 
+                    if (!useSum) {
+                        zwergCol[i] = sign * zwerg[i][latentIx];
+                    } else {
+                        zwergCol[i] = 0;
+                        for (int j=0; j<zwerg[i].length; j++) if (j!=latentIx) zwergCol[i] += zwerg[i][j];
+                        if (zwergCol[i] < 0) zwergCol[i] = 0; if (zwergCol[i] > anzItems[snr]) zwergCol[i] = anzItems[snr];
+                        zwergMultiCol[i] = (zwergCol[i] >= scaleCutoff[snr]?1:0);
+                        zwergTenCol[i] = zwergCol[i]*10 / (double)anzItems[snr];
+                    }
                 resultColumns.add(zwergCol);
                 resultHeader.add("FIML_EQ_"+model.name+"_"+age);
+                if (useSum) {
+                    resultColumns.add(zwergMultiCol);
+                    resultHeader.add("FIML_EQ_MULTI_"+scaleName[snr]+"_"+age);
+                    resultColumns.add(zwergTenCol);
+                    resultHeader.add("FIML_EQ_TEN_"+scaleName[snr]+"_"+age);
+                }
             }
         }
         System.out.println("Finished, starting output generation.");
         try {
-            PrintStream resultStream = new PrintStream("result.txt");
+            PrintStream resultStream = new PrintStream("miraIngaHanne/result.txt");
             for (String colHeader:resultHeader) resultStream.print(colHeader+"\t");
             resultStream.println();
             for (int i=0; i<data.getNumRows(); i++) {
@@ -5446,6 +5493,7 @@ public class Scripts {
         } catch (Exception e) {
             System.err.println("Something's wrong at saving result, "+e);
         }
+        System.out.println("done.");
     }
     
     public static void main(String[] args) {
@@ -5588,7 +5636,7 @@ public class Scripts {
 //        thedeMathewettbewerb();
 //        ingaAndTheNorwegians();
 //        miToBacTranslation();
-        miraIngaHanne();
+        miraIngaHanne(true);
     }
     
 }
