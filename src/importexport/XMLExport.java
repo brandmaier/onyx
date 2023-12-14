@@ -172,6 +172,7 @@ public class XMLExport extends Export
 			}
 			} catch (Exception e) {
 				errors.add( "Node "+node.getCaption()+" could not be saved correctly.");
+				e.printStackTrace();
 			}
 			
 			nodeElement.setAttribute("normalized", Boolean.toString(node.isNormalized()));
@@ -217,7 +218,8 @@ public class XMLExport extends Export
 			nodeElement.setAttribute("labelFontColor", "#"+Integer.toHexString(edge.getLabel().getColor().getRGB() & 0x00ffffff ) );
 			
 			} catch (Exception e) {
-				errors.add("Edge "+edge.getParameterName()+" could not be saved correctly.");
+				errors.add("Edge "+edge.getParameterName()+" could not be saved correctly");
+				e.printStackTrace();
 			}
 			nodeElement.setAttribute("automaticControlPoints", Boolean.toString(edge.ctrlAutomatic));
 			if (!edge.ctrlAutomatic) {
