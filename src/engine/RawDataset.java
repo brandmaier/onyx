@@ -92,7 +92,7 @@ public class RawDataset extends Dataset {
 		if (names != null) this.columnNames = names; else for (int i=0; i < numColumns; i++) this.columnNames.add("Unnamed"+Integer.toString(i+1));
         if (centralizationMeans == null) this.centralizationMeans = new double[numColumns]; else this.centralizationMeans = centralizationMeans;
 	}
-
+	
 	@Deprecated // use Dataset.createDatasetFromString
 	public RawDataset(String table, String name) {
 	    this();

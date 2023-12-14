@@ -400,9 +400,10 @@ public class Edge implements Cloneable, LineColorable,
 		this.value = value;
 		this.standardizedValue = Double.NaN;
 		
-		if (!this.isFixed()) {
-			System.err.println("Warning! Used Edge.setValue() on a non-fixed path.");
-		}
+		// TvO 23.11.2023 removed this warning since setting value on free paths might make sense at some points (e.g., scripts). 
+//		if (!this.isFixed()) {
+//			System.err.println("Warning! Used Edge.setValue() on a non-fixed path.");
+//		}
 	}
 
 	public void setValue(double value, double svalue) {

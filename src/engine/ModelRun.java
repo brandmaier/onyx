@@ -346,7 +346,7 @@ public class ModelRun extends Thread {
                 convergedUnits.add(ru);
                 model.notifyOfConvergedUnitsChanged();
                 if (status != Status.RESULTSVALID && modelWorkCopy.warningFlag == warningFlagTypes.OK) {
-                    setStatus(Status.RESULTSVALID);
+                    if (status != Status.ENDINGMODELRUN && status != Status.DEAD) setStatus(Status.RESULTSVALID);
                     if (holdOnNextValidEstimate) {priority = Priority.HOLD; holdOnNextValidEstimate = false;}
                 }
             }
