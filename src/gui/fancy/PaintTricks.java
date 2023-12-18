@@ -15,13 +15,11 @@
 */
 package gui.fancy;
 
-import java.awt.AlphaComposite;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 
@@ -37,9 +35,7 @@ public class PaintTricks {
 	}
 	
 	public static void paintBorderShadow(Graphics2D g2, Shape clipShape, int shadowWidth) {
-	    /*g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-	                        RenderingHints.VALUE_ANTIALIAS_ON);
-	    */
+
 	    int sw = shadowWidth*2;
 	    for (int i=sw; i >= 2; i-=2) {
 	        float pct = (float)(sw - i) / (sw - 1);
@@ -56,8 +52,6 @@ public class PaintTricks {
 	{
 		Shape oldClip = g.getClip();
 		g.clip(r);
-		
-	//	g.rotate(Math.PI/4);
 		
 		double diameter = Math.sqrt(r.getWidth()*r.getWidth()+r.getHeight()*r.getHeight());
 		double pixel_per_step = diameter/steps;
@@ -76,15 +70,14 @@ public class PaintTricks {
 					,Math.max(c1.getGreen()-inc,0)
 					,Math.max(c1.getBlue()-inc,0));
 		}
-		
-		//g.rotate(-Math.PI/4);
+
 		
 		g.setClip(oldClip);
 	}
 	
 	public static void shadedFill(Graphics2D g, Rectangle r, Shape curshape, Color c1, int steps)
 	{
-		//g.setClip(curshape);
+
 		Shape oldClip = g.getClip();
 		g.clip(curshape);
 		

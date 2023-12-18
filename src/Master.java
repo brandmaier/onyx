@@ -36,7 +36,12 @@ import gui.ImageLoaderWorker;
 import gui.frames.MainFrame;
 import gui.frames.WelcomeFrame;
 
+import java.awt.Image;
+import java.awt.Taskbar;
+import java.awt.Toolkit;
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 import javax.swing.SwingUtilities;
 
@@ -46,7 +51,7 @@ import parallelProcesses.ParallelProcessHandler;
 
 public class Master {
 
-	 static  boolean fDevMode;
+	 static  boolean fDevMode; // defines developer mode, if TRUE, undocumented and experimental functions are activated
 	 static String filename = null;
 	 
 	
@@ -54,7 +59,7 @@ public class Master {
 	/**
 	 * Main entry point for Onyx.
 	 * Parse command line arguments if any and pass to Batch class. Otherwise start
-	 *  Master class.
+	 * GUI in Master class.
 	 *  
 	 * @param args
 	 */
@@ -112,32 +117,42 @@ public class Master {
 
         // set an application image (currently broken)
 		try {
-		//	URL url = this.getClass().getResource("./icons/icon_256.png");
-		//	Image image = (new ImageIcon(url)).getImage();
-		    //mFrame.setIconImage(image);
-		
-			// in MAC OSX we get this from Frame.setIconImage(image); :
-			//Oct 23 13:47:10 lip-osx-157-82 java[78938] <Error>: CGContextGetCTM: invalid context 0x0
-		//	Oct 23 13:47:10 lip-osx-157-82 java[78938] <Error>: CGContextSetBaseCTM: invalid context 0x0
-	//		Oct 23 13:47:10 lip-osx-157-82 java[78938] <Error>: CGContextGetCTM: invalid context 0x0
-//			Oct 23 13:47:10 lip-osx-157-82 java[78938] <Error>: CGContextSetBaseCTM: invalid context 0x0
-
-			if (filename != null && filename.length() > 0) {
-				Desktop desktop = mFrame.getDesktop();
-				File file = new File(filename);
-	            desktop.importFromFile(file, file.getName(), 10, 10);
-				
-			}
 			
-		// setting dock image on OSX - commented out
-		//    Application application = Application.getApplication();
-		//	application.setDockIconImage(image);
-	
-			new ParallelProcessHandler();
+			 //from JDK 9 on 
+	        final Taskbar taskbar = Taskbar.getTaskbar();
+
+	        try {
+	        	final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
+	            final URL imageResource = Master.class.getClassLoader().getResource("images/onyx-taskbar.png");
+	            final Image image = defaultToolkit.getImage(imageResource);
+	            //set icon for mac OSX
+	            taskbar.setIconImage(image);
+	        } catch (final UnsupportedOperationException e) {
+	            System.out.println("The os does not support: 'taskbar.setIconImage'");
+	        } catch (final SecurityException e) {
+	            System.out.println("There was a security exception for: 'taskbar.setIconImage'");
+	        }
+
+
 			
 		} catch (Exception e) {
-			System.err.println("Cannot set icon for frame!");
+			System.err.println("Cannot set icon for taskbar.");
 		}
+		
+		if (filename != null && filename.length() > 0) {
+			Desktop desktop = mFrame.getDesktop();
+			File file = new File(filename);
+            try {
+				desktop.importFromFile(file, file.getName(), 10, 10);
+			} catch (IOException e) {
+				
+				// TODO throw a GUI error?!
+				e.printStackTrace();
+			}
+			
+		}
+
+		new ParallelProcessHandler();
 		
 		mFrame.setVisible(true);
 		

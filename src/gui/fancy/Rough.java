@@ -39,7 +39,7 @@ import gui.graph.Node;
 
 /**
  * This class encapsulates drawing routines for drawing hand-drawn lines and shapes.
- * Inspired by http://openaccess.city.ac.uk/1274/
+ * Inspired by Wood et al., http://openaccess.city.ac.uk/1274/
  * 
  * @author brandmaier
  *
