@@ -50,33 +50,7 @@ public class PaintTricks {
 	    }
 	}
 	
-	private static final Color clrGlowInnerHi = new Color(253, 253, 153, 148);
-	private static final Color clrGlowInnerLo = new Color(255, 255, 255);
-	private static final Color clrGlowOuterHi = new Color(253, 253, 253, 124);
-	private static final Color clrGlowOuterLo = new Color(255, 255, 255);
-	
-	public static void paintBorderGlow(Graphics2D g2, Shape shape, int glowWidth) {
-	    int gw = glowWidth*2;
-	    for (int i=gw; i >= 2; i-=2) {
-	        float pct = (float)(gw - i) / (gw - 1);
 
-	        int height= 2;
-	        
-	        Color mixHi = getMixedColor(clrGlowInnerHi, pct,
-	                                    clrGlowOuterHi, 1.0f - pct);
-	        Color mixLo = getMixedColor(clrGlowInnerLo, pct,
-	                                    clrGlowOuterLo, 1.0f - pct);
-	        g2.setPaint(new GradientPaint(0.0f, height*0.25f,  mixHi,
-	                                      0.0f, height, mixLo));
-	        //g2.setColor(Color.WHITE);
-
-	        // See my "Java 2D Trickery: Soft Clipping" entry for more
-	        // on why we use SRC_ATOP here
-	        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, pct));
-	        g2.setStroke(new BasicStroke(i));
-	        g2.draw(shape);
-	    }
-	}
 
 	public static void shadedVerticalFill(Graphics2D g, Rectangle r, Color c1, int steps)
 	{
