@@ -35,88 +35,79 @@ import java.io.UnsupportedEncodingException;
 
 import javax.swing.SwingUtilities;
 
-//import sun.swing.SwingUtilities2;
-
 public class Utilities {
-	
-	public static Image resizeImage(Image originalImage, int IMG_WIDTH, int IMG_HEIGHT)
-	{
+
+	public static Image resizeImage(Image originalImage, int IMG_WIDTH, int IMG_HEIGHT) {
 
 		BufferedImage resizedImage = new BufferedImage(IMG_WIDTH, IMG_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = resizedImage.createGraphics();
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		g.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);		
-		
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
 		g.drawImage(originalImage, 0, 0, IMG_WIDTH, IMG_HEIGHT, null);
 		g.dispose();
 		g.setComposite(AlphaComposite.Src);
 
-		return(resizedImage);
-	
+		return (resizedImage);
+
 	}
 
 	public static long profileTimeStamp = System.currentTimeMillis();
-	
+
 	public static void profile(String name) {
-		
-		System.out.println(name + (System.currentTimeMillis()-profileTimeStamp) );
-		
+
+		System.out.println(name + (System.currentTimeMillis() - profileTimeStamp));
+
 		profileTimeStamp = System.currentTimeMillis();
 	}
 
-	public static boolean isRightMouseButton(MouseEvent event)
-	{
-/*		return (!event.isConsumed()) && ((event.getButton()==MouseEvent.BUTTON3)
-				|| (event.getButton()==MouseEvent.BUTTON1 && event.isControlDown()));
-	*/
+	public static boolean isRightMouseButton(MouseEvent event) {
+		/*
+		 * return (!event.isConsumed()) && ((event.getButton()==MouseEvent.BUTTON3) ||
+		 * (event.getButton()==MouseEvent.BUTTON1 && event.isControlDown()));
+		 */
 //		return (!event.isConsumed() && event.isControlDown());
-		return (((event.getModifiers() & 0x4) == 4) ||
-				((event.getModifiers() & 0x10) != 0) && event.isControlDown());
+		return (((event.getModifiers() & 0x4) == 4) || ((event.getModifiers() & 0x10) != 0) && event.isControlDown());
 	}
-	
+
 	public static boolean isLeftMouseButton(MouseEvent event) {
 //		return (!event.isConsumed()) && ((event.getButton()==MouseEvent.BUTTON1));
-		//return ((event.getButton()==MouseEvent.BUTTON1));
+		// return ((event.getButton()==MouseEvent.BUTTON1));
 		return ((event.getModifiers() & 0x10) != 0) && (!event.isControlDown());
 	}
-	
-	public static void paintGlow(Graphics2D g2d, Shape edgePath, int size, float shapesize)
-	{
+
+	public static void paintGlow(Graphics2D g2d, Shape edgePath, int size, float shapesize) {
 		Composite comp = g2d.getComposite();
 		size = 8;
-		for (int j = 0; j<size; j++) {
-			Stroke shiny = new BasicStroke(shapesize+j);
+		for (int j = 0; j < size; j++) {
+			Stroke shiny = new BasicStroke(shapesize + j);
 			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
-			/*g2d.setPaint(new Color(0.6f,0.8f,0.8f,j*(1/(size+1.0f))));
-			g2d.setColor(new Color(0.6f,0.8f,0.8f,j*(1/(2*size+1.0f))));
-*/
-			g2d.setColor(new Color(80,180,180,8*size-j*8));
-			
-			//g2d.setColor(new Color(0,100,100,8*size-j*8));
-			//			g2d.setColor(new Color(0.6f,0.8f,0.8f,j*(1/(size+1.0f))));
+
+			g2d.setColor(new Color(80, 180, 180, 8 * size - j * 8));
+
 			g2d.setStroke(shiny);
 			g2d.draw(edgePath);
 		}
-		
+
 		g2d.setComposite(comp);
 	}
-	
-	public static String readFileContentsUTF8(File file) throws IOException
-	{
+
+	public static String readFileContentsUTF8(File file) throws IOException {
 		String UTF8result = "";
-		
-	   	   BufferedReader in
-	   	   = new BufferedReader(new FileReader(file));
-	   	      
-	   	   String strLine;
-	   	   while ((strLine = in.readLine()) != null)   {
-	   	  // Print the content on the console
-	   		UTF8result += new String(strLine.getBytes(),"UTF-8");
-	   	  
-	   	   }
-	   	
-	   	return UTF8result;
+
+		BufferedReader in = new BufferedReader(new FileReader(file));
+
+		String strLine;
+		while ((strLine = in.readLine()) != null) {
+			// Print the content on the console
+			UTF8result += new String(strLine.getBytes(), "UTF-8");
+
+		}
+
+		in.close();
+
+		return UTF8result;
 	}
-	
+
 }
