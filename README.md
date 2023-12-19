@@ -32,6 +32,8 @@ java -jar onyx.jar
 
 # License
 
+Onyx is made available under the Apache 2.0 license.
+
 Onyx uses various (unmodified) libraries, which are here redistributed under their original licenses:
 
 - vectorgraphics2d by Erich Seifert is distributed under the LGPL
