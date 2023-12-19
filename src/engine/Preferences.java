@@ -115,7 +115,7 @@ public class Preferences {
 	        }
 	    }
 	    }
-	    String fullname = settingsDirectory.getAbsoluteFile().toString()+"/"+"onyxProperties";
+	    String fullname = settingsDirectory.getAbsoluteFile().toString()+File.separator+"onyxProperties";
 	    
 	    try {
 	    	FileInputStream fin = new FileInputStream(fullname);

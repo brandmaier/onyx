@@ -13,15 +13,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-/**
- * ONYX - OpenMX GUI project
- * by T. von Oertzen, A. M. Brandmaier, and ...
- * 
- */
 package gui.graph;
 
 import engine.ModelRequestInterface;
-import engine.ModelRunUnit;
 import engine.ParameterReader;
 import geometry.Rectangle;
 import gui.Constants;
@@ -32,25 +26,19 @@ import gui.graph.Edge.EdgeStyle;
 import gui.graph.presets.Preset;
 import gui.undo.EdgeDeleteStep;
 import gui.undo.NodeDeleteStep;
-import gui.undo.UndoStep;
 import gui.views.ModelView;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontFormatException;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Vector;
+
 
 import scc.Tree;
 

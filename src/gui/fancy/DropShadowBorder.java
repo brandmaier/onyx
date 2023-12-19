@@ -23,7 +23,7 @@ import javax.swing.border.*;
 
 /**
  * 
- * based on :
+ * based on ideas from :
  * 
  * A drop shadow border. Draws a 1 pixel line completely around the component,
  * and a drop shadow effect on the right and bottom sides.
