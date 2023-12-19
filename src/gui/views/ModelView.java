@@ -179,7 +179,7 @@ import gui.graph.presets.Preset;
 import gui.graph.presets.FadedColors;
 import gui.graph.presets.Schoeneberg;
 import gui.graph.presets.Sketch;
-import gui.graph.presets.Ylva;
+import gui.graph.presets.Amelie;
 import gui.graph.presets.Posh;
 import gui.graph.presets.Chalk;
 import gui.graph.presets.Gray;
@@ -307,7 +307,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		presets[13] = new RetroOrange();
 		presets[14] = new Mint();
 		presets[15] = new Posh();
-		//presets[16] = new Ylva();
+		//presets[16] = new Amelie();
 		/*
 		 * presets[16] = new Amelie();
 		 */
