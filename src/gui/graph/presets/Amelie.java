@@ -27,17 +27,18 @@ import gui.graph.Node;
 public class Amelie extends Preset {
 
 	
-	Color edges = new Color(52,60+13,75); //#526C75
-	Color nfill = new Color(51,90+12,12*16+5); //#519BB5
-	Color orange= new Color(15*16+5,95,31); //#F59531
-	Color fnt = new Color(31,13*16+1,15*16+5); //#31C1F5
+	Color light_sea_green = new Color(22,172,145); //#526C75
+	Color old_lace = new Color(250,244,228); //#519BB5
+	Color tomato = new Color(236,91,70); //#F59531
+	Color dark_slate = new Color(67,38,66); //#31C1F5
+	Color peru = new Color(209,113,55);
 	float strokeWidth = 2.5f;
 	
 	@Override
 	public void apply(Graph graph)
 	{
 		super.apply(graph);
-		graph.backgroundColor = orange;
+		graph.backgroundColor = old_lace;
 	}
 
 	@Override
@@ -47,12 +48,24 @@ public class Amelie extends Preset {
 
 	@Override
 	public void apply(Graph graph, Node node) {
+		
 		node.setStrokeWidth(strokeWidth);
-		node.setFillColor(nfill);
+		if (!node.isObserved()) {
+			if (Math.round(node.getY()/10) % 2==0 ) {
+				node.setFillColor(tomato);
+				node.setLineColor(tomato);
+			} else {
+				node.setFillColor(peru);
+				node.setLineColor(peru);				
+			}
+		} else {
+			node.setFillColor(light_sea_green);
+			node.setLineColor(light_sea_green);			
+		}
 		node.nodeFillGradient =  FillStyle.FILL;
-		node.setLineColor(edges);
+
 		node.setShadow(false);
-		node.setFontColor(fnt);
+		node.setFontColor(dark_slate);
 		node.setFontSize(12);
 		node.setRough(false);
 	}
@@ -61,7 +74,7 @@ public class Amelie extends Preset {
 	public void apply(Graph graph, Edge edge) {
 		edge.setLineWidth(strokeWidth+1);
 		edge.setArrowStyle(1);
-		edge.setLineColor(edges);
+		edge.setLineColor(dark_slate);
 		edge.setDashStyle(null);
 		/*if (edge.target==edge.source) {
 			edge.setLineColor(Color.gray);
@@ -71,7 +84,7 @@ public class Amelie extends Preset {
 		
 		edge.getLabel().setFontSize(11);
 		
-		edge.getLabel().setColor(fnt);
+		edge.getLabel().setColor(peru);
 
 	}
 

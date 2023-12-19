@@ -44,7 +44,7 @@ import scc.Tree;
 
 public class Graph {
 	
-    // if meanTreatment is implicit, all variables will be centralized before being send to the backend, which is equivalent to estimating all means
+    // if meanTreatment is implicit, all variables will be centered before being send to the backend, which is equivalent to estimating all means
     // separately as an own parameter. If explicit, the means need to be modeled by the user. if ambique, the behavior is not yet decided, i.e., no explicit
     // modeling of means happened and no linked data column had a non-zero mean
     public enum MeanTreatment {implicit, explicit, ambique};
@@ -111,6 +111,9 @@ public class Graph {
 		
 	}
 	
+	/* 
+	 * returns TRUE only if at least one node is a multi-group node
+	 */
 	public boolean isMultiGroup()
 	{
 		for (Node node : nodes) {
@@ -241,6 +244,10 @@ public class Graph {
 		
 	}
 	
+	/* 
+	 * This is a heuristic to arrange labels on the edges of the graph,
+	 * such that they do not overlap too much
+	 */
 	public void cleverEdgeLabelLayout(Edge edge)
 	{
 		

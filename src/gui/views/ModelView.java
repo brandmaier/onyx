@@ -287,7 +287,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 	public final static int THINSTROKE = 0, MEDIUMSTROKE = 1, THICKSTROKE = 2;
 
 	static {
-		presets = new Preset[16];
+		presets = new Preset[17];
 		presets[0] = new Default();
 
 		presets[1] = new Modern();
@@ -307,7 +307,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		presets[13] = new RetroOrange();
 		presets[14] = new Mint();
 		presets[15] = new Posh();
-		//presets[16] = new Amelie();
+		presets[16] = new Amelie();
 		/*
 		 * presets[16] = new Amelie();
 		 */
