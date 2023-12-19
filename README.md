@@ -1,7 +1,7 @@
 ![Onyx Logo](https://github.com/brandmaier/onyx/blob/master/build/images/onyx-welcome.png?raw=true)
 
 ![](https://img.shields.io/github/commit-activity/m/brandmaier/onyx)
-![](https://img.shields.io/tokei/lines/github/brandmaier/onyx)
+![](https://tokei.rs/b1/github/brandmaier/onyx)
 ![](https://img.shields.io/github/issues/brandmaier/onyx)
 ![Code size](https://img.shields.io/github/languages/code-size/brandmaier/onyx.svg)
 ![contributions](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)
