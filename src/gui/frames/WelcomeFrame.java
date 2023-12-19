@@ -18,8 +18,11 @@ package gui.frames;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Label;
+import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.net.URL;
@@ -82,7 +85,7 @@ public class WelcomeFrame extends JFrame implements MouseListener {
 		
 		 URL  url =  this.getClass().getResource("/images/onyx-welcome.png"); 
 
-		// Image image = new ImageIcon(url).getImage();
+		
 		 
 		 
 		this.setBackground(Color.white);
@@ -92,6 +95,17 @@ public class WelcomeFrame extends JFrame implements MouseListener {
 		//this.set
 		JLabel lab = new JLabel(); //new JLabel("  "+OMEGA+"NYX");
 		lab.setIcon(new ImageIcon(url));
+		
+		try {
+		Graphics2D g2d = (Graphics2D)lab.getGraphics();
+		// set anti-aliasing
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	     // Set rendering quality
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        // Enable fractional metrics for text
+        g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+		} catch (Exception e) {}
+		
 		lab.setHorizontalTextPosition(JLabel.RIGHT);
 		lab.setFont( new Font("Arial", Font.PLAIN, 82));
 		lab.setBackground(Color.white);

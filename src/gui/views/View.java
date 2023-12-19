@@ -216,16 +216,6 @@ public class View extends JPanel implements MouseListener, MouseMotionListener, 
 		this.addMouseMotionListener(this);
 		this.addMouseListener(this);
 		// this.addContainerListener(this);
-
-		// set action maps
-
-		// enable keystrokes
-		/*
-		 * KeyStroke ks = KeyStroke.getKeyStroke("g"); InputMap im =
-		 * getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW); ActionMap am =
-		 * getActionMap(); im.put(ks, "abc"); am.put("abc", new
-		 * ModelViewPasteAction());
-		 */
 		
 
 

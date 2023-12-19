@@ -140,7 +140,12 @@ public class DropShadowBorder extends AbstractBorder {
    public void paintBorder( Component c, Graphics g, int x, int y, int width, int height ) {
     
 		 Graphics2D g2d = (Graphics2D)g;
-	     g2d.setRenderingHint ( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
+			// set anti-aliasing
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		     // Set rendering quality
+	        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+	        // Enable fractional metrics for text
+	        g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
 
 	     
 	     g2d.setStroke(stroke);

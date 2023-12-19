@@ -4707,8 +4707,14 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 	public void paintComponent(Graphics g) {
 
 		Graphics2D g2d = (Graphics2D) g;
+		
+		// set anti-aliasing
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
+	     // Set rendering quality
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        // Enable fractional metrics for text
+        g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+        
 		// paint everything inherited from View (e.g., selection box)
 		super.paintComponent(g);
 
