@@ -41,7 +41,6 @@ import gui.fancy.Rough;
 import gui.linker.LinkEvent;
 import gui.linker.LinkException;
 
-
 public class Node implements Cloneable, FillColorable, LineColorable, Movable, Resizable, VariableContainerListener {
 
 	public static final int MIN_NODE_HEIGHT = 30;
@@ -49,29 +48,29 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	public static final int DEFAULT_LABEL_FONTSIZE = 10;
 
 	// properties for drawing
-	private int x =-1, y = -1;
+	private int x = -1, y = -1;
 	private int width = -1, height = -1;
 	private String caption;
 	private String shortenedCaption;
 	private Shape shape;
 	private Color lineColor, fillColor;
-	
+
 	public double pseudoR2 = -1;
-	
+
 	public Image image;
 
 	private boolean captionValid = false;
 
-	// hash counter uniquely identifies a node 
+	// hash counter uniquely identifies a node
 	// across all ModelViews
 	private static int HASH_ID_COUNTER = 0;
 	private int hashCounter;
 
 	private boolean shadow = false;
-	//private boolean gradient = true;
+	// private boolean gradient = true;
 
 	private boolean hidden = false;
-	
+
 	public int clickX, clickY; // last click of a user within node
 	public int oldHeight, oldWidth, oldX, oldY; // last height/width before
 												// resize
@@ -81,24 +80,23 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	private boolean triangle = false;
 
 	private boolean multiplication = false;
-	
+
 	private boolean isNormalized = false;
-	
-	// Depth of the node in the graph object. Needs to be set using the computeDirectedDephts in the Graph class. 
+
+	// Depth of the node in the graph object. Needs to be set using the
+	// computeDirectedDephts in the Graph class.
 	public int depth = -1;
 
 	// only meaningful if latent = false and triangle = false.
 	// indicates whether there is a grouping variable associated with this
 	// observed variable, and in which column the grouping is.
 	public boolean groupingVariable = false;
-//	public RawDataset groupingDataset = null;
-//	public int groupingColumn;
 	public double groupValue;
 	public String groupName;
 	final int groupingSymbolSize = 12;
-	
+
 	VariableContainer groupingVariableContainer;
-	
+
 	public VariableContainer getGroupingVariableContainer() {
 		return groupingVariableContainer;
 	}
@@ -108,26 +106,25 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	}
 
 	VariableContainer observedVariableContainer;
-	
 
 	Font font = new Font("Arial", Font.PLAIN, DEFAULT_LABEL_FONTSIZE);
 	FontMetrics fm;
 
-    public boolean isHidden() {
-        return hidden;
-    }
+	public boolean isHidden() {
+		return hidden;
+	}
 
-    public void setHidden(boolean hidden) {
-        this.hidden = hidden;
-    }
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
+	}
 
-    public boolean isShadow() {
-        return shadow;
-    }
+	public boolean isShadow() {
+		return shadow;
+	}
 
-    public void setShadow(boolean shadow) {
-        this.shadow = shadow;
-    }
+	public void setShadow(boolean shadow) {
+		this.shadow = shadow;
+	}
 
 	// Used for mean triangles only, stores all outgoing edges to remove
 	// selectively.
@@ -139,8 +136,7 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	 */
 	private int id;
 
-	Stroke stroke = new BasicStroke(2, BasicStroke.CAP_BUTT,
-			BasicStroke.JOIN_BEVEL);;;
+	Stroke stroke = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);;;
 
 	boolean connected;
 
@@ -153,20 +149,20 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	int anchorRadius = 4; // 2
 
 	Rectangle[] anchors;
-//	public boolean renderingHintArcPositionUp;
 	public int renderingHintArcPosition; // 0 is up, 90 is right, 180 is down
 	public static final int NORTH = 0;
 	public static final int EAST = 90;
 	public static final int SOUTH = 180;
 	public static final int WEST = 270;
-	
+
 	private Oval oval;
 	private boolean missingData;
 
 	private int tarjanIndex;
 	private int tarjanLowLink;
-	private Image imageMissing;
+
 	public FillStyle nodeFillGradient = FillStyle.GRADIENT;
+
 	public FillStyle getFillStyle() {
 		return nodeFillGradient;
 	}
@@ -180,13 +176,13 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	public int labelPosX;
 	private boolean valid;
 	public double dragRatio;
-	
+
 	private boolean rough = false;
-	private int rough_seed = (int)(Math.random()*100000); // no proper randomization necessary
-	//private float roughness = 1;
+	private int rough_seed = (int) (Math.random() * 100000); // no proper randomization necessary
+	// private float roughness = 1;
 	private Paint myPaint;
 	private int multiplicatonNodeStyle = 2;
-	
+
 	public int getHashCounter() {
 		return hashCounter;
 	}
@@ -203,11 +199,11 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 		Node node;
 		try {
 			node = (Node) super.clone();
-			node.setNextHashCounterID();	//TODO: really necessary?
-			node.connected = false;         // TvO: Added to indicate that a copied node is not selected. 
-			node.groupingVariableContainer = (VariableContainer)groupingVariableContainer.clone(node);
+			node.setNextHashCounterID(); // TODO: really necessary?
+			node.connected = false; // TvO: Added to indicate that a copied node is not selected.
+			node.groupingVariableContainer = (VariableContainer) groupingVariableContainer.clone(node);
 			node.groupingVariableContainer.addVariableContainerListener(node);
-			node.observedVariableContainer = (VariableContainer)observedVariableContainer.clone(node);
+			node.observedVariableContainer = (VariableContainer) observedVariableContainer.clone(node);
 			node.observedVariableContainer.addVariableContainerListener(node);
 			return (node);
 		} catch (CloneNotSupportedException e) {
@@ -217,9 +213,14 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 		}
 
 	}
-	
-	public boolean isNormalized() {return isNormalized;}
-	public void setNormalized(boolean normalized) {isNormalized = normalized;}
+
+	public boolean isNormalized() {
+		return isNormalized;
+	}
+
+	public void setNormalized(boolean normalized) {
+		isNormalized = normalized;
+	}
 
 	public boolean isConnected() {
 		return connected;
@@ -303,8 +304,7 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	}
 
 	public String toString() {
-		return "<Node with ID " + getId() + " and caption: " + getCaption()
-				+ " and hash ID:" + hashCounter + ">";
+		return "<Node with ID " + getId() + " and caption: " + getCaption() + " and hash ID:" + hashCounter + ">";
 	}
 
 	public String getCaption() {
@@ -312,11 +312,10 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 			return "const";
 		return caption;
 	}
-	
+
 	public void setCaption(String caption) {
 		if (isMeanTriangle())
-			throw new RuntimeException(
-					"Attempt to set caption of mean triangle");
+			throw new RuntimeException("Attempt to set caption of mean triangle");
 
 		this.caption = Edge.renderText(caption);
 		captionValid = false;
@@ -324,17 +323,18 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	}
 
 	public String getUniqueName(boolean useUniqueName) {
-	    if (!useUniqueName || !isObserved() || observedVariableContainer == null || observedVariableContainer.getUniqueName() == null) return caption; 
-	    else return observedVariableContainer.getUniqueName();
+		if (!useUniqueName || !isObserved() || observedVariableContainer == null
+				|| observedVariableContainer.getUniqueName() == null)
+			return caption;
+		else
+			return observedVariableContainer.getUniqueName();
 	}
-	
+
 	public void updateShape() {
 		if (this.isMeanTriangle()) {
 
-			Polygon p = new Polygon(new int[] { this.x,
-					this.x + this.width / 2, this.x + this.width }, 
-					new int[] {
-					this.y + this.height, this.y, this.y + this.height }, 3);
+			Polygon p = new Polygon(new int[] { this.x, this.x + this.width / 2, this.x + this.width },
+					new int[] { this.y + this.height, this.y, this.y + this.height }, 3);
 			this.shape = p;
 
 		} else {
@@ -343,24 +343,19 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 
 				// g2d.drawOval(this.x, this.y, this.width, this.height);
 
-				shape = new Ellipse2D.Float(this.x, this.y, this.width,
-						this.height);
+				shape = new Ellipse2D.Float(this.x, this.y, this.width, this.height);
 			} else {
 
-				shape = new Rectangle(this.x, this.y, this.width,
-						this.height);
+				shape = new Rectangle(this.x, this.y, this.width, this.height);
 
-				
 			}
-			
-
 
 		}
 	}
 
 	/**
-	 * generates a shortened caption that actually fits into the shape. This has
-	 * to be called, whenever the caption is changed.
+	 * generates a shortened caption that actually fits into the shape. This has to
+	 * be called, whenever the caption is changed.
 	 */
 	public void updateCaption() {
 		if (fm != null) {
@@ -373,8 +368,7 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 			while (sw > this.getWidth()) {
 				int m = caption.length() / 2;
 
-				proposal = caption.substring(0, m - i) + ".."
-						+ caption.substring(m + i, caption.length());
+				proposal = caption.substring(0, m - i) + ".." + caption.substring(m + i, caption.length());
 				sw = fm.stringWidth(proposal) + pad;
 
 				i += 1;
@@ -385,9 +379,6 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 		} else {
 			this.shortenedCaption = caption;
 		}
-		
-
-		
 
 	}
 
@@ -413,32 +404,29 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	}
 
 	/**
-	 * Bounding box of a node is its size if it is deselected, otherwise it
-	 * includes the area covered by node handles The bounding box is given in
-	 * coordinates of the parent View.
+	 * Bounding box of a node is its size if it is deselected, otherwise it includes
+	 * the area covered by node handles The bounding box is given in coordinates of
+	 * the parent View.
 	 * 
 	 * @return
 	 */
 	public Rectangle getBoundingBoxOnParent() {
 		if (isSelected()) {
-			return new Rectangle(getX(), getY(), getX() + getWidth(), getY()
-					+ getHeight());
+			return new Rectangle(getX(), getY(), getX() + getWidth(), getY() + getHeight());
 		} else {
-			return new Rectangle(getX() - anchorRadius, getY() - anchorRadius,
-					getX() + getWidth() + 2 * anchorRadius, getY()
-							+ getHeight() + 2 * anchorRadius);
+			return new Rectangle(getX() - anchorRadius, getY() - anchorRadius, getX() + getWidth() + 2 * anchorRadius,
+					getY() + getHeight() + 2 * anchorRadius);
 		}
 	}
-	
-	public void validate()
-	{
-		if (valid) return;
-		
+
+	public void validate() {
+		if (valid)
+			return;
+
 		updateShape();
 		updateAnchors();
 		updateCaption();
-		
-		
+
 		valid = true;
 	}
 
@@ -453,28 +441,26 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 			anchors = new Rectangle[8];
 
 			// N
-			anchors[0] = new Rectangle(this.x + this.width / 2 - anchorRadius,
-					this.y - anchorRadius, anchorWidth, anchorWidth);
+			anchors[0] = new Rectangle(this.x + this.width / 2 - anchorRadius, this.y - anchorRadius, anchorWidth,
+					anchorWidth);
 
 			anchors[1] = new Rectangle(-1, -1, -1, -1);
 
 			// E
-			anchors[2] = new Rectangle(this.x + this.width - anchorRadius,
-					this.y + this.height - anchorRadius, anchorWidth,
-					anchorWidth);
+			anchors[2] = new Rectangle(this.x + this.width - anchorRadius, this.y + this.height - anchorRadius,
+					anchorWidth, anchorWidth);
 
 			anchors[3] = new Rectangle(-1, -1, -1, -1);
 
 			// S
-			anchors[4] = new Rectangle(this.x + this.width / 2 - anchorRadius,
-					this.y + this.height - anchorRadius, anchorWidth,
-					anchorWidth);
+			anchors[4] = new Rectangle(this.x + this.width / 2 - anchorRadius, this.y + this.height - anchorRadius,
+					anchorWidth, anchorWidth);
 
 			anchors[5] = new Rectangle(-1, -1, -1, -1);
 
 			// W
-			anchors[6] = new Rectangle(this.x - anchorRadius, this.y
-					+ this.height - anchorRadius, anchorWidth, anchorWidth);
+			anchors[6] = new Rectangle(this.x - anchorRadius, this.y + this.height - anchorRadius, anchorWidth,
+					anchorWidth);
 
 			anchors[7] = new Rectangle(-1, -1, -1, -1);
 
@@ -484,87 +470,77 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 			anchors = new Rectangle[8];
 
 			// N
-			anchors[0] = new Rectangle(this.x + this.width / 2 - anchorRadius,
-					this.y - anchorRadius, anchorWidth, anchorWidth);
+			anchors[0] = new Rectangle(this.x + this.width / 2 - anchorRadius, this.y - anchorRadius, anchorWidth,
+					anchorWidth);
 
 			// NE
 			int x = (int) (this.x + this.width * 0.8);
 			int y = this.oval.evaluate(x)[0];
-			anchors[1] = new Rectangle(x - anchorRadius, y - anchorRadius,
-					anchorWidth, anchorWidth);
+			anchors[1] = new Rectangle(x - anchorRadius, y - anchorRadius, anchorWidth, anchorWidth);
 
 			// E
-			anchors[2] = new Rectangle(this.x + this.width - anchorRadius,
-					this.y + this.height / 2 - anchorRadius, anchorWidth,
-					anchorWidth);
+			anchors[2] = new Rectangle(this.x + this.width - anchorRadius, this.y + this.height / 2 - anchorRadius,
+					anchorWidth, anchorWidth);
 
 			// SE
 			x = (int) (this.x + this.width * 0.8);
 			y = this.oval.evaluate(x)[1];
-			anchors[3] = new Rectangle(x - anchorRadius, y - anchorRadius,
-					anchorWidth, anchorWidth);
+			anchors[3] = new Rectangle(x - anchorRadius, y - anchorRadius, anchorWidth, anchorWidth);
 
 			// S
-			anchors[4] = new Rectangle(this.x + this.width / 2 - anchorRadius,
-					this.y + this.height - anchorRadius, anchorWidth,
-					anchorWidth);
+			anchors[4] = new Rectangle(this.x + this.width / 2 - anchorRadius, this.y + this.height - anchorRadius,
+					anchorWidth, anchorWidth);
 
 			// SW
 			x = (int) (this.x + this.width * 0.2);
 			y = this.oval.evaluate(x)[1];
-			anchors[5] = new Rectangle(x - anchorRadius, y - anchorRadius,
-					anchorWidth, anchorWidth);
+			anchors[5] = new Rectangle(x - anchorRadius, y - anchorRadius, anchorWidth, anchorWidth);
 
 			// W
-			anchors[6] = new Rectangle(this.x - anchorRadius, this.y
-					+ this.height / 2 - anchorRadius, anchorWidth, anchorWidth);
+			anchors[6] = new Rectangle(this.x - anchorRadius, this.y + this.height / 2 - anchorRadius, anchorWidth,
+					anchorWidth);
 
 			// NW
 			x = (int) (this.x + this.width * 0.2);
 			y = this.oval.evaluate(x)[0];
-			anchors[7] = new Rectangle(x - anchorRadius, y - anchorRadius,
-					anchorWidth, anchorWidth);
+			anchors[7] = new Rectangle(x - anchorRadius, y - anchorRadius, anchorWidth, anchorWidth);
 
 		} else {
 			anchors = new Rectangle[8];
 
 			// N
-			anchors[0] = new Rectangle(this.x + this.width / 2 - anchorRadius,
-					this.y - anchorRadius, anchorWidth, anchorWidth);
+			anchors[0] = new Rectangle(this.x + this.width / 2 - anchorRadius, this.y - anchorRadius, anchorWidth,
+					anchorWidth);
 
 			// NE
-			anchors[1] = new Rectangle(this.x + this.width - anchorRadius,
-					this.y - anchorRadius, anchorWidth, anchorWidth);
+			anchors[1] = new Rectangle(this.x + this.width - anchorRadius, this.y - anchorRadius, anchorWidth,
+					anchorWidth);
 
 			// E
-			anchors[2] = new Rectangle(this.x + this.width - anchorRadius,
-					this.y + this.height / 2 - anchorRadius, anchorWidth,
-					anchorWidth);
+			anchors[2] = new Rectangle(this.x + this.width - anchorRadius, this.y + this.height / 2 - anchorRadius,
+					anchorWidth, anchorWidth);
 
 			// SE
 			if (!isGrouping())
-				anchors[3] = new Rectangle(this.x + this.width - anchorRadius,
-						this.y + this.height - anchorRadius, anchorWidth,
-						anchorWidth);
+				anchors[3] = new Rectangle(this.x + this.width - anchorRadius, this.y + this.height - anchorRadius,
+						anchorWidth, anchorWidth);
 			else
 				anchors[3] = new Rectangle(-1, -1, -1, -1);
 
 			// S
-			anchors[4] = new Rectangle(this.x + this.width / 2 - anchorRadius,
-					this.y + this.height - anchorRadius, anchorWidth,
-					anchorWidth);
+			anchors[4] = new Rectangle(this.x + this.width / 2 - anchorRadius, this.y + this.height - anchorRadius,
+					anchorWidth, anchorWidth);
 
 			// SW
-			anchors[5] = new Rectangle(this.x - anchorRadius, this.y
-					+ this.height - anchorRadius, anchorWidth, anchorWidth);
+			anchors[5] = new Rectangle(this.x - anchorRadius, this.y + this.height - anchorRadius, anchorWidth,
+					anchorWidth);
 
 			// W
-			anchors[6] = new Rectangle(this.x - anchorRadius, this.y
-					+ this.height / 2 - anchorRadius, anchorWidth, anchorWidth);
+			anchors[6] = new Rectangle(this.x - anchorRadius, this.y + this.height / 2 - anchorRadius, anchorWidth,
+					anchorWidth);
 
 			// NW
-			anchors[7] = new Rectangle(this.x - anchorRadius, this.y
-					- anchorRadius, anchorWidth, anchorWidth);
+			anchors[7] = new Rectangle(this.x - anchorRadius, this.y - anchorRadius, anchorWidth, anchorWidth);
 
 		}
 	}
@@ -588,17 +564,17 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 
 		setNextHashCounterID();
 		updateAnchors();
-		
+
 		// add variable container listener to react to link events
 		observedVariableContainer = new VariableContainer(null, this);
 		groupingVariableContainer = new VariableContainer(null, this);
-		
+
 		observedVariableContainer.addVariableContainerListener(this);
 		groupingVariableContainer.addVariableContainerListener(this);
 	}
 
 	private void setNextHashCounterID() {
-		
+
 		this.hashCounter = HASH_ID_COUNTER;
 		HASH_ID_COUNTER += 1;
 	}
@@ -657,8 +633,7 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 		}
 
 		Graphics2D g2d = (Graphics2D) g;
-		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		Color borderColor;
 		if ((markUnconnectedNodes) && (!isConnected() && !isLatent())) {
@@ -678,14 +653,12 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 
 		// determine shape
 		if (this.isMeanTriangle()) {
-			shape = new Polygon(new int[] { this.x, this.x + this.width / 2,
-					this.x + this.width }, new int[] { this.y + this.height,
-					this.y, this.y + this.height }, 3);
+			shape = new Polygon(new int[] { this.x, this.x + this.width / 2, this.x + this.width },
+					new int[] { this.y + this.height, this.y, this.y + this.height }, 3);
 		} else {
 
 			if (this.isLatent()) {
-				shape = new Ellipse2D.Double(this.x, this.y, this.width,
-						this.height);
+				shape = new Ellipse2D.Double(this.x, this.y, this.width, this.height);
 			} else {
 
 				shape = new Rectangle(this.x, this.y, this.width, this.height);
@@ -697,8 +670,7 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 
 		// selection glow
 		if (selected) {
-			Utilities.paintGlow(g2d, shape, 8,
-					((BasicStroke) stroke).getLineWidth());
+			Utilities.paintGlow(g2d, shape, 8, ((BasicStroke) stroke).getLineWidth());
 		}
 
 		if (stroke != null) {
@@ -708,64 +680,58 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 
 		if (this.isMeanTriangle()) {
 
-			//g2d.setColor(borderColor);
+			// g2d.setColor(borderColor);
 
 			// other than the rectangle/circle gradient!
 
 			if (nodeFillGradient == FillStyle.GRADIENT) {
-		
-				Rectangle fillbounds = new Rectangle(x,y,width,height);
-				PaintTricks.shadedFill(g2d, fillbounds,shape, clrHi, 30);
-				
+
+				Rectangle fillbounds = new Rectangle(x, y, width, height);
+				PaintTricks.shadedFill(g2d, fillbounds, shape, clrHi, 30);
+
 			} else if (nodeFillGradient == FillStyle.FILL || nodeFillGradient == FillStyle.R2) {
 				g2d.setColor(fillColor);
 				g2d.fill(shape);
 			} else {
-			//	g2d.setColor(Color.WHITE);
+				// g2d.setColor(Color.WHITE);
 			}
 
-			
-			
 			g.setColor(borderColor);
 			if (this.rough) {
 				Rough.draw(g2d, shape);
 			} else {
 				g2d.draw(shape);
 			}
-			
+
 			g.setColor(fontColor);
-			g.drawString("1", this.x + this.width / 2 - 3, this.y + this.height
-					* 2 / 3);
+			g.drawString("1", this.x + this.width / 2 - 3, this.y + this.height * 2 / 3);
 
 		} else {
-			
-
 
 			if (this.isLatent()) {
 
 				if (nodeFillGradient == FillStyle.NONE) {
-					
+
 				} else if (nodeFillGradient == FillStyle.GRADIENT) {
 
-					Rectangle fillbounds = new Rectangle(x,y,width,height);
-					PaintTricks.shadedFill(g2d, fillbounds,shape, clrHi, 30);
-			
+					Rectangle fillbounds = new Rectangle(x, y, width, height);
+					PaintTricks.shadedFill(g2d, fillbounds, shape, clrHi, 30);
+
 				} else if (nodeFillGradient == FillStyle.HAND) {
-					
-					//if (myPaint == null) 
-					Rectangle fillbounds = new Rectangle(x,y,width,height);
-						myPaint = Rough.createHatchedPaint(fillColor, width,fillbounds, rough_seed);
+
+					// if (myPaint == null)
+					Rectangle fillbounds = new Rectangle(x, y, width, height);
+					myPaint = Rough.createHatchedPaint(fillColor, width, fillbounds, rough_seed);
 					Paint oldPaint = g2d.getPaint();
 					g2d.setPaint(myPaint);
 					g2d.fill(shape);
 					g2d.setPaint(oldPaint);
-					
+
 				} else {
 					g2d.setColor(fillColor);
 					g2d.fill(shape);
 				}
 
-				
 				g2d.setColor(borderColor);
 				// draw shape
 				if (rough) {
@@ -773,44 +739,41 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 				} else {
 					g2d.draw(shape);
 				}
-				
+
 			} else { // observed variable
 
 				if (nodeFillGradient == FillStyle.NONE) {
-					//g2d.setColor(Color.white);
+					// g2d.setColor(Color.white);
 				} else if (nodeFillGradient == FillStyle.GRADIENT) {
-					//g2d.setPaint(new GradientPaint(x, y, clrHi, x + width, y
-					//		+ height, clrLo));
-					Rectangle fillbounds = (Rectangle)shape;
-					PaintTricks.shadedFill(g2d, fillbounds,shape, clrHi, 30);
+					// g2d.setPaint(new GradientPaint(x, y, clrHi, x + width, y
+					// + height, clrLo));
+					Rectangle fillbounds = (Rectangle) shape;
+					PaintTricks.shadedFill(g2d, fillbounds, shape, clrHi, 30);
 				} else if (nodeFillGradient == FillStyle.R2) {
-					
-					
-					double percentage = Math.max(Math.min(1.0, pseudoR2),0);
-					System.out.println("Percentage of R2: "+percentage);
-					
-					Rectangle fillbounds = new Rectangle(x,(int)(y+(height-height*percentage)),
-							width,(int)(height*percentage));
+
+					double percentage = Math.max(Math.min(1.0, pseudoR2), 0);
+					System.out.println("Percentage of R2: " + percentage);
+
+					Rectangle fillbounds = new Rectangle(x, (int) (y + (height - height * percentage)), width,
+							(int) (height * percentage));
 					g2d.setColor(fillColor);
 					g2d.fill(fillbounds);
-					
-					} else if (nodeFillGradient == FillStyle.HAND) {
-					
-					//if (myPaint == null) 
-						Rectangle fillbounds = new Rectangle(x,(int)(y+(height)),
-								width,(int)(height));
-						myPaint = Rough.createHatchedPaint(fillColor, width, fillbounds, rough_seed);
+
+				} else if (nodeFillGradient == FillStyle.HAND) {
+
+					// if (myPaint == null)
+					Rectangle fillbounds = new Rectangle(x, (int) (y + (height)), width, (int) (height));
+					myPaint = Rough.createHatchedPaint(fillColor, width, fillbounds, rough_seed);
 					Paint oldPaint = g2d.getPaint();
 					g2d.setPaint(myPaint);
 					g2d.fill(shape);
-					g2d.setPaint(oldPaint);	
-					
+					g2d.setPaint(oldPaint);
+
 				} else {
 					g2d.setColor(fillColor);
 					g2d.fill(shape);
 				}
 
-			
 				// draw shape
 				g2d.setColor(borderColor);
 				if (rough) {
@@ -818,25 +781,21 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 				} else {
 					g2d.draw(shape);
 				}
-				
+
 				if (isNormalized) {
 					final int dist = 5;
-					Shape shape2 = new Rectangle(this.x + dist, this.y + dist,
-							this.width - 2 * dist, this.height - 2 * dist);
+					Shape shape2 = new Rectangle(this.x + dist, this.y + dist, this.width - 2 * dist,
+							this.height - 2 * dist);
 					g2d.draw(shape2);
 				}
 
 				if (groupingVariable) {
 
-					final int lx = this.x + this.width, ly = this.y
-							+ this.height;
+					final int lx = this.x + this.width, ly = this.y + this.height;
 
 					g.setColor(Color.black);
-					Polygon poly = new Polygon(new int[] {
-							lx - groupingSymbolSize, lx,
-							lx + groupingSymbolSize, lx }, new int[] { ly,
-							ly - groupingSymbolSize, ly,
-							ly + groupingSymbolSize }, 4);
+					Polygon poly = new Polygon(new int[] { lx - groupingSymbolSize, lx, lx + groupingSymbolSize, lx },
+							new int[] { ly, ly - groupingSymbolSize, ly, ly + groupingSymbolSize }, 4);
 
 					if (isGroupingVariableConnected())
 						g.setColor(Color.black);
@@ -848,108 +807,102 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 
 					if (isGroupingVariableConnected())
 						g.setColor(Color.white);
-					
+
 					String caption = Statik.doubleNStellen(groupValue, 0);
-					g2d.drawString(caption, lx - fm.stringWidth(caption) / 2,
-							ly + font.getSize() / 2);
+					g2d.drawString(caption, lx - fm.stringWidth(caption) / 2, ly + font.getSize() / 2);
 					g.setColor(Color.black);
 
 				}
 
 				/*
-				 * g2d.setColor(Color.white); g2d.fillRect(this.x, this.y,
-				 * this.width, this.height); g2d.setColor(borderColor);
-				 * g2d.drawRect(this.x, this.y, this.width, this.height);
+				 * g2d.setColor(Color.white); g2d.fillRect(this.x, this.y, this.width,
+				 * this.height); g2d.setColor(borderColor); g2d.drawRect(this.x, this.y,
+				 * this.width, this.height);
 				 */
 				if (missingData)
 					g2d.drawOval(this.x, this.y, this.width, this.height);
-				
+
 				/* -- TODO: move this */
-			/*	int size = 16;
-				if (!isLatent() && !isConnected()) {
-				if (imageMissing == null) {
-				 URL  url =  this.getClass().getResource("/icons/mono/stop32.png"); 
-				 if (url != null) {
-				 	imageMissing = MessageObject.resizeImage(new ImageIcon(url).getImage(),size,size );
-				 }	
-				}
-				
-				int space = 2;
-				g2d.drawImage(imageMissing, this.x+this.width-size+space, this.y+this.height-size+space,size,size, null);
-				//g2d.drawIm
-				}*/
+				/*
+				 * int size = 16; if (!isLatent() && !isConnected()) { if (imageMissing == null)
+				 * { URL url = this.getClass().getResource("/icons/mono/stop32.png"); if (url !=
+				 * null) { imageMissing = MessageObject.resizeImage(new
+				 * ImageIcon(url).getImage(),size,size ); } }
+				 * 
+				 * int space = 2; g2d.drawImage(imageMissing, this.x+this.width-size+space,
+				 * this.y+this.height-size+space,size,size, null); //g2d.drawIm }
+				 */
 			}
 
 		}
-		
-        if (isMultiplicationNode()) {
-        	
-        		
-        		float scl=1;
-	        	if (multiplicatonNodeStyle==1) scl=.75f;
-	        	if (multiplicatonNodeStyle==2) scl=.5f;
-	        	
-	            int x1 = (int)Math.round(this.x+ this.width/2 - scl*Math.sqrt(0.5)*(this.width/2));
-	            int x2 = (int)Math.round(this.x+ this.width/2 + scl*Math.sqrt(0.5)*(this.width/2));
-	            int y1 = (int)Math.round(this.y+ this.height/2 - scl*Math.sqrt(0.5)*(this.height/2));
-	            int y2 = (int)Math.round(this.y+ this.height/2 + scl*Math.sqrt(0.5)*(this.height/2));
-	            
-	            g2d.drawLine(x1,y1,x2,y2);
-	            g2d.drawLine(x2, y1, x1, y2);
-	            
-	            if (multiplicatonNodeStyle>=2) {
-	            	scl=.75f;
-		            x1 = (int)Math.round(this.getXCenter() - scl*Math.sqrt(0.5)*(this.width/2));
-		            x2 = (int)Math.round(this.getXCenter() + scl*Math.sqrt(0.5)*(this.width/2));
-		            y1 = (int)Math.round(this.y+ this.height/2 );
-		            y2 = (int)Math.round(this.y+ this.height/2 );
-		            
-		            g2d.drawLine(x1,y1,x2,y2);
-		           // g2d.drawLine(x2, y1, x1, y2);	    
-		            
-		            x1 = (int)Math.round(this.getXCenter());
-		            x2 = (int)Math.round(this.getXCenter());
-		            y1 = (int)Math.round(this.getYCenter() - scl*Math.sqrt(0.5)*(this.height/2));
-		            y2 = (int)Math.round(this.getYCenter() + scl*Math.sqrt(0.5)*(this.height/2));
-		            g2d.drawLine(x1,y1,x2,y2);
-	            }
-	            
-        	//} else {
-        		/*Font f = g2d.getFont();
-        		g2d.setFont(g2d.getFont().deriveFont(24.0f));
-        		g2d.drawString("*", this.getXCenter()-4, this.getYCenter()+13);
-        		g2d.setFont(f);*/
-        		
-        	//}
-        }
-		
-		
-		// if there is an image, paint over everything else (so far)
-		
-		if (image != null) {
-			int space = 2; int size = this.width;
-			g2d.setClip(shape);
-			//g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-					RenderingHints.VALUE_ANTIALIAS_ON);
-					g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-					//g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-			g2d.drawImage(image,  this.x+this.width-size+space, this.y+this.height-size+space,size,size, null);
-			g2d.setClip(null);
+
+		if (isMultiplicationNode()) {
+
+			float scl = 1;
+			if (multiplicatonNodeStyle == 1)
+				scl = .75f;
+			if (multiplicatonNodeStyle == 2)
+				scl = .5f;
+
+			int x1 = (int) Math.round(this.x + this.width / 2 - scl * Math.sqrt(0.5) * (this.width / 2));
+			int x2 = (int) Math.round(this.x + this.width / 2 + scl * Math.sqrt(0.5) * (this.width / 2));
+			int y1 = (int) Math.round(this.y + this.height / 2 - scl * Math.sqrt(0.5) * (this.height / 2));
+			int y2 = (int) Math.round(this.y + this.height / 2 + scl * Math.sqrt(0.5) * (this.height / 2));
+
+			g2d.drawLine(x1, y1, x2, y2);
+			g2d.drawLine(x2, y1, x1, y2);
+
+			if (multiplicatonNodeStyle >= 2) {
+				scl = .75f;
+				x1 = (int) Math.round(this.getXCenter() - scl * Math.sqrt(0.5) * (this.width / 2));
+				x2 = (int) Math.round(this.getXCenter() + scl * Math.sqrt(0.5) * (this.width / 2));
+				y1 = (int) Math.round(this.y + this.height / 2);
+				y2 = (int) Math.round(this.y + this.height / 2);
+
+				g2d.drawLine(x1, y1, x2, y2);
+				// g2d.drawLine(x2, y1, x1, y2);
+
+				x1 = (int) Math.round(this.getXCenter());
+				x2 = (int) Math.round(this.getXCenter());
+				y1 = (int) Math.round(this.getYCenter() - scl * Math.sqrt(0.5) * (this.height / 2));
+				y2 = (int) Math.round(this.getYCenter() + scl * Math.sqrt(0.5) * (this.height / 2));
+				g2d.drawLine(x1, y1, x2, y2);
+			}
+
+			// } else {
+			/*
+			 * Font f = g2d.getFont(); g2d.setFont(g2d.getFont().deriveFont(24.0f));
+			 * g2d.drawString("*", this.getXCenter()-4, this.getYCenter()+13);
+			 * g2d.setFont(f);
+			 */
+
+			// }
 		}
 
-		
+		// if there is an image, paint over everything else (so far)
+
+		if (image != null) {
+			int space = 2;
+			int size = this.width;
+			g2d.setClip(shape);
+			// g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+			// RenderingHints.VALUE_ANTIALIAS_ON);
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			// g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+			// RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+			g2d.drawImage(image, this.x + this.width - size + space, this.y + this.height - size + space, size, size,
+					null);
+			g2d.setClip(null);
+		}
 
 		if (stroke != null)
 			g2d.setStroke(oldStroke);
 
 		// draw caption
-		labelPosX = (this.x + this.width / 2)
-				- fm.stringWidth(this.shortenedCaption) / 2;
-		labelPosY = (this.y
-				+ height / 2 + font.getSize() / 2);
-		
+		labelPosX = (this.x + this.width / 2) - fm.stringWidth(this.shortenedCaption) / 2;
+		labelPosY = (this.y + height / 2 + font.getSize() / 2);
+
 		if (!isMeanTriangle() && !isMultiplicationNode()) {
 			if (fm != null) {
 				g2d.setColor(fontColor);
@@ -978,11 +931,9 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	}
 
 	public boolean isPointOnGroupingVariable(int xp, int yp) {
-		return (!latent && !triangle && groupingVariable
-				&& xp >= x + width - groupingSymbolSize
-				&& xp <= x + width + groupingSymbolSize
-				&& yp >= y + height - groupingSymbolSize && yp <= y + height
-				+ groupingSymbolSize);
+		return (!latent && !triangle && groupingVariable && xp >= x + width - groupingSymbolSize
+				&& xp <= x + width + groupingSymbolSize && yp >= y + height - groupingSymbolSize
+				&& yp <= y + height + groupingSymbolSize);
 	}
 
 	public void alignToGrid(int gridSize) {
@@ -1002,31 +953,28 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	}
 
 	public boolean isWithinRectangle(Rectangle selection) {
-		return ((this.x >= selection.x)
-				&& (this.x + this.width < selection.x + selection.width)
-				&& (this.y >= selection.y) && (this.y + this.height < selection.y
-				+ selection.height));
+		return ((this.x >= selection.x) && (this.x + this.width < selection.x + selection.width)
+				&& (this.y >= selection.y) && (this.y + this.height < selection.y + selection.height));
 
 	}
 
-/*	public boolean isRenderingHintArcPositionUp() {
-		return renderingHintArcPositionUp;
-	}
-
-	public void setRenderingHintArcPositionUp(boolean renderingHintArcPositionUp) {
-		this.renderingHintArcPositionUp = renderingHintArcPositionUp;
-		valid = false;
-	}
-*/
+	/*
+	 * public boolean isRenderingHintArcPositionUp() { return
+	 * renderingHintArcPositionUp; }
+	 * 
+	 * public void setRenderingHintArcPositionUp(boolean renderingHintArcPositionUp)
+	 * { this.renderingHintArcPositionUp = renderingHintArcPositionUp; valid =
+	 * false; }
+	 */
 	public int getRenderingHintArcPosition() {
 		return renderingHintArcPosition;
 	}
-	
+
 	public void setRenderingHintArcPosition(int renderingHintArcPosition) {
 		this.renderingHintArcPosition = renderingHintArcPosition;
 		valid = false;
 	}
-	
+
 	public void setTriangle(boolean b) {
 		this.triangle = b;
 
@@ -1038,10 +986,10 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 		valid = false;
 
 	}
-	
+
 	// added by TvO 09.10.2018
 	public void setAsMultiplication(boolean value) {
-	    multiplication = value;
+		multiplication = value;
 	}
 
 	public Color getLineColor() {
@@ -1076,11 +1024,12 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	}
 
 	public void renderShadow(Graphics2D g) {
-		
-		if (!this.shadow) return;
-		
+
+		if (!this.shadow)
+			return;
+
 		updateShape();
-		
+
 		AffineTransform at = new AffineTransform();
 		at.translate(2, 2);
 		Shape tShape = at.createTransformedShape(shape);
@@ -1106,13 +1055,13 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	}
 
 	public Edge[] getMeanEdges() {
-		return meanEdges.toArray(new Edge[]{});
+		return meanEdges.toArray(new Edge[] {});
 	}
-	
+
 	public boolean hasMeanEdge() {
 		return meanEdges.size() > 0;
 	}
-	
+
 	public int getTarjanIndex() {
 		return tarjanIndex;
 	}
@@ -1154,7 +1103,7 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 		this.groupingVariable = true;
 		if (index != -1)
 			this.groupName = dataset.getColumnName(index);
-		else 
+		else
 			this.groupName = null;
 	}
 
@@ -1178,12 +1127,11 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	}
 
 	public void setStrokeWidth(float newValue) {
-		stroke = new BasicStroke(newValue, BasicStroke.CAP_BUTT,
-				BasicStroke.JOIN_BEVEL);
+		stroke = new BasicStroke(newValue, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
 	}
 
 	public float getStrokeWidth() {
-		return ((BasicStroke)stroke).getLineWidth();
+		return ((BasicStroke) stroke).getLineWidth();
 	}
 
 	public void setFontSize(int newValue) {
@@ -1205,37 +1153,40 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	}
 
 	public void invalidate() {
-		valid = false;		
+		valid = false;
 	}
 
 	@Override
 	public void notifyUnlink(LinkEvent event) {
-	    if (event.getEventSource() == observedVariableContainer) {
-    		this.setConnected(false);
-    		this.setMissing(false);
-    		
-	    } if (event.getEventSource() == groupingVariableContainer) {
-	        this.unlinkGrouping();
-	    }
+		if (event.getEventSource() == observedVariableContainer) {
+			this.setConnected(false);
+			this.setMissing(false);
+
+		}
+		if (event.getEventSource() == groupingVariableContainer) {
+			this.unlinkGrouping();
+		}
 	}
 
 	@Override
 	public void notifyLink(LinkEvent event) throws LinkException {
-		
-	    // TvO 15 MAR 14: restricted this reaction to cases where the event was started for the observed variable, not the grouping. 
-	    if (event.getEventSource()==this.observedVariableContainer) {
 
-	        ModelRequestInterface mri = event.getEventSource().getGraph().getParentView().getModelRequestInterface();
-    		mri.requestChangeNodeCaption(this, event.getEventName());
-    
-    		LinkException ln = new LinkException("Node is not manifest!");
-    		
-    		if (this.isLatent() || this.isMeanTriangle()) 
-    			throw ln;
-    			//System.err.println("Node is not manifest!");	//TODO should this be an exception again?
-    		else
-    			this.setConnected(true);
-	    }		
+		// TvO 15 MAR 14: restricted this reaction to cases where the event was started
+		// for the observed variable, not the grouping.
+		if (event.getEventSource() == this.observedVariableContainer) {
+
+			ModelRequestInterface mri = event.getEventSource().getGraph().getParentView().getModelRequestInterface();
+			mri.requestChangeNodeCaption(this, event.getEventName());
+
+			LinkException ln = new LinkException("Node is not manifest!");
+
+			if (this.isLatent() || this.isMeanTriangle())
+				throw ln;
+			// System.err.println("Node is not manifest!"); //TODO should this be an
+			// exception again?
+			else
+				this.setConnected(true);
+		}
 	}
 
 	public void setRough(boolean b) {
@@ -1244,23 +1195,24 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 
 	public Edge getVarianceComponent(Graph graph) {
 		for (Edge edge : graph.getEdges()) {
-			if (edge.getSource()==edge.getTarget() && edge.getTarget() == this) {
-				return(edge);
-				
+			if (edge.getSource() == edge.getTarget() && edge.getTarget() == this) {
+				return (edge);
+
 			}
-			//if ((edge.getTarget()==this) && !edge.isDoubleHeaded() && !edge.getSource().isMeanTriangle()) {
-				//hasIncomingVariance = true;
-			//}
+			// if ((edge.getTarget()==this) && !edge.isDoubleHeaded() &&
+			// !edge.getSource().isMeanTriangle()) {
+			// hasIncomingVariance = true;
+			// }
 		}
-		return(null);
+		return (null);
 	}
 
-    public boolean isMultiplicationNode() {
-        return multiplication;
-    }
+	public boolean isMultiplicationNode() {
+		return multiplication;
+	}
 
 	public boolean isRough() {
-		return(rough);
+		return (rough);
 	}
 
 	public Color getFontColor() {

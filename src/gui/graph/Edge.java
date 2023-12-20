@@ -51,8 +51,7 @@ import gui.linker.LinkEvent;
  * @author andreas
  * 
  */
-public class Edge implements Cloneable, LineColorable,
-		VariableContainerListener {
+public class Edge implements Cloneable, LineColorable, VariableContainerListener {
 
 	GeometricObject r1, r2;
 
@@ -61,13 +60,13 @@ public class Edge implements Cloneable, LineColorable,
 	public Node source, target;
 
 	private Color color;
-	
+
 	protected int arrowStyle = 0;
 
 	double varianceAngle = 0;
 
 	VariableContainer definitionVariableContainer;
-	
+
 	private boolean rough = false;
 
 	public enum NamingConventions {
@@ -88,7 +87,6 @@ public class Edge implements Cloneable, LineColorable,
 		this.arrowStyle = arrowStyle;
 	}
 
-	// private boolean definitionVariableConnected;
 
 	boolean valid = false;
 
@@ -100,8 +98,6 @@ public class Edge implements Cloneable, LineColorable,
 
 	public final static EdgeProxy edgeRegressionProxy = new EdgeRegression();
 	public final static EdgeProxy edgeVarianceProxy = new EdgeVarianceProxy();
-	// public final static EdgeProxy edgeVarianceProxy = new
-	// EdgeCovarianceProxy();
 
 	public final static EdgeProxy edgeCovarianceProxy = new EdgeCovarianceProxy();
 
@@ -116,20 +112,17 @@ public class Edge implements Cloneable, LineColorable,
 	private EdgeProxy proxy = edgeRegressionProxy;
 
 	double value;
-	
+
 	public double arcPosition;
 	public boolean arcPositionAutoLayout = true;
 
-
-	int rad = 15; // radius for variances
+	int rad = 15; // radius for variance slings
 
 	public static float DEFAULT_STROKEWIDTH = 3;
-
-	private Stroke stroke = new BasicStroke(DEFAULT_STROKEWIDTH,
-			BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
+	private Stroke stroke = new BasicStroke(DEFAULT_STROKEWIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
 
 	float lineWidth = DEFAULT_STROKEWIDTH;
-	
+
 	int yOffsetLabel = -5;
 
 	public Vector<LineSegment> lines = new Vector<LineSegment>();
@@ -144,7 +137,7 @@ public class Edge implements Cloneable, LineColorable,
 	private String parameterName;
 	private boolean doubleHeaded = false;
 	private boolean fixed;
-	
+
 	private float[] dash = null;
 
 	// label coordinates
@@ -162,7 +155,6 @@ public class Edge implements Cloneable, LineColorable,
 	public List<Arrow> arrows = new ArrayList<Arrow>();
 
 	double dx, dy;
-
 
 	// definitionColumn is used by engine , this should rather be solved
 	// internally in engine TODO: Timo
@@ -189,9 +181,6 @@ public class Edge implements Cloneable, LineColorable,
 	public LineSegment edgeLinFrom;
 	public LineSegment edgeLinTo;
 
-	/*private Stroke arrowStroke = new BasicStroke(2, BasicStroke.CAP_BUTT,
-			BasicStroke.JOIN_BEVEL);
-*/
 	private boolean showStandardizedEstimate;
 
 	public boolean isShowStandardizedEstimate() {
@@ -250,8 +239,7 @@ public class Edge implements Cloneable, LineColorable,
 			edge = (Edge) super.clone();
 			edge.edgeLabel = new LatexEdgeLabel(edgeLabel.content);
 			edge.lines = new Vector<LineSegment>();
-			edge.definitionVariableContainer = (VariableContainer) definitionVariableContainer
-					.clone(edge);
+			edge.definitionVariableContainer = (VariableContainer) definitionVariableContainer.clone(edge);
 			edge.definitionVariableContainer.addVariableContainerListener(edge);
 			return (edge);
 		} catch (CloneNotSupportedException e) {
@@ -288,8 +276,7 @@ public class Edge implements Cloneable, LineColorable,
 		return renderingHintBidirectionalOffset;
 	}
 
-	public void setRenderingHintBidirectionalOffset(
-			int renderingHintBidirectionalOffset) {
+	public void setRenderingHintBidirectionalOffset(int renderingHintBidirectionalOffset) {
 		this.renderingHintBidirectionalOffset = renderingHintBidirectionalOffset;
 	}
 
@@ -343,16 +330,14 @@ public class Edge implements Cloneable, LineColorable,
 			if (automaticVariableNamingConvention == NamingConventions.ARROW)
 				parName = source.getCaption() + "->" + target.getCaption();
 			else
-				parName = source.getCaption() + SPACE + "TO" + SPACE
-						+ target.getCaption();
+				parName = source.getCaption() + SPACE + "TO" + SPACE + target.getCaption();
 
 		} else {
 			// label = edge.source.getCaption()+"<->"+edge.target.getCaption();
 			if (source == target) {
 				parName = "VAR" + SPACE + source.getCaption();
 			} else {
-				parName = "COV" + SPACE + source.getCaption() + SPACE
-						+ target.getCaption();
+				parName = "COV" + SPACE + source.getCaption() + SPACE + target.getCaption();
 			}
 		}
 		return parName;
@@ -362,15 +347,13 @@ public class Edge implements Cloneable, LineColorable,
 		String parName = "";
 		if (!isDoubleHeaded()) {
 			// label = edge.source.getCaption()+"->"+edge.target.getCaption();
-			parName = "\\lambda_{" + source.getCaption() + ","
-					+ target.getCaption() + "}";
+			parName = "\\lambda_{" + source.getCaption() + "," + target.getCaption() + "}";
 		} else {
 			// label = edge.source.getCaption()+"<->"+edge.target.getCaption();
 			if (source == target) {
 				parName = "VAR_{" + source.getCaption() + "}";
 			} else {
-				parName = "COV_{" + source.getCaption() + ","
-						+ target.getCaption() + "}";
+				parName = "COV_{" + source.getCaption() + "," + target.getCaption() + "}";
 			}
 		}
 		return parName;
@@ -414,8 +397,9 @@ public class Edge implements Cloneable, LineColorable,
 	public void setValue(double value) {
 		this.value = value;
 		this.standardizedValue = Double.NaN;
-		
-		// TvO 23.11.2023 removed this warning since setting value on free paths might make sense at some points (e.g., scripts). 
+
+		// TvO 23.11.2023 removed this warning since setting value on free paths might
+		// make sense at some points (e.g., scripts).
 //		if (!this.isFixed()) {
 //			System.err.println("Warning! Used Edge.setValue() on a non-fixed path.");
 //		}
@@ -441,7 +425,7 @@ public class Edge implements Cloneable, LineColorable,
 		renderedParameterName = "";
 
 		color = Color.black;
-		
+
 		automaticNaming = true;
 
 		// edgeLabel = new PlainEdgeLabel("");
@@ -483,8 +467,7 @@ public class Edge implements Cloneable, LineColorable,
 		this.value = value;
 	}
 
-	public Edge(Node source, Node target, boolean isDoubleHeaded,
-			String parameterName, double value) {
+	public Edge(Node source, Node target, boolean isDoubleHeaded, String parameterName, double value) {
 		this(source, target, isDoubleHeaded, value);
 		this.fixed = false;
 		this.parameterName = parameterName;
@@ -493,8 +476,7 @@ public class Edge implements Cloneable, LineColorable,
 	}
 
 	/*
-	 * private Point computeAnchor(Node source, Node target) { // intersect top
-	 * line
+	 * private Point computeAnchor(Node source, Node target) { // intersect top line
 	 * 
 	 * scx = source.getX() + source.getWidth() / 2; scy = source.getY() +
 	 * source.getHeight() / 2;
@@ -503,9 +485,8 @@ public class Edge implements Cloneable, LineColorable,
 	 * target.getHeight() / 2;
 	 * 
 	 * Line top = new Line(new Point(source.getX(), source.getY()), new Point(
-	 * source.getX() + source.getWidth(), source.getY())); Line edge = new
-	 * Line(new Point(scx, scy), new Point(tcx, tcy)); Point isect =
-	 * top.intersect(edge);
+	 * source.getX() + source.getWidth(), source.getY())); Line edge = new Line(new
+	 * Point(scx, scy), new Point(tcx, tcy)); Point isect = top.intersect(edge);
 	 * 
 	 * // intersect bottom line Line bottom = new Line(new Point(source.getX(),
 	 * source.getY() + source.getHeight()), new Point(source.getX() +
@@ -521,9 +502,8 @@ public class Edge implements Cloneable, LineColorable,
 	 * source.getWidth(), source.getY() + source.getHeight())); Point isect4 =
 	 * right.intersect(edge);
 	 * 
-	 * Point selectedPoint = null; if ((isect != null) && (isect.x >=
-	 * source.getX()) && (isect.x <= source.getX() + source.getWidth())) {
-	 * selectedPoint = isect;
+	 * Point selectedPoint = null; if ((isect != null) && (isect.x >= source.getX())
+	 * && (isect.x <= source.getX() + source.getWidth())) { selectedPoint = isect;
 	 * 
 	 * } if ((isect2 != null) && (isect2.x >= source.getX()) && (isect2.x <
 	 * source.getX() + source.getWidth())) { if (Math.abs(isect2.y - tcy) <
@@ -539,8 +519,7 @@ public class Edge implements Cloneable, LineColorable,
 	 * 
 	 * if ((isect4 != null) && (isect4.y >= source.getY()) && (isect4.y <
 	 * source.getY() + source.getHeight())) { if (Math.abs(isect4.x - tcx) <
-	 * Math.abs(isect3.x - tcx) || selectedPoint == null) { selectedPoint =
-	 * isect4;
+	 * Math.abs(isect3.x - tcx) || selectedPoint == null) { selectedPoint = isect4;
 	 * 
 	 * } }
 	 * 
@@ -603,12 +582,12 @@ public class Edge implements Cloneable, LineColorable,
 		/*
 		 * Polygon poly = new Polygon(); poly.addPoint(toX, toY);
 		 * 
-		 * double phi = Math.toRadians(30); double x, y, rho = theta + phi; int
-		 * barb = 15; x = toX - barb * Math.cos(rho); y = toY - barb *
-		 * Math.sin(rho); poly.addPoint((int) Math.round(x), (int)
-		 * Math.round(y)); // g2d.draw(new Line2D.Double(toX, toY, x, y)); rho =
-		 * theta - phi; x = toX - barb * Math.cos(rho); y = toY - barb *
-		 * Math.sin(rho); // g2d.draw(new Line2D.Double(toX, toY, x, y));
+		 * double phi = Math.toRadians(30); double x, y, rho = theta + phi; int barb =
+		 * 15; x = toX - barb * Math.cos(rho); y = toY - barb * Math.sin(rho);
+		 * poly.addPoint((int) Math.round(x), (int) Math.round(y)); // g2d.draw(new
+		 * Line2D.Double(toX, toY, x, y)); rho = theta - phi; x = toX - barb *
+		 * Math.cos(rho); y = toY - barb * Math.sin(rho); // g2d.draw(new
+		 * Line2D.Double(toX, toY, x, y));
 		 * 
 		 * poly.addPoint((int) Math.round(x), (int) Math.round(y));
 		 * 
@@ -640,18 +619,15 @@ public class Edge implements Cloneable, LineColorable,
 
 	public String getLabelinStyle() {
 		String label = "";
-		String valueString = Double
-				.toString(Math.round(this.getValue() * 100) / 100.0);
+		String valueString = Double.toString(Math.round(this.getValue() * 100) / 100.0);
 
 		if (showStandardizedEstimate // && isFree()
-				//&& !Double.isNaN(standardizedValue)
-				) {
+		// && !Double.isNaN(standardizedValue)
+		) {
 			if (Double.isNaN(standardizedValue)) {
 				valueString += "(NaN)";
 			} else
-			valueString += "("
-					+ (Math.round(this.getStandardizedValue() * 100) / 100.0)
-					+ ")";
+				valueString += "(" + (Math.round(this.getStandardizedValue() * 100) / 100.0) + ")";
 		}
 
 		if (this.edgeStyle == EdgeStyle.ALWAYS_LABEL) {
@@ -672,12 +648,12 @@ public class Edge implements Cloneable, LineColorable,
 			}
 		} else if (this.edgeStyle == EdgeStyle.PLAIN) {
 			label = "";
-		} else  if (this.edgeStyle == EdgeStyle.SIMPLIFIED) {
+		} else if (this.edgeStyle == EdgeStyle.SIMPLIFIED) {
 			if (!this.edgeStyleHideUnitValues || this.getValue() != 1)
 				label = "" + valueString;
 			if (!this.isFixed()) {
-				label = getRenderedParameterName() ;//+ " = " + valueString;
-			}			
+				label = getRenderedParameterName();// + " = " + valueString;
+			}
 		}
 		return label;
 	}
@@ -707,9 +683,8 @@ public class Edge implements Cloneable, LineColorable,
 			 * int labelWidth = size * 2; int labelHeight = size * 2;
 			 */
 			g.setColor(Color.black);
-			Polygon poly = new Polygon(new int[] { anchorX - size, anchorX,
-					anchorX + size, anchorX }, new int[] { anchorY,
-					anchorY - size, anchorY, anchorY + size }, 4);
+			Polygon poly = new Polygon(new int[] { anchorX - size, anchorX, anchorX + size, anchorX },
+					new int[] { anchorY, anchorY - size, anchorY, anchorY + size }, 4);
 
 			if (getDefinitionVariableContainer().isConnected()) {
 				g2d.fillPolygon(poly);
@@ -755,8 +730,7 @@ public class Edge implements Cloneable, LineColorable,
 
 		// draw selection glow
 		if (selected) {
-			Utilities.paintGlow(g2d, edgePath, 8,
-					((BasicStroke) stroke).getLineWidth());
+			Utilities.paintGlow(g2d, edgePath, 8, ((BasicStroke) stroke).getLineWidth());
 		}
 
 		// clipping ?
@@ -767,9 +741,11 @@ public class Edge implements Cloneable, LineColorable,
 			if (oldClip != null) {
 				area = new Area(oldClip);
 			} else {
-				area = new Area(new Rectangle2D.Double(0, 0, this.toX
-						+ this.fromX, this.toY + this.fromY)); // TODO: crude
-																// bug fix BUG
+				area = new Area(new Rectangle2D.Double(0, 0, this.toX + this.fromX, this.toY + this.fromY)); // TODO:
+																												// crude
+																												// bug
+																												// fix
+																												// BUG
 			}
 			area.subtract(new Area(r1.extrude(EdgeProxy.ARROW_PAD).getShape()));
 			area.subtract(new Area(r2.extrude(EdgeProxy.ARROW_PAD).getShape()));
@@ -779,7 +755,7 @@ public class Edge implements Cloneable, LineColorable,
 		// draw path
 		g2d.setColor(color);
 		g2d.setStroke(stroke);
-		
+
 		if (!rough)
 			g2d.draw(edgePath);
 		else
@@ -792,27 +768,26 @@ public class Edge implements Cloneable, LineColorable,
 			if (!Double.isNaN(arrow.theta))
 				drawArrow(g2d, arrow);
 		}
-		
+
 		// draw arrow orientation
-	/*	g2d.setColor(Color.pink);
-		int sc=2;
-		g2d.drawLine( this.edgeLinFrom.x1, this.edgeLinFrom.y1, this.edgeLinFrom.x2*sc, this.edgeLinFrom.y2*sc);
-		g2d.drawLine( this.edgeLinTo.x1, this.edgeLinTo.y1, this.edgeLinTo.x2*sc, this.edgeLinTo.y2*sc);
-*/
-		
+		/*
+		 * g2d.setColor(Color.pink); int sc=2; g2d.drawLine( this.edgeLinFrom.x1,
+		 * this.edgeLinFrom.y1, this.edgeLinFrom.x2*sc, this.edgeLinFrom.y2*sc);
+		 * g2d.drawLine( this.edgeLinTo.x1, this.edgeLinTo.y1, this.edgeLinTo.x2*sc,
+		 * this.edgeLinTo.y2*sc);
+		 */
+
 		// draw Bezier control points
 		if (ctrlActive) {
 			g.setColor(Color.green);
-			g.drawOval((int) ctrlx1 - ctrls, (int) ctrly1 - ctrls,
-					ctrls * 2 + 1, ctrls * 2 + 1);
+			g.drawOval((int) ctrlx1 - ctrls, (int) ctrly1 - ctrls, ctrls * 2 + 1, ctrls * 2 + 1);
 			g.drawLine(fromX, fromY, (int) ctrlx1, (int) ctrly1);
 
 			// draw second control point only for edges that have different
 			// source and target
 			// otherwise one control point suffices
 			if (getSource() != getTarget()) {
-				g.drawOval((int) ctrlx2 - ctrls, (int) ctrly2 - ctrls,
-						ctrls * 2 + 1, ctrls * 2 + 1);
+				g.drawOval((int) ctrlx2 - ctrls, (int) ctrly2 - ctrls, ctrls * 2 + 1, ctrls * 2 + 1);
 				g.drawLine(toX, toY, (int) ctrlx2, (int) ctrly2);
 			}
 
@@ -883,23 +858,18 @@ public class Edge implements Cloneable, LineColorable,
 		 */
 
 		if (source.isMeanTriangle()) {
-			r1 = new Triangle(source.getX(), source.getY(), source.getWidth(),
-					source.getHeight());
+			r1 = new Triangle(source.getX(), source.getY(), source.getWidth(), source.getHeight());
 
 		} else if (!source.isLatent()) {
-			r1 = new Rectangle(source.getX(), source.getY(), source.getWidth(),
-					source.getHeight());
+			r1 = new Rectangle(source.getX(), source.getY(), source.getWidth(), source.getHeight());
 		} else {
-			r1 = new Oval(source.getX(), source.getY(), source.getWidth(),
-					source.getHeight());
+			r1 = new Oval(source.getX(), source.getY(), source.getWidth(), source.getHeight());
 		}
 
 		if (!target.isLatent()) {
-			r2 = new Rectangle(target.getX(), target.getY(), target.getWidth(),
-					target.getHeight());
+			r2 = new Rectangle(target.getX(), target.getY(), target.getWidth(), target.getHeight());
 		} else {
-			r2 = new Oval(target.getX(), target.getY(), target.getWidth(),
-					target.getHeight());
+			r2 = new Oval(target.getX(), target.getY(), target.getWidth(), target.getHeight());
 		}
 
 		// drawing updates
@@ -992,16 +962,14 @@ public class Edge implements Cloneable, LineColorable,
 			return -1;
 
 		/*
-		 * if (getSource()==getTarget()) { if ((x - ctrlx1) * (x - ctrlx1) + (y
-		 * - ctrly1) * (y - ctrly1) < ctrls ctrls) { return VARIANCE_CTRL_POINT;
-		 * } else { return -1; } }
+		 * if (getSource()==getTarget()) { if ((x - ctrlx1) * (x - ctrlx1) + (y -
+		 * ctrly1) * (y - ctrly1) < ctrls ctrls) { return VARIANCE_CTRL_POINT; } else {
+		 * return -1; } }
 		 */
 
-		if ((x - ctrlx1) * (x - ctrlx1) + (y - ctrly1) * (y - ctrly1) < ctrls
-				* ctrls) {
+		if ((x - ctrlx1) * (x - ctrlx1) + (y - ctrly1) * (y - ctrly1) < ctrls * ctrls) {
 			return COVARIANCE_CTRL_POINT_1;
-		} else if ((x - ctrlx2) * (x - ctrlx2) + (y - ctrly2) * (y - ctrly2) < ctrls
-				* ctrls) {
+		} else if ((x - ctrlx2) * (x - ctrlx2) + (y - ctrly2) * (y - ctrly2) < ctrls * ctrls) {
 			return COVARIANCE_CTRL_POINT_2;
 		}
 
@@ -1009,10 +977,6 @@ public class Edge implements Cloneable, LineColorable,
 	}
 
 	public void setCtrlPoint(int point, double x, double y) {
-
-		// System.out.println("SET " + point + " TO " + x + "," + y + " scx" +
-		// scx
-		// + " tcx" + tcx);
 
 		if (point == COVARIANCE_CTRL_POINT_1) {
 			relctrlx1 = x - scx;
@@ -1025,7 +989,6 @@ public class Edge implements Cloneable, LineColorable,
 			relctrly1 = y - tcx;
 		}
 
-		//
 	}
 
 	public void setRelativeCtrlPoint(int point, double x, double y) {
@@ -1044,8 +1007,7 @@ public class Edge implements Cloneable, LineColorable,
 	}
 
 	public String toString() {
-		return "<EDGE from " + source.getId() + " to " + target.getId()
-				+ " fixed:" + fixed + ">";
+		return "<EDGE from " + source.getId() + " to " + target.getId() + " fixed:" + fixed + ">";
 	}
 
 	/**
@@ -1075,36 +1037,31 @@ public class Edge implements Cloneable, LineColorable,
 
 			if (source == target) {
 
-				if (arcPosition==Node.NORTH) {
-					double d = Math.sqrt((source.getY() - y)
-							* (source.getY() - y) + (scx - x) * (scx - x));
+				if (arcPosition == Node.NORTH) {
+					double d = Math.sqrt((source.getY() - y) * (source.getY() - y) + (scx - x) * (scx - x));
 					return Math.abs(d - rad);
-				} else if (arcPosition==Node.SOUTH)  {
+				} else if (arcPosition == Node.SOUTH) {
 					double d = Math
-							.sqrt((source.getY() + source.getHeight() - y)
-									* (source.getY() + source.getHeight() - y)
+							.sqrt((source.getY() + source.getHeight() - y) * (source.getY() + source.getHeight() - y)
 									+ (scx - x) * (scx - x));
 					return Math.abs(d - rad);
 
 				} else if (arcPosition == Node.WEST) {
-				
-					double d = Math
-							.sqrt((scy-y)*(scy-y)
-									
-									+ (source.getX() - x) * (source.getX() - x));
+
+					double d = Math.sqrt((scy - y) * (scy - y)
+
+							+ (source.getX() - x) * (source.getX() - x));
 					return Math.abs(d - rad);
-					
+
 				} else if (arcPosition == Node.EAST) {
-					
-					//System.err.println("TODO Edge.java 1090");
-					double d = Math
-							.sqrt((scy-y)*(scy-y)
-									
-									+ (source.getX()+source.getWidth() - x) * (source.getX()+source.getWidth() - x));
+
+					double d = Math.sqrt((scy - y) * (scy - y)
+
+							+ (source.getX() + source.getWidth() - x) * (source.getX() + source.getWidth() - x));
 					return Math.abs(d - rad);
-					
+
 				} else {
-					//TODO NF
+					// TODO NF
 					System.err.println("TODO Edge.java 1090");
 					return Double.MAX_VALUE;
 				}
@@ -1139,35 +1096,10 @@ public class Edge implements Cloneable, LineColorable,
 	public boolean isOnLabel(int x, int y) {
 
 		int lwh = edgeLabel.getWidth() / 2;
-		return ((x >= lx - lwh) && (x <= lx + lwh)
-				&& (y >= ly - edgeLabel.getHeight() + yOffsetLabel) && (y <= ly
-				+ yOffsetLabel));
+		return ((x >= lx - lwh) && (x <= lx + lwh) && (y >= ly - edgeLabel.getHeight() + yOffsetLabel)
+				&& (y <= ly + yOffsetLabel));
 
 	}
-
-	/*
-	 * public void setDefinitionVariable(boolean b) { if (!b) {
-	 * this.setDefinitionVariable(null, -1, false); } }
-	 */
-
-	/*
-	 * public void unlinkDefinitionVariable() { this.definitionDataset = null;
-	 * this.definitionColumn = -1;
-	 * 
-	 * }
-	 */
-
-	/* @deprecated * */
-	/*
-	 * public void setDefinitionVariable(RawDataset dataset, int index, boolean
-	 * state) { this.definitionVariableContainer //
-	 * System.out.println("Is definition "+this); this.definitionColumn = index;
-	 * this.definitionDataset = dataset;
-	 * 
-	 * if (state == true) { this.definitionVariable = true; if (dataset != null
-	 * && index != -1) this.setParameterName( dataset.getColumnName(index) ); }
-	 * else { this.definitionVariable=false; } }
-	 */
 
 	public Color getLineColor() {
 		return color;
@@ -1178,40 +1110,30 @@ public class Edge implements Cloneable, LineColorable,
 	}
 
 	public float[] getDashStyle() {
-		return(dash);
+		return (dash);
 	}
-	
+
 	public void setDashStyle(float[] dash) {
-		
+
 		this.dash = dash;
 		if (!(this.stroke instanceof BasicStroke)) {
 			System.err.println("Stroke is not a BasicStroke!");
 			return;
 		}
-		
-		BasicStroke stroke = (BasicStroke)this.stroke;
-		
-		BasicStroke nstroke = new BasicStroke(
-				stroke.getLineWidth(),
-				stroke.getEndCap(),
-				stroke.getLineJoin(),
-				stroke.getMiterLimit(),
-				dash,
-				stroke.getDashPhase()
-				);
+
+		BasicStroke stroke = (BasicStroke) this.stroke;
+
+		BasicStroke nstroke = new BasicStroke(stroke.getLineWidth(), stroke.getEndCap(), stroke.getLineJoin(),
+				stroke.getMiterLimit(), dash, stroke.getDashPhase());
 		this.stroke = nstroke;
 	}
-	
-	
+
 	public Object getQP() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	/*
-	 * public String getDefinitionVariableName() { return
-	 * definitionDataset.getColumnName(definitionColumn); }
-	 */
+
 
 	public boolean getActiveControl() {
 		return ctrlActive;
@@ -1224,12 +1146,6 @@ public class Edge implements Cloneable, LineColorable,
 	public float getStrokeWidth() {
 		return ((BasicStroke) stroke).getLineWidth();
 	}
-
-	/*public void setStrokeWidth(float newValue) {
-		// ((BasicStroke)stroke)
-		stroke = new BasicStroke(newValue, BasicStroke.CAP_BUTT,
-				BasicStroke.JOIN_BEVEL);
-	}*/
 
 	public boolean isWithinRectangle(java.awt.Rectangle selection) {
 		if (lines == null)
@@ -1246,8 +1162,8 @@ public class Edge implements Cloneable, LineColorable,
 
 		int lwh = edgeLabel.getWidth() / 2;
 
-		return new java.awt.Rectangle(lx - lwh, ly - edgeLabel.getHeight()
-				+ yOffsetLabel, edgeLabel.getWidth(), edgeLabel.getHeight());
+		return new java.awt.Rectangle(lx - lwh, ly - edgeLabel.getHeight() + yOffsetLabel, edgeLabel.getWidth(),
+				edgeLabel.getHeight());
 	}
 
 	public int getCurvature() {
@@ -1280,9 +1196,9 @@ public class Edge implements Cloneable, LineColorable,
 
 	public void setLineWidth(float lw) {
 		this.lineWidth = lw;
-		stroke = new BasicStroke(lw, BasicStroke.CAP_BUTT,
-				BasicStroke.JOIN_BEVEL, BasicStroke.JOIN_MITER, getDashStyle(),0);
-		
+		stroke = new BasicStroke(lw, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, BasicStroke.JOIN_MITER,
+				getDashStyle(), 0);
+
 	}
 
 }
