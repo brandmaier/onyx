@@ -48,7 +48,8 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	public static final int DEFAULT_LABEL_FONTSIZE = 10;
 
 	// properties for drawing
-	private int x = -1, y = -1;
+	public int x = -1;
+	private int y = -1;
 	private int width = -1, height = -1;
 	private String caption;
 	private String shortenedCaption;
@@ -67,6 +68,7 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	private int hashCounter;
 
 	private boolean shadow = false;
+	private int shadow_type = 1;
 	// private boolean gradient = true;
 
 	private boolean hidden = false;
@@ -96,6 +98,8 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	final int groupingSymbolSize = 12;
 
 	VariableContainer groupingVariableContainer;
+	
+	private NodeDrawProxy drawProxy = null;
 
 	public VariableContainer getGroupingVariableContainer() {
 		return groupingVariableContainer;
@@ -623,13 +627,22 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	}
 
 	public void draw(Graphics2D g, boolean markUnconnectedNodes) {
-		if (fm == null) {
-			fm = g.getFontMetrics(font);
-		}
-
+		
 		if (!captionValid) {
 			updateCaption();
 			captionValid = true;
+		}
+		
+		if (getDrawProxy()!=null) {
+			getDrawProxy().draw(this, g, markUnconnectedNodes);
+			return;
+		}
+		
+
+
+
+		if (fm == null) {
+			fm = g.getFontMetrics(font);
 		}
 
 		Graphics2D g2d = (Graphics2D) g;
@@ -645,12 +658,11 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 		Color clrHi = fillColor; // new Color(255, 255, 255);
 
 		final int darker = 30;
-		// Color clrLo = new Color(225, 225, 225);
-		int red = Math.max(fillColor.getRed() - darker, 0);
+
+	/*	int red = Math.max(fillColor.getRed() - darker, 0);
 		int blue = Math.max(fillColor.getBlue() - darker, 0);
 		int green = Math.max(fillColor.getGreen() - darker, 0);
-		Color clrLo = new Color(red, green, blue);
-
+*/
 		// determine shape
 		if (this.isMeanTriangle()) {
 			shape = new Polygon(new int[] { this.x, this.x + this.width / 2, this.x + this.width },
@@ -1030,6 +1042,8 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 
 		updateShape();
 
+		if (getShadow_type() == 1) {
+		
 		AffineTransform at = new AffineTransform();
 		at.translate(2, 2);
 		Shape tShape = at.createTransformedShape(shape);
@@ -1044,6 +1058,14 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 		tShape = at.createTransformedShape(shape);
 		g.setColor(new Color(200, 200, 200));
 		g.fill(tShape);
+		
+		} else if (getShadow_type() == 2) {
+			AffineTransform at = new AffineTransform();
+			at.translate(6, 6);
+			Shape tShape = at.createTransformedShape(shape);	
+			g.setColor(Color.black);
+			g.fill(tShape);
+		}
 	}
 
 	public void addMeanEdge(Edge edge) {
@@ -1217,6 +1239,22 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 
 	public Color getFontColor() {
 		return this.fontColor;
+	}
+
+	public NodeDrawProxy getDrawProxy() {
+		return drawProxy;
+	}
+
+	public void setDrawProxy(NodeDrawProxy drawProxy) {
+		this.drawProxy = drawProxy;
+	}
+
+	public int getShadow_type() {
+		return shadow_type;
+	}
+
+	public void setShadow_type(int shadow_type) {
+		this.shadow_type = shadow_type;
 	}
 
 }

@@ -25,6 +25,20 @@ import java.awt.geom.AffineTransform;
 
 public class PaintTricks {
 
+	  public static Color hexToColor(String hex) {
+		  
+	        // remove any leading "#" from the hex string
+	        hex = hex.replace("#", "");
+
+	        // parse the hex string to get individual color components
+	        int red = Integer.parseInt(hex.substring(0, 2), 16);
+	        int green = Integer.parseInt(hex.substring(2, 4), 16);
+	        int blue = Integer.parseInt(hex.substring(4, 6), 16);
+
+	        // create and return a Color object
+	        return new Color(red, green, blue);
+	    }
+	
 	private static Color getMixedColor(Color c1, float pct1, Color c2, float pct2) {
 	    float[] clr1 = c1.getComponents(null);
 	    float[] clr2 = c2.getComponents(null);

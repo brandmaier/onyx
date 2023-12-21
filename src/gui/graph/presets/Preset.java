@@ -57,5 +57,6 @@ public abstract class Preset {
 		this.parameterReader = showingEstimate;
 		apply(graph);
 	}
+
 	
 }

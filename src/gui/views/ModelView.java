@@ -164,6 +164,7 @@ import gui.graph.NodeGroup;
 import gui.graph.NodeGroupManager;
 import gui.graph.VariableContainer;
 import gui.graph.presets.Cinema;
+import gui.graph.presets.Comic;
 import gui.graph.presets.Blueprint;
 import gui.graph.presets.Default;
 import gui.graph.presets.FlatRainbow;
@@ -297,7 +298,6 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		presets[4] = new Schoeneberg();
 		presets[5] = new Chalk();
 		presets[6] = new FadedColors();
-		// presets[7] = new Charlottenburg();
 		presets[7] = new Metal();
 		presets[8] = new Camouflage();
 		presets[9] = new FlatRainbow();
@@ -307,7 +307,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		presets[13] = new RetroOrange();
 		presets[14] = new Mint();
 		presets[15] = new Posh();
-		presets[16] = new Amelie();
+		presets[16] = new Comic();
 		/*
 		 * presets[16] = new Amelie();
 		 */
