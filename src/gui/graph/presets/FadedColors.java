@@ -64,7 +64,7 @@ public class FadedColors extends Default {
 	public void apply(Graph graph, Node node) {
 		
 		node.setRough(false);
-		
+		node.setShadow(false);
 		
 		if (node.isLatent()) {
 			node.setFillColor( colmap.get(node) );

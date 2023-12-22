@@ -170,6 +170,7 @@ import gui.graph.presets.Default;
 import gui.graph.presets.FlatRainbow;
 import gui.graph.presets.RetroOrange;
 import gui.graph.presets.Camouflage;
+import gui.graph.presets.Celestial;
 import gui.graph.presets.Julian;
 import gui.graph.presets.Modern;
 import gui.graph.presets.Mint;
@@ -288,7 +289,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 	public final static int THINSTROKE = 0, MEDIUMSTROKE = 1, THICKSTROKE = 2;
 
 	static {
-		presets = new Preset[17];
+		presets = new Preset[18];
 		presets[0] = new Default();
 
 		presets[1] = new Modern();
@@ -308,6 +309,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		presets[14] = new Mint();
 		presets[15] = new Posh();
 		presets[16] = new Comic();
+		presets[17] = new Celestial();
 		/*
 		 * presets[16] = new Amelie();
 		 */

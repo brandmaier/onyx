@@ -60,6 +60,7 @@ public class Happy extends Preset {
 		}
 		
 		node.setShadow(true);
+		node.setShadow_type(0);
 		node.setFontColor(Color.black);
 		node.setFontSize(10);
 		node.setRough(false);

@@ -76,7 +76,7 @@ public class RetroOrange extends Preset {
 		
 		node.nodeFillGradient =  FillStyle.GRADIENT;
 		node.setShadow(true);
-		
+		node.setShadow_type(0);
 		node.setRough(false);
 
 	}

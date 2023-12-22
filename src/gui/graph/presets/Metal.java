@@ -98,6 +98,7 @@ public class Metal extends Happy {
 		}
 		
 		node.setShadow(true);
+		node.setShadow_type(0);
 		node.setRough(false);
 		node.setFontSize(10);
 

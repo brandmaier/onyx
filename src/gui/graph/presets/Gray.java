@@ -49,6 +49,7 @@ public class Gray extends Preset {
 		node.setLineColor(Color.black);
 		node.setFontColor(Color.black);
 		node.setShadow(true);
+		node.setShadow_type(0);
 		node.setFontSize(10);
 		node.setRough(false);
 	}

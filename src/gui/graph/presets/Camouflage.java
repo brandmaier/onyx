@@ -67,6 +67,7 @@ public class Camouflage extends Preset {
 		node.nodeFillGradient =  FillStyle.GRADIENT;
 		node.setLineColor(Color.black);
 		node.setShadow(true);
+		node.setShadow_type(0);
 		node.setFontColor(Color.black);
 		node.setFontSize(10);
 		node.setRough(false);
