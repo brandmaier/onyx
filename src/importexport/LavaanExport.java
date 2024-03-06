@@ -118,7 +118,7 @@ public class LavaanExport extends RExport {
 			{
 		
 
-				model+= inset+ createEdgeString(edge, "BY", startingValues, useUniqueNames);
+				model+= inset+ createEdgeString(edge, "ON", startingValues, useUniqueNames);
 			}
 		}
 		
