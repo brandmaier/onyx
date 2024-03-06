@@ -16,6 +16,7 @@
 package importexport;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import engine.ParameterReader;
@@ -85,6 +86,11 @@ public class LavaanExport extends RExport {
 		//variablenames = variablenames.substring(0, variablenames.length()-1);
 		//variablenames+="";
 		
+		List<Node> latents = new ArrayList<Node>();
+
+		for (Node node : g.getNodes()) if (node.isLatent() && !node.isMeanTriangle()) latents.add(node);
+		HashSet<Node> latentsWithOutgoing = new HashSet<>();
+
 		// create all regressions between manifest and latent
 		model += "! regressions \n";
 		for (Edge edge : g.getEdges()) {
@@ -93,9 +99,15 @@ public class LavaanExport extends RExport {
 					&& !edge.getSource().isMeanTriangle())
 			{
 				model+= inset+ createEdgeString(edge, "BY", startingValues, useUniqueNames);
+		        latentsWithOutgoing.add(edge.getSource());
 			}
 		}
 		
+		for (Node latent : latents) {
+		    if (!latentsWithOutgoing.contains(latent)) {
+		        model += inset + latent.getCaption() + " =~ 0\n";
+		    }
+		}
         // create all regressions between manifest and manifest
        // model += "! regressions of manifest on manifest\n";
         for (Edge edge : g.getEdges()) {
@@ -149,9 +161,7 @@ public class LavaanExport extends RExport {
 		}
 		
 		// create zero-fixed latent covariances
-		List<Node> latents = new ArrayList<Node>();
-
-		for (Node node : g.getNodes()) if (node.isLatent() && !node.isMeanTriangle()) latents.add(node);
+	
 		boolean[][] spec = new boolean[latents.size()][latents.size()];
 		
 		for (Edge edge : g.getEdges()) {
