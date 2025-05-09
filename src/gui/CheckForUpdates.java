@@ -42,7 +42,7 @@ public class CheckForUpdates implements Runnable
 
 			Integer latestVersion = Integer.parseInt(r);
 			
-			if (latestVersion > MainFrame.SVN_VERSION)
+			if (latestVersion > MainFrame.MINOR_VERSION)
 			{
 				MainFrame.getContextHelpPanel().setText("Your version of "+WelcomeFrame.OMEGA + "nyx is out of date! Please download a new version on our website!");
 				MainFrame.getContextHelpPanel().setVisible(true);

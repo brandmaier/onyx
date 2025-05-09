@@ -23,6 +23,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import engine.backend.Model;
 
@@ -138,7 +140,9 @@ public abstract class Dataset {
         for (int j=0; j<INITLINES; j++) 
             for (int i=0; i<separatorCandidate.length; i++) 
             {
-            	firstAnz[i][j] = Statik.countSubstring(initLine.elementAt(j), ""+separatorCandidate[i]);
+            	// counting only those separators that are not within quotes (using lookahead)
+            	String[] split = initLine.elementAt(j).split(separatorCandidate[i]+"(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+            	firstAnz[i][j] = split.length-1;
             }
        
         int nr = 0; while (nr < separatorCandidate.length && !checkEqual(firstAnz[nr])) nr++;
@@ -176,7 +180,11 @@ public abstract class Dataset {
                     line = s;
                     s = (reader.ready()?reader.readLine():null);
                 }
-                String[] split = line.split(""+separator);
+                // instead of a naive split use a lookahead that
+                // only matches a separator if the number of quotes ahead is even
+                //String[] split = line.split(""+separator);
+                //String[] split = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+                String[] split = line.split(separator+"(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
                 double[] row = new double[numColumns];
                 for (int j=0; j<numColumns; j++) {
                     String content = (j<split.length?split[j].trim():Model.MISSING+"");

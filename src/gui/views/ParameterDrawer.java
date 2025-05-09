@@ -20,6 +20,7 @@ import importexport.OpenMxExport;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -348,7 +349,8 @@ public class ParameterDrawer extends View implements ViewListener,
 	}
 	
 	public void paintBackground(Graphics2D g) {
-
+		((Graphics2D)g).setRenderingHint ( RenderingHints.KEY_ANTIALIASING,
+				  RenderingHints.VALUE_ANTIALIAS_ON );
 		DropShadowBorder.paintBackgroundInComponent(this, g, this.getBackground());
 	}
 

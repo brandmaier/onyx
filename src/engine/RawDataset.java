@@ -107,21 +107,6 @@ public class RawDataset extends Dataset {
 		if (names != null) this.columnNames = names; else for (int i=0; i < numColumns; i++) this.columnNames.add("Unnamed"+Integer.toString(i+1));
         if (centralizationMeans == null) this.centralizationMeans = new double[numColumns]; else this.centralizationMeans = centralizationMeans;
 	}
-	
-	@Deprecated // use Dataset.createDatasetFromString
-	public RawDataset(String table, String name) {
-	    this();
-	    setName(name);
-	    this.setData(table);
-	}
-	
-    @Deprecated // use Dataset.createDatasetFromReader
-	public RawDataset(BufferedReader table, String name) {
-	    this();
-	    setName(name);
-	    this.setData(table);
-	}
-	
 
 	
 	public int getNumRows() {
@@ -193,25 +178,33 @@ public class RawDataset extends Dataset {
 
 	public double getColumnMean(int i)
 	{
+		double[] c = getColumn(i, true);
 		double mu=0;
 		for (int j=0; j < numRows;j++) {
-			mu+= this.data[j][i];
+			mu+= c[j];
 		}
-		mu /= numRows;
+		mu /= getNumNonMissingInColumn(i);
 		
 		return(mu);
 	}
 
 	public double getColumnStandardDeviation(int i)
 	{
+		double[] c = getColumn(i, true);
 		double mu= getColumnMean(i);
 		double sd=0;
 		for (int j=0; j < numRows;j++) {
-			sd+= (this.data[j][i]-mu)*(this.data[j][i]-mu);
+			sd+= (c[j]-mu)*(c[j]-mu);
 		}
-		sd/= (numRows-1);
+		sd/= (getNumNonMissingInColumn(i)-1);
 		
 		return(Math.sqrt(sd));
+	}
+	
+	public int getNumNonMissingInColumn(int j) {
+		int count = 0;
+		for (int i=0; i < getNumRows();i++) count = count + (Model.isMissing(data[i][j])?0:1);
+		return(count);
 	}
 	
 	public double[] getColumn(int j)
@@ -222,10 +215,27 @@ public class RawDataset extends Dataset {
 		return(col);
 	}
 	
+	public double[] getColumn(int j, boolean remove_missing)
+	{
+		if (remove_missing) {
+			double[] col = new double[getNumNonMissingInColumn(j)];
+			int k=0;
+			for (int i=0; i < getNumRows();i++) {
+			     if (!Model.isMissing(data[i][j])) {
+				  col[k] = data[i][j];
+			      k++;
+			     }
+			}
+			return(col);
+		} else {
+			return(getColumn(j));
+		}
+	}
+	
 	public double getColumnMedian(int i)
 	{
 //	    Collections.sort();
-		double[] values = this.getColumn(i);
+		double[] values = this.getColumn(i, true);
 		java.util.Arrays.sort(values);
 		
 	    if (getNumRows() % 2 == 1)
@@ -406,11 +416,7 @@ public class RawDataset extends Dataset {
         return erg;
     }
     
-   /* public void setData(double[][] data) {
-        this.data = data;
-        this.numRows = data.length;
-    }*/
-
+ 
     // Following three methods have been removed by AB for unknown reasons; TvO re-added them since I couldn't find the code elsewhere, and it was
     // used in the Test classes. Check whether they are deprecated, and replaced by what code.
     
@@ -419,91 +425,7 @@ public class RawDataset extends Dataset {
         int nr = numbers[1]; for (int i=2; i<numbers.length; i++) if (numbers[i] != nr) return false;
         return (numbers[0] == nr || numbers[0]+1 == nr);
     }
-    
-    @Deprecated // use Dataset.createDatasetFromString to create a new object
-    public boolean setData(String table) {return setData(new BufferedReader(new StringReader(table)));}
-    @Deprecated // use Dataset.createDatasetFromBuffer to create a new object
-    public boolean setData(BufferedReader reader) {
-        int INITLINES = 10;
-        Vector<String> initLine = new Vector<String>(INITLINES);
-        for (int i=0; i<INITLINES; i++) {
-            try {
-                String s = reader.readLine(); if (s!=null) initLine.add(s); 
-                else INITLINES = i;
-            } catch (IOException e) {
-                INITLINES = i;
-            }
-        }
-        
-        // The following lines search for the separator that appears equally often in the first INITLINES lines (allowing for one less in the first line)
-        // and chooses the one that appears most often among those. 
-        int[][] firstAnz = new int[separatorCandidate.length][INITLINES]; 
-        for (int j=0; j<INITLINES; j++) 
-            for (int i=0; i<separatorCandidate.length; i++) 
-            {
-                firstAnz[i][j] = Statik.countSubstring(initLine.elementAt(j), ""+separatorCandidate[i]);
-            }
-       
-        int nr = 0; while (nr < separatorCandidate.length && !checkEqual(firstAnz[nr])) nr++;
-
-        // return failure as no separator appears equally often in the first INITLINES lines. 
-        if (nr >= separatorCandidate.length) return false;      
-        
-        for (int i=nr+1; i<separatorCandidate.length; i++) if (checkEqual(firstAnz[i]) && firstAnz[i][1]>firstAnz[nr][1]) nr = i;
-        String separator = separatorCandidate[nr];
-        numColumns = firstAnz[nr][0]+1; 
-        
-        // determines whether the first line is a header line
-        String[] first = initLine.elementAt(0).split(""+separator);
-        boolean noHeader = true;
-        for (int i=0; i<first.length; i++) noHeader = noHeader && Model.isMissingOrNumber(first[i]);
-        columnNames = new ArrayList<String>(numColumns);
-        if (noHeader) {
-            for (int i=0; i<numColumns; i++) columnNames.add("X"+(i+1));
-        } else {
-            for (int i=0; i<numColumns; i++) {
-                first[i] = first[i].trim();
-                if (first[i].startsWith("\"") && first[i].endsWith("\"")) first[i] = first[i].substring(1, first[i].length()-1);
-                if (first[i].length()==0) first[i] = (i==0?"ID":"Unnamed Variable");
-                columnNames.add(first[i]);
-            }
-        }
-        
-        
-        Vector<double[]> dataLines = new Vector<double[]>();
-        int counter = (noHeader?0:1);
-        try {
-            String s = (reader.ready()?reader.readLine():null);
-            while (counter<INITLINES || s != null) {
-                String line = null; if (counter<INITLINES) line = initLine.elementAt(counter); else {
-                    line = s;
-                    s = (reader.ready()?reader.readLine():null);
-                }
-                String[] split = line.split(""+separator);
-                double[] row = new double[numColumns];
-                for (int j=0; j<numColumns; j++) {
-                    String content = (j<split.length?split[j].trim():Model.MISSING+"");
-                    if (content.startsWith("\"") && content.endsWith("\"")) content = content.substring(1, content.length()-1);
-                    if (Model.isMissing(content)) row[j] = Model.MISSING;
-                    else {
-                        try {
-                            row[j] = Double.parseDouble(content);
-                        } catch (Exception e) {
-                            row[j] = Model.MISSING;
-                        }
-                    }
-                }
-                dataLines.add(row);
-                counter++;
-            }
-        } catch (IOException e) {}
-        
-        numRows = dataLines.size();
-        this.data = new double[numRows][];
-        for (int i=0; i<numRows; i++) data[i] = dataLines.elementAt(i);
-        
-        return true;
-    }
+ 
 
     
 	public int getIdColumn() {

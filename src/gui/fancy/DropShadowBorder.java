@@ -45,7 +45,7 @@ public class DropShadowBorder extends AbstractBorder {
    
    public final static int arc = 20;
    
-	private Stroke stroke = new BasicStroke(1, BasicStroke.CAP_BUTT, 
+	private static Stroke stroke = new BasicStroke(1, BasicStroke.CAP_BUTT, 
             BasicStroke.JOIN_BEVEL);
    
    
@@ -150,8 +150,6 @@ public class DropShadowBorder extends AbstractBorder {
 	     
 	     g2d.setStroke(stroke);
 	   
-	 //  Color old_color = g.getColor();
-   //   int x1, y1, x2, y2;
       g.setColor( new Color(214,214,214) );
 
       Shape oldClip = ((Graphics2D)g).getClip();
@@ -174,46 +172,13 @@ public class DropShadowBorder extends AbstractBorder {
       g.setColor(Color.white);
       //((Graphics2D)g).fillRoundRect(x, y, width - _width - 1, height - _width - 1 , arc, arc);
       g.setColor( _color);
+      // TODO: why do we have this weird vanishing of outlines sometimes?
       g.drawRoundRect(x, y, width - _width - 1, height - _width - 1 , arc, arc);
       
 
       
       
-      // fill in the corner rectangles with the background color of the parent
-      // container
- /*     if ( c.getParent() != null ) {
-         g.setColor( c.getParent().getBackground() );
-         for ( int i = 0; i <= _width; i++ ) {
-            x1 = x;
-            y1 = y + height - i;
-            x2 = x + _width;
-            y2 = y1;
-            g.drawLine( x1, y1, x2, y2 );
-            x1 = x + width - _width;
-            y1 = y + i;
-            x2 = x + width ;
-            y2 = y1;
-            g.drawLine( x1, y1, x2, y2 );
-         }
-         // add some slightly darker colored triangles
-         g.setColor( g.getColor().darker() );
-         for ( int i = 0; i < _width; i++ ) {
-            // bottom left triangle
-            x1 = x + i + 1;
-            y1 = y + height - _width + i;
-            x2 = x + _width;
-            y2 = y1;
-            g.drawLine( x1, y1, x2, y2 );
 
-            // top right triangle
-            x1 = x + width - _width;
-            y1 = y + i + 1;
-            x2 = x1 + i ;
-            y2 = y1;
-            g.drawLine( x1, y1, x2, y2 );
-         }
-      }
-      */
       // add title
       g.setFont(font);
       FontMetrics fm = g.getFontMetrics();
@@ -233,10 +198,12 @@ public class DropShadowBorder extends AbstractBorder {
    }
    
    public static void paintBackgroundInComponent(View view, Graphics2D g, Color color) {
+	   g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	   int arc = DropShadowBorder.arc;
 	    // fill
 	    g.setColor(color);
-	   // System.out.println(getWidth());
+	    g.setStroke(DropShadowBorder.stroke);
+	    // System.out.println(getWidth());
 	    g.fillRoundRect(0, 0, view.getWidth() - 1 - 1, view.getHeight() - 1 - 1 , arc, arc);
 		
    }

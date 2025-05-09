@@ -43,7 +43,7 @@ public class AboutFrame extends JFrame {
 		}
 		*/
 		
-		String version = MainFrame.MAJOR_VERSION+"-"+Integer.toString(MainFrame.SVN_VERSION);
+		String version = MainFrame.MAJOR_VERSION+"-"+Integer.toString(MainFrame.MINOR_VERSION);
 		
 		Annotation[] annot = this.getClass().getPackage().getAnnotations();
 		

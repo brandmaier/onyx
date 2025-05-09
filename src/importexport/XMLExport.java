@@ -112,7 +112,7 @@ public class XMLExport extends Export
 		Element rootElement =  doc.createElement("model");
 		rootElement.setAttribute("name", escapeXML(model.getName()) );
 		rootElement.setAttribute("specificationType", "ONYX");
-		rootElement.setAttribute("specificationVersion", MainFrame.MAJOR_VERSION+"-"+MainFrame.SVN_VERSION);
+		rootElement.setAttribute("specificationVersion", MainFrame.MAJOR_VERSION+"-"+MainFrame.MINOR_VERSION);
 
 
 		Element graphElement = doc.createElement("graph");
