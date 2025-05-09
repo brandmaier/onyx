@@ -38,7 +38,6 @@ name="Create Runnable Jar for Project Onyx" xmlns:ivy="antlib:org.apache.ivy.ant
 	    <javac srcdir="${src}" destdir="${build}" debug="true" encoding="iso-8859-1" failonerror="false">
 			<classpath>
 			        <pathelement path="lib/gral-core-0.11.jar"/>
-					<pathelement path="lib/jtouchbar-0.1.0.jar"/>
 					<pathelement path="lib/junit-4.13.2.jar"/>
 			    </classpath>
 
