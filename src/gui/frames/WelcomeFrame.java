@@ -25,6 +25,7 @@ import java.awt.Label;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -77,6 +78,20 @@ public class WelcomeFrame extends JFrame implements MouseListener {
 		
 	}
 	
+	 public static Image getScaledImage(Image srcImg, int w, int h){
+	        BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+	        Graphics2D g2 = resizedImg.createGraphics();
+
+	        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+	        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+	        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+	        g2.drawImage(srcImg, 0, 0, w, h, null);
+	        g2.dispose();
+
+	        return resizedImg;
+	    }
+	
 	public WelcomeFrame()
 	{
 		timer = new Timer();
@@ -85,16 +100,13 @@ public class WelcomeFrame extends JFrame implements MouseListener {
 		
 		 URL  url =  this.getClass().getResource("/images/onyx-welcome.png"); 
 
-		
+	
 		 
 		 
 		this.setBackground(Color.white);
-//		this.setBackground( new Color(0,0,0,0) );
-		//setBackground(Color.TRANSLUCENT);
-		//this.setUndecorated(true)(false);
-		//this.set
-		JLabel lab = new JLabel(); //new JLabel("  "+OMEGA+"NYX");
-		lab.setIcon(new ImageIcon(url));
+		ImageIcon ii = new ImageIcon(url);
+		JLabel lab = new JLabel( new ImageIcon(WelcomeFrame.getScaledImage(ii.getImage(), 300, 150)));
+		//JLabel lab = new JLabel( ii );
 		
 		try {
 		Graphics2D g2d = (Graphics2D)lab.getGraphics();
@@ -104,6 +116,10 @@ public class WelcomeFrame extends JFrame implements MouseListener {
         g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         // Enable fractional metrics for text
         g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+		// Interpolation
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        // Alpha Interp.
+        g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
 		} catch (Exception e) {}
 		
 		lab.setHorizontalTextPosition(JLabel.RIGHT);
@@ -111,16 +127,13 @@ public class WelcomeFrame extends JFrame implements MouseListener {
 		lab.setBackground(Color.white);
 		lab.setOpaque(true);
 		
-//		JLabel authorlabel = new JLabel("Timo von Oertzen, Andreas Brandmaier, Siny Tsang");
-//		authorlabel.setHorizontalAlignment(JLabel.RIGHT);
-//		authorlabel.setBackground(Color.white);
-//		authorlabel.setOpaque(true);
-		
 		this.setLayout( new BorderLayout() );
 		this.add(lab, BorderLayout.CENTER);
-//		this.add(authorlabel, BorderLayout.SOUTH);
+
 		this.setUndecorated(true);
-		this.setSize(330, 150);
+//		this.setSize(330, 150);
+//		this.setSize(600, 300);
+		this.pack();
 		this.setLocationRelativeTo(null); // center frame on screen
 
 		

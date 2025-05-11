@@ -4701,7 +4701,6 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 	}
 
 	public void paintBackground(Graphics2D g) {
-
 		DropShadowBorder.paintBackgroundInComponent(this, g, graph.backgroundColor);
 	}
 
@@ -4808,8 +4807,6 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		for (DecoratorObject dec : decorators) {
 			dec.paint(g);
 		}
-
-		// g.fillRect(0, 0, 100, 100);
 
 		// draw message objects in top right corner
 		if (!hideMessageObjectContainer) {

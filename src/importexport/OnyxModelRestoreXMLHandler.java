@@ -162,7 +162,7 @@ public class OnyxModelRestoreXMLHandler implements ContentHandler {
 		            			if (tokens.length > 2)
 		            				svn = Integer.parseInt(tokens[2]);
 		            			
-		            			if (MainFrame.SVN_VERSION < svn) {
+		            			if (MainFrame.MINOR_VERSION < svn) {
 		            				JOptionPane.showMessageDialog(this.mv, "Warning! The model was saved with a newer version of Onyx than the one you are using. Likely, not all features of the model will be loaded correctly.");
 		            			}
 		            			

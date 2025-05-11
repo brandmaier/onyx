@@ -150,53 +150,57 @@ public class DropShadowBorder extends AbstractBorder {
 	     
 	     g2d.setStroke(stroke);
 	   
-      g.setColor( new Color(214,214,214) );
+      g2d.setColor( new Color(214,214,214) );
 
-      Shape oldClip = ((Graphics2D)g).getClip();
-      ((Graphics2D)g).setClip(6, 6, width, height);
+     // Shape oldClip = g2d.getClip();
+      g2d.setClip(6, 6, width, height);
       
       // draw the drop shadow
       for ( int i = 0; i <= _width; i++ ) {
         
-          ((Graphics2D)g).drawRoundRect(x+i, y+i, width - _width - 1, height - _width - 1 , arc, arc);
+          g2d.drawRoundRect(x+i, y+i, width - _width - 1, height - _width - 1 , arc, arc);
       
       }
       
       // restore old clip
       
-      g.setClip(oldClip);
+   //   g2d.setClip(oldClip);
      
       
       // outline the component with a 1-pixel wide line
       int arc = 20;
-      g.setColor(Color.white);
-      //((Graphics2D)g).fillRoundRect(x, y, width - _width - 1, height - _width - 1 , arc, arc);
-      g.setColor( _color);
-      // TODO: why do we have this weird vanishing of outlines sometimes?
-      g.drawRoundRect(x, y, width - _width - 1, height - _width - 1 , arc, arc);
       
+      g2d.setClip(null);
+      g2d.setColor( _color);
+      // TODO: why do we have this weird vanishing of outlines sometimes?
+      g2d.drawRoundRect(x, y, width - _width - 1, height - _width - 1 , arc, arc);
+      
+           
 
       
       
 
       // add title
-      g.setFont(font);
-      FontMetrics fm = g.getFontMetrics();
+      g2d.setFont(font);
+      FontMetrics fm = g2d.getFontMetrics();
       int w = fm.stringWidth(_title);
-      g.setColor(Color.black);
-      oldClip = g.getClip();
-//      g.setC
-      g.setClip(x,y,width-20,height);
+      g2d.setColor(Color.black);
+      //oldClip = g.getClip();
+      g2d.setClip(x,y,width-20,height);
       
       int ypos = (int)Math.round((View.sizeMoveArea-font.getSize())/2.0);
       if (ypos < 0) ypos=0;
      
       
-      g.drawString(_title, 15, View.sizeMoveArea - ypos);
-      g.setClip(oldClip);
-      g.setColor( Color.black );
+      g2d.drawString(_title, 15, View.sizeMoveArea - ypos);
+      g2d.setClip(null);
+      g2d.setColor( Color.black );
    }
    
+   /*
+    * draw the (rounded) background within the given component
+    * (before performing in any other painting operations)
+    */
    public static void paintBackgroundInComponent(View view, Graphics2D g, Color color) {
 	   g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	   int arc = DropShadowBorder.arc;
