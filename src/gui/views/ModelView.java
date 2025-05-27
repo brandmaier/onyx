@@ -598,6 +598,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 	private JMenuItem menuEdgeLabelColor;
 	private JMenuItem menuNodeFontColor;
 	private JCheckBoxMenuItem menuKeepStyle;
+	private JMenuItem menuAddRectangle;
 
 	public ModelView(Desktop desktop) {
 		super(desktop);
@@ -1145,6 +1146,13 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		if (e.getSource() == menuDeleteEdge) {
 			for (Edge edge : getSelectedEdges())
 				mri.requestRemoveEdge(edge);
+		}
+		
+		if (e.getSource() == menuAddRectangle) {
+			ShapeDecorator b = new BoxDecorator(200,100);
+			b.setX( this.mouseClickX);
+			b.setY( this.mouseClickY);
+			addDecorator(b);
 		}
 
 		if (e.getSource() == menuDeleteNode) {
@@ -5954,6 +5962,15 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		}
 		menuToggleMarkUnconnectedManifests.setSelected(graph.markUnconnectedNodes);
 
+		/*
+		 * Decorators
+		 */
+		JMenu menuCreateDecorator = new JMenu("Create Decorator");
+		menuAddRectangle = new JMenuItem("Add Box");
+		menuAddRectangle.addActionListener(this);
+		menuCreateDecorator.add(menuAddRectangle);
+
+		
 		/**
 		 * Menu Grid
 		 */
@@ -6130,6 +6147,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 		menu.addSeparator();
 		menu.add(menuCreateVariable);
+		if (MainFrame.DEVMODE) menu.add(menuCreateDecorator);
 
 		if (nodeUnderMouse)
 			menu.add(menuDeleteNode);

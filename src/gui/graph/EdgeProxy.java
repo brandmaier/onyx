@@ -18,20 +18,17 @@ package gui.graph;
 import geometry.GeometricObject;
 
 public abstract class EdgeProxy {
-
 	
-	public static int ARROW_PAD = 3;//3
-	
-	/*Edge edge;
-	
-	public EdgeProxy(Edge edge)
+	// return the amount of padding for computing
+	// the clipping region when drawing the line
+	public int getShapePadding()
 	{
-		this.edge = edge;
-	}*/
+		return 3;
+	}
+
 	
 	public abstract void updateLabel(Edge edge);
 	public abstract void updatePath(Edge edge, GeometricObject r1, GeometricObject r2);
 
 	public abstract void updateArrow(Edge edge);
-	//public abstract GeneralPath getPath();
 }

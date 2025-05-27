@@ -77,7 +77,6 @@ public class ShapeDecorator implements DecoratorObject {
 
 	@Override
 	public void paint(Graphics g) {
-		// TODO Auto-generated method stub
 		Graphics2D g2d = ((Graphics2D)g);
 		g2d.setStroke(stroke );
 		g2d.draw(shape);
@@ -85,7 +84,10 @@ public class ShapeDecorator implements DecoratorObject {
 
 	@Override
 	public String toXML() {
-		return("<rectangleDecorator x="+getX()+" y="+getY()+" width="+getWidth()+" height="+getHeight()+"></rectangleDecorator>");
+		// TODO Auto-generated method stub
+		return null;
 	}
+
+
 
 }

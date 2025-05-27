@@ -31,7 +31,6 @@ import java.util.List;
 public class EdgeCovarianceProxy extends EdgeProxy {
 
 
-
 	/*
 	 * public EdgeCovarianceProxy(Edge edge) { super(edge); }
 	 */
@@ -105,8 +104,8 @@ public class EdgeCovarianceProxy extends EdgeProxy {
 		
 		
 		if (edge.isDoubleHeaded()) {
-			r1 = r1.extrude(ARROW_PAD);
-			r2 = r2.extrude(ARROW_PAD);
+			r1 = r1.extrude(getShapePadding());
+			r2 = r2.extrude(getShapePadding());
 		}
 		
 		/* Set source and target of path as centers of the adjacent nodes */
@@ -122,7 +121,7 @@ public class EdgeCovarianceProxy extends EdgeProxy {
 		 * 
 		 */
 
-		// -- swap to and from coordinates such that one is left of the other
+		// -- swap to and from coordinates such that source is always left of the other
 		double leftx, lefty, rightx, righty;
 		boolean swap;
 		if (edge.scx < edge.tcx) {
@@ -191,10 +190,10 @@ public class EdgeCovarianceProxy extends EdgeProxy {
 		edge.generalPath.curveTo(edge.ctrlx1, edge.ctrly1, edge.ctrlx2,
 				edge.ctrly2, rightx, righty);
 
-		// find intersections with shape by tracing a linerization
+		// find intersections with shape by tracing a linearization
 
 		PathIterator flatteningPathIterator = new FlatteningPathIterator(
-				edge.generalPath.getPathIterator(new AffineTransform()), .5); //.5
+				edge.generalPath.getPathIterator(new AffineTransform()), .5); 
 		// Flattening: the smaller, the better
 		// .5 seems very fine-grained
 		// 4 seems enough ...
@@ -225,7 +224,7 @@ public class EdgeCovarianceProxy extends EdgeProxy {
 		// intersect all these line segments to find the right spot!
 		// save the intersection as edge.fromX and edge.fromY, respectively
 		// edge.toX and edge.toY
-		// temporary store the linearizations as edgeLinFrom and edgeLinTo;
+		// temporarily store the linearizations as edgeLinFrom and edgeLinTo;
 		//
 		// important: find the last! intersection as the relevant intersection
 		// there can be intermediate intersections that should not be hits
@@ -253,8 +252,6 @@ public class EdgeCovarianceProxy extends EdgeProxy {
 				edge.fromY = p.y;
 
 				edge.edgeLinFrom = line;
-
-			//	double ml;
 
 				edge.fromAngle = angleFromLine(edge.edgeLinFrom, !swap, p);
 			}
@@ -313,22 +310,6 @@ public class EdgeCovarianceProxy extends EdgeProxy {
 		
 		}
 
-		//if (edge.source==edge.target) {
-		//	edge.toAngle+=Math.PI % 2*Math.PI;
-			//edge.fromAngle+=Math.PI % 2*Math.PI;
-		//}
-
-		// redo general path // draw general path with Bezier cubic curve
-	/*	edge.generalPath = new GeneralPath();
-		edge.generalPath.moveTo(edge.fromX, edge.fromY);
-		edge.generalPath.curveTo(edge.ctrlx1, edge.ctrly1, edge.ctrlx2,
-				edge.ctrly2, edge.toX, edge.toY);
-*/
-		/*
-		 * int middleIndex = edge.lines.size() / 2; LineSegment line =
-		 * edge.lines.get(middleIndex); edge.lx = (line.x2 + line.x1) / 2;
-		 * edge.ly = (line.y2 + line.y1) / 2;
-		 */
 
 		edge.edgePath = edge.generalPath;
 		
@@ -350,30 +331,6 @@ public class EdgeCovarianceProxy extends EdgeProxy {
 		
 		double dx = (line.x2 - line.x1);
 		double dy = (line.y2 - line.y1) ;
-		//double ml = (line.y2 - line.y1) / dx;
-		/*if (Math.abs(dx) > TOL) {
-		
-			toAngle = Math.atan(ml);
-
-			if (!swap) {
-				if (line.x2 < p.x) {
-					toAngle += Math.PI;
-				}
-			} else {
-				if (line.x2 > p.x) {
-					toAngle += Math.PI;
-				}
-			}
-
-		} else {
-			toAngle = Math.PI / 2;
-		}
-		
-		toAngle=toAngle%2*Math.PI;
-		*/
-		/*if (swap) {
-			dx = -dx;
-		}*/
 		
 		toAngle = Math.atan2(dy, dx);
 		

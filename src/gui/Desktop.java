@@ -91,6 +91,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -186,8 +187,10 @@ public class Desktop extends JLayeredPane
 		// this.setBackground( new Color(170,176,191)); // Andys background
 		this.setBackground(Color.white);
 
-		updateBackgroundImage();
-
+		try{
+			updateBackgroundImage();
+		} catch (Exception e) {}
+		
 		// this.setOpaque(true);
 		this.setVisible(true);
 
@@ -222,9 +225,8 @@ public class Desktop extends JLayeredPane
 				String img = (String) Preferences.get("BackgroundImage");
 				if (img.startsWith("#")) {
 					img = img.substring(1);
-					System.out.println(img);
-					// AB TODO should really check for numbers here
-					URL url = this.getClass().getResource("/images/backgrounds/dts" + img + ".jpg");
+					Integer img_nr = Integer.parseInt(img);
+					URL url = this.getClass().getResource("/images/backgrounds/dts" + String.valueOf(img_nr) + ".jpg");
 					bgimg = new ImageIcon(url).getImage();
 				}
 
@@ -1736,7 +1738,10 @@ public class Desktop extends JLayeredPane
 
 	public void importFromFile(File file, String name, int x, int y) throws IOException {
 
-		BufferedReader br = new BufferedReader(new FileReader(file));
+		BufferedReader br = new BufferedReader(
+			    new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+		
+	//	BufferedReader br = new BufferedReader(new FileReader(file));
 
 		StringBuilder stringBuilder = new StringBuilder();
 

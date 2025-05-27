@@ -706,8 +706,7 @@ public class Edge implements Cloneable, LineColorable, VariableContainerListener
 			edgeLabel.draw(g2d, lx, ly + yOffsetLabel, backgroundColor);
 
 		}
-		// g.drawRect(lx-labelWidth/2, ly-labelHeight, labelWidth, labelHeight);
-		// arrow.draw(g2d);
+
 	}
 
 	public void renderShadow(Graphics g) {
@@ -737,18 +736,39 @@ public class Edge implements Cloneable, LineColorable, VariableContainerListener
 		Shape oldClip = g2d.getClip();
 		if (isDoubleHeaded() && source != target) {
 
-			Area area;
+			/*Area area;
 			if (oldClip != null) {
 				area = new Area(oldClip);
 			} else {
-				area = new Area(new Rectangle2D.Double(0, 0, this.toX + this.fromX, this.toY + this.fromY)); // TODO:
-																												// crude
-																												// bug
-																												// fix
-																												// BUG
+				area = new Area(new Rectangle2D.Double(0, 
+						0, 
+						this.toX + this.fromX, 
+						this.toY + this.fromY)); 
+				    // TODO:
+					// crude
+					// bug
+					// fix
+					// BUG
 			}
-			area.subtract(new Area(r1.extrude(EdgeProxy.ARROW_PAD).getShape()));
-			area.subtract(new Area(r2.extrude(EdgeProxy.ARROW_PAD).getShape()));
+			area.subtract(new Area(r1.extrude(EdgeProxy.getShapePadding()).getShape()));
+			area.subtract(new Area(r2.extrude(EdgeProxy.getShapePadding()).getShape()));
+	*/
+
+			Area area = new Area(new Rectangle2D.Double(0, 
+					0, 
+					this.toX + this.fromX, 
+					this.toY + this.fromY)); 
+			    // TODO:
+				// crude
+				// bug
+				// fix
+				// BUG
+		
+		area.subtract(new Area(r1.extrude(edgeCovarianceProxy.getShapePadding()).getShape()));
+		area.subtract(new Area(r2.extrude(edgeCovarianceProxy.getShapePadding()).getShape()));
+			
+			
+			
 			g2d.setClip(area);
 		}
 
@@ -761,7 +781,8 @@ public class Edge implements Cloneable, LineColorable, VariableContainerListener
 		else
 			gui.fancy.Rough.draw(g2d, edgePath);
 
-		g2d.setClip(oldClip);
+		//g2d.setClip(oldClip);
+		g2d.setClip(null);
 
 		// draw arrow heads
 		for (Arrow arrow : arrows) {

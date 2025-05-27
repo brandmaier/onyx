@@ -30,7 +30,7 @@ import engine.backend.Model;
 
 public abstract class Dataset {
     
-	public static final String[] separatorCandidate = new String[]{"\t", ",", ";", " ", "\\|"}; // these are Strings because they represent REXEXPs
+	public static final String[] separatorCandidate = new String[]{",", "\t", ";", " ", "\\|"}; // these are Strings because they represent REXEXPs
 
     
     protected List<String> columnNames;
@@ -125,14 +125,27 @@ public abstract class Dataset {
     	
         int INITLINES = 10;
         Vector<String> initLine = new Vector<String>(INITLINES);
+        int valid_lines = 0;
         for (int i=0; i<INITLINES; i++) {
             try {
-                String s = reader.readLine(); if (s!=null) initLine.add(s); 
-                else INITLINES = i;
+                String s = reader.readLine(); 
+                
+                if (s!=null) {
+                	if (!s.equals("")) {
+                	 initLine.add(s);
+                	 valid_lines++;
+                	}
+                }
+                else {
+                	
+                    i = INITLINES; //break for loop	
+                 }
             } catch (IOException e) {
-                INITLINES = i;
+               
             }
         }
+        
+        INITLINES = valid_lines;
         
         // The following lines search for the separator that appears equally often in the first INITLINES lines (allowing for one less in the first line)
         // and chooses the one that appears most often among those. 
@@ -141,21 +154,26 @@ public abstract class Dataset {
             for (int i=0; i<separatorCandidate.length; i++) 
             {
             	// counting only those separators that are not within quotes (using lookahead)
-            	String[] split = initLine.elementAt(j).split(separatorCandidate[i]+"(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+            	String[] split = initLine.elementAt(j).split(separatorCandidate[i]+"(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)",	-1);
+            	//String[] split = initLine.elementAt(j).split(separatorCandidate[i]);
             	firstAnz[i][j] = split.length-1;
             }
        
-        int nr = 0; while (nr < separatorCandidate.length && !checkEqual(firstAnz[nr])) nr++;
+        int nr = 0; 
+        while (nr < separatorCandidate.length && (!checkEqual(firstAnz[nr]) || firstAnz[nr][0]==0)) nr++;
 
         // return failure as no separator appears equally often in the first INITLINES lines. 
-        if (nr >= separatorCandidate.length) throw new Exception("Could not determine separator!");      
+        if (nr >= separatorCandidate.length) throw new Exception("Unable to load file. Could not determine separator!");      
         
         for (int i=nr+1; i<separatorCandidate.length; i++) if (checkEqual(firstAnz[i]) && firstAnz[i][1]>firstAnz[nr][1]) nr = i;
         String separator = separatorCandidate[nr];
         int numColumns = firstAnz[nr][0]+1; 
         
+        // Debug Info
+       // System.out.println("Best separator "+ nr +" with "+ numColumns);
+        
         // determines whether the first line is a header line
-        String[] first = initLine.elementAt(0).split(""+separator);
+        String[] first = initLine.elementAt(0).split(""+separator, -1);
         boolean noHeader = true;
         for (int i=0; i<first.length; i++) noHeader = noHeader && Model.isMissingOrNumber(first[i]);
         List<String> columnNames = new ArrayList<String>(numColumns);
@@ -179,12 +197,18 @@ public abstract class Dataset {
                 String line = null; if (counter<INITLINES) line = initLine.elementAt(counter); else {
                     line = s;
                     s = (reader.ready()?reader.readLine():null);
+                    
+                }
+                
+                if (line.equals("")) {
+                	counter++;
+                	continue;
                 }
                 // instead of a naive split use a lookahead that
                 // only matches a separator if the number of quotes ahead is even
                 //String[] split = line.split(""+separator);
                 //String[] split = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-                String[] split = line.split(separator+"(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+                String[] split = line.split(separator+"(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
                 double[] row = new double[numColumns];
                 for (int j=0; j<numColumns; j++) {
                     String content = (j<split.length?split[j].trim():Model.MISSING+"");

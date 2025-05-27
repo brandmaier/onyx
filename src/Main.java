@@ -49,7 +49,7 @@ import parallelProcesses.ParallelProcessHandler;
 
 
 
-public class Master {
+public class Main {
 
 	 static  boolean fDevMode; // defines developer mode, if TRUE, undocumented and experimental functions are activated
 	 static String filename = null;
@@ -59,7 +59,7 @@ public class Master {
 	/**
 	 * Main entry point for Onyx.
 	 * Parse command line arguments if any and pass to Batch class. Otherwise start
-	 * GUI in Master class.
+	 * GUI in Main class.
 	 *  
 	 * @param args
 	 */
@@ -87,7 +87,7 @@ public class Master {
 		SwingUtilities.invokeLater(new Runnable() {
 		    public void run() {
 		    	
-		    		Master master = new Master();
+		    		Main master = new Main();
 		    		master.startUp(true, developerMode, filename);
 
 
@@ -123,7 +123,7 @@ public class Master {
 
 	        try {
 	        	final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-	            final URL imageResource = Master.class.getClassLoader().getResource("images/onyx-taskbar.png");
+	            final URL imageResource = Main.class.getClassLoader().getResource("images/onyx-taskbar.png");
 	            final Image image = defaultToolkit.getImage(imageResource);
 	            //set icon for mac OSX
 	            taskbar.setIconImage(image);
