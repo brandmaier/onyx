@@ -56,15 +56,12 @@ public class MplusExport extends StringExport {
 		
 		s=s.toUpperCase();
 		
+		s = super.replaceGreekLetters(s);
+		
 		//return s.replaceAll("/[^A-Za-z0-9\\(\\) ]/", "_");
 		return s.replaceAll("[^A-Za-z0-9]", "_");
 
 	}
-	
-	/*public String makeSaveString(String fullname)
-	{
-		return super.makeSaveString(fullname);
-	}*/
 	
 	@Override
 	public void export(File file) {

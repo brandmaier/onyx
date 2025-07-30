@@ -491,6 +491,7 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 
+		System.out.println("ACt"+ arg0.getSource());
 
 		if (arg0.getSource() == menuTip) {
 			tip = new TipOfTheDayFrame();
@@ -555,7 +556,7 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 				InputStream iStream = this.getClass().getResourceAsStream(
 						tutorialFilenames[i]);
 
-				// System.out.println(url.getFile());
+				// System.out.println("Getting Input Stream!");
 				if (iStream != null) {
 					try {
 						desktop.loadData(iStream, tutorialMenunames[i]);
@@ -563,6 +564,12 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+				} else {
+					JOptionPane
+					.showMessageDialog(
+							this,
+							"An error has occured while loading the tutorial data! Tutorial data file not found.");
+	
 				}
 			}
 		}

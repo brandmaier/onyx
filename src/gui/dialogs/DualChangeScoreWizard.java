@@ -59,7 +59,7 @@ public class DualChangeScoreWizard  extends Dialog implements ChangeListener {
 		super("Dual Change Score Model Wizard");
 		this.desktop = desktop;
 	
-	Dimension d = new Dimension(150,30);
+		Dimension d = new Dimension(150,30);
 		
 		// # of observations
 		 numObsInput = new JSpinner(new SpinnerNumberModel(5,2,100,1));

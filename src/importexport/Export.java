@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -55,6 +56,75 @@ public abstract class Export {
 	public HashMap<VariableContainer,String> getVariableMapping() {return varMapping; }
 	
 	boolean useStartingValues = false;
+	
+	 private static final Map<Character, String> greekToAsciiMap = new HashMap<>();
+
+	    static {
+	        // Lowercase Greek letters
+	        greekToAsciiMap.put('\u03B1', "alpha");   // α
+	        greekToAsciiMap.put('\u03B2', "beta");    // β
+	        greekToAsciiMap.put('\u03B3', "gamma");   // γ
+	        greekToAsciiMap.put('\u03B4', "delta");   // δ
+	        greekToAsciiMap.put('\u03B5', "epsilon"); // ε
+	        greekToAsciiMap.put('\u03B6', "zeta");    // ζ
+	        greekToAsciiMap.put('\u03B7', "eta");     // η
+	        greekToAsciiMap.put('\u03B8', "theta");   // θ
+	        greekToAsciiMap.put('\u03B9', "iota");    // ι
+	        greekToAsciiMap.put('\u03BA', "kappa");   // κ
+	        greekToAsciiMap.put('\u03BB', "lambda");  // λ
+	        greekToAsciiMap.put('\u03BC', "mu");      // μ
+	        greekToAsciiMap.put('\u03BD', "nu");      // ν
+	        greekToAsciiMap.put('\u03BE', "xi");      // ξ
+	        greekToAsciiMap.put('\u03BF', "omicron"); // ο
+	        greekToAsciiMap.put('\u03C0', "pi");      // π
+	        greekToAsciiMap.put('\u03C1', "rho");     // ρ
+	        greekToAsciiMap.put('\u03C3', "sigma");   // σ
+	        greekToAsciiMap.put('\u03C4', "tau");     // τ
+	        greekToAsciiMap.put('\u03C5', "upsilon"); // υ
+	        greekToAsciiMap.put('\u03C6', "phi");     // φ
+	        greekToAsciiMap.put('\u03C7', "chi");     // χ
+	        greekToAsciiMap.put('\u03C8', "psi");     // ψ
+	        greekToAsciiMap.put('\u03C9', "omega");   // ω
+	        // Uppercase Greek letters
+	        greekToAsciiMap.put('\u0391', "Alpha");   // Α
+	        greekToAsciiMap.put('\u0392', "Beta");    // Β
+	        greekToAsciiMap.put('\u0393', "Gamma");   // Γ
+	        greekToAsciiMap.put('\u0394', "Delta");   // Δ
+	        greekToAsciiMap.put('\u0395', "Epsilon"); // Ε
+	        greekToAsciiMap.put('\u0396', "Zeta");    // Ζ
+	        greekToAsciiMap.put('\u0397', "Eta");     // Η
+	        greekToAsciiMap.put('\u0398', "Theta");   // Θ
+	        greekToAsciiMap.put('\u0399', "Iota");    // Ι
+	        greekToAsciiMap.put('\u039A', "Kappa");   // Κ
+	        greekToAsciiMap.put('\u039B', "Lambda");  // Λ
+	        greekToAsciiMap.put('\u039C', "Mu");      // Μ
+	        greekToAsciiMap.put('\u039D', "Nu");      // Ν
+	        greekToAsciiMap.put('\u039E', "Xi");      // Ξ
+	        greekToAsciiMap.put('\u039F', "Omicron"); // Ο
+	        greekToAsciiMap.put('\u03A0', "Pi");      // Π
+	        greekToAsciiMap.put('\u03A1', "Rho");     // Ρ
+	        greekToAsciiMap.put('\u03A3', "Sigma");   // Σ
+	        greekToAsciiMap.put('\u03A4', "Tau");     // Τ
+	        greekToAsciiMap.put('\u03A5', "Upsilon"); // Υ
+	        greekToAsciiMap.put('\u03A6', "Phi");     // Φ
+	        greekToAsciiMap.put('\u03A7', "Chi");     // Χ
+	        greekToAsciiMap.put('\u03A8', "Psi");     // Ψ
+	        greekToAsciiMap.put('\u03A9', "Omega");   // Ω
+
+
+	    }
+
+	    public static String replaceGreekLetters(String input) {
+	        StringBuilder result = new StringBuilder();
+	        for (char c : input.toCharArray()) {
+	            if (greekToAsciiMap.containsKey(c)) {
+	                result.append(greekToAsciiMap.get(c));
+	            } else {
+	                result.append(c);
+	            }
+	        }
+	        return result.toString();
+	    }
 
     public Export(ModelView modelView, FileFilter fileFilter, String[] defaultExtensions)
     {

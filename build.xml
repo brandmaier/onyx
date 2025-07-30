@@ -50,6 +50,10 @@ name="Create Runnable Jar for Project Onyx" xmlns:ivy="antlib:org.apache.ivy.ant
 		<copy todir="${build}/images">
 		  <fileset dir="${src}/images"/>
 		</copy>
+		
+		<copy todir="${build}/data">
+		  <fileset dir="${src}/data"/>
+		</copy>
 	
 	  </target>
 	  
@@ -80,7 +84,7 @@ name="Create Runnable Jar for Project Onyx" xmlns:ivy="antlib:org.apache.ivy.ant
 
             <manifest>
                 <attribute name="Built-By" value="Andreas Brandmaier"/>
-                <attribute name="Main-Class" value="Master"/>
+                <attribute name="Main-Class" value="Main"/>
                 <attribute name="Class-Path" value="."/>
                 
                 <attribute name="Implementation-Version" 

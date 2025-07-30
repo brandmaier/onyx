@@ -4681,12 +4681,19 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 				repaint();
 			}
 		} else if (warning == Warning.MODELOVERSPECIFIED) {
-			// if (m)
+			
 			// MessageObject messageObjectWarning
-			if (!messageObjectContainer.contains(messageOverspecified)) {
+			/*
+			 * TODO: AB 30 June 2025
+			 * I am removing this because there has been a severe bug
+			 * in the computation that was never resolved. This function
+			 * is currently useless!
+			 * 
+			 * if (!messageObjectContainer.contains(messageOverspecified)) {
 				messageObjectContainer.add(messageOverspecified);
 				repaint();
 			}
+			*/
 		}
 
 	}

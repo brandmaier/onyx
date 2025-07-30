@@ -47,6 +47,7 @@ public class LavaanExport extends RExport {
 		
 		s=s.toUpperCase();
 		*/
+		s = super.replaceGreekLetters(s);
 		
 		//return s.replaceAll("/[^A-Za-z0-9\\(\\) ]/", "_");
 		s = s.replaceAll("[^A-Za-z0-9]", "_");
@@ -105,7 +106,7 @@ public class LavaanExport extends RExport {
 		
 		for (Node latent : latents) {
 		    if (!latentsWithOutgoing.contains(latent)) {
-		        model += inset + latent.getCaption() + " =~ 0\n";
+		        model += inset + makeSaveString(latent.getCaption()) + " =~ 0\n";
 		    }
 		}
         // create all regressions between manifest and manifest
@@ -156,7 +157,8 @@ public class LavaanExport extends RExport {
 			}
 			
 			if (!hasResidual) {
-				model+= inset+ node.getCaption()+"~~0*"+node.getCaption()+"\n";
+				model+= inset+ makeSaveString(node.getCaption())+"~~0*"+makeSaveString(node.getCaption())+"\n";
+				
 			}
 		}
 		

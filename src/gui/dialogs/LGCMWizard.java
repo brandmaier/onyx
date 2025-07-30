@@ -66,7 +66,7 @@ public class LGCMWizard extends Dialog implements ChangeListener {
 		super("Latent Growth Curve Model Wizard");
 		this.desktop = desktop;
 	
-		Dimension d = new Dimension(150,30);
+		Dimension d = new Dimension(150,35);
 		
 		// # of observations
 		 numObsInput = new JSpinner(new SpinnerNumberModel(5,2,100,1));

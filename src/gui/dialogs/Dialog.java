@@ -20,11 +20,13 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
 public abstract class Dialog extends JDialog implements ActionListener
 {
@@ -33,15 +35,32 @@ public abstract class Dialog extends JDialog implements ActionListener
 
 	private JButton button;
 	
+	protected JPanel mainPanel;
+	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1676308500879210531L;
 
-	public Dialog(String title)
+	public Dialog(String title) {
+		this(title, 10);
+	}
+	
+	public Dialog(String title, int margin)
 	{
+		super();
+		
 		this.setTitle(title);
-		this.getContentPane().setLayout(new GridBagLayout());
+		
+		 // Create a panel and add some components
+        mainPanel = new JPanel();
+        //mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS)); // Or use another layout
+        mainPanel.setBorder(new EmptyBorder(margin, margin, margin, margin)); // top, left, bottom, right
+		
+        
+        this.getContentPane().add(mainPanel);
+        
+		mainPanel.setLayout(new GridBagLayout());
 	}
 	
 	public void addElement(String label, JComponent component)
@@ -56,14 +75,13 @@ public abstract class Dialog extends JDialog implements ActionListener
 		c.fill = GridBagConstraints.BOTH;
 		
 		JLabel panel = new JLabel(label);
-		this.getContentPane().add(panel, c);
+		mainPanel.add(panel, c);
 		
 		//c = new GridBagConstraints();
 		c.gridx = 1;
 		c.gridy = rowIndex;
 		
-		this.getContentPane().add(component, c);
-		
+		mainPanel.add(component, c);
 		
 		rowIndex++;
 	}
@@ -76,7 +94,7 @@ public abstract class Dialog extends JDialog implements ActionListener
 		this.addElement("", button);
 		
 		//this.pack();
-		this.setSize(new Dimension(300,200));
+		//this.setSize(new Dimension(300,200));
 		
 	//	this.setLocation(null);
 		setLocationRelativeTo(null);
