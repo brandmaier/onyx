@@ -305,10 +305,10 @@ public class Edge implements Cloneable, LineColorable, VariableContainerListener
 	}
 
 	public void setParameterName(String parameterName) {
-		// this.automaticNaming = false;
 		this.parameterName = parameterName;
 
-		this.renderedParameterName = renderText(parameterName);
+		if (parameterName != null)
+			this.renderedParameterName = renderText(parameterName);
 	}
 
 	/**
@@ -906,7 +906,7 @@ public class Edge implements Cloneable, LineColorable, VariableContainerListener
 
 	public static String renderText(String text) {
 
-		// if (!text.startsWith("$")) return(text);
+
 
 		text = text.replaceAll("\\\\alpha", "\u03B1");
 		text = text.replaceAll("\\\\beta", "\u03B2");

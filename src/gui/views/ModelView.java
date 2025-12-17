@@ -21,6 +21,7 @@ import importexport.EstimateHistoryExport;
 import importexport.EstimateTextExport;
 import importexport.Export;
 import importexport.JPEGExport;
+import importexport.JuliaExport;
 import importexport.LISRELMatrixTextExport;
 import importexport.LaTeXExport;
 import importexport.LavaanExport;
@@ -181,6 +182,7 @@ import gui.graph.presets.Preset;
 import gui.graph.presets.FadedColors;
 import gui.graph.presets.Schoeneberg;
 import gui.graph.presets.Sketch;
+import gui.graph.presets.Vertical;
 import gui.graph.presets.Amelie;
 import gui.graph.presets.Posh;
 import gui.graph.presets.Chalk;
@@ -289,7 +291,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 	public final static int THINSTROKE = 0, MEDIUMSTROKE = 1, THICKSTROKE = 2;
 
 	static {
-		presets = new Preset[18];
+		presets = new Preset[19];
 		presets[0] = new Default();
 
 		presets[1] = new Modern();
@@ -310,6 +312,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		presets[15] = new Posh();
 		presets[16] = new Comic();
 		presets[17] = new Celestial();
+		presets[18] = new Vertical();
 		/*
 		 * presets[16] = new Amelie();
 		 */
@@ -419,7 +422,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 	private JMenuItem menuExportLaTeX;
 
-	private JMenuItem menuExportMplus, menuExportLavaan, menuExportSem;
+	private JMenuItem menuExportMplus, menuExportLavaan, menuExportSem, menuExportJulia;
 	private JMenuItem menuExportSVG;
 	JMenuItem[] menuGraphPresets;
 	private JMenu menuGraphPresetsMenu;
@@ -460,6 +463,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 	private JMenuItem menuShowHideRegressions;
 	private JMenuItem menuShowHideVariances;
 	private JMenuItem menuShowLavaanCode;
+	private JMenuItem menuShowJuliaCode;
 	private JMenuItem menuShowMPlusCode;
 	private JMenuItem menuShowSemCode;
 	private JMenuItem menuShowOnyxJavaCode;
@@ -1072,6 +1076,11 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			Export exp = new MplusExport(this);
 			exp.export();
 		}
+		
+		if (e.getSource() == menuExportJulia) {
+			Export exp = new JuliaExport(this);
+			exp.export();
+		}
 
 		if (e.getSource() == menuExportLavaan) {
 			Export exp = new LavaanExport(this);
@@ -1659,6 +1668,11 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			this.codeView.add(view);
 			this.desktop.add(view);
 		}
+		if (e.getSource() == menuShowJuliaCode) {
+			ScriptView view = new ScriptView(desktop, this, new JuliaExport(this));
+			this.codeView.add(view);
+			this.desktop.add(view);
+		}
 		if (e.getSource() == menuShowSemCode) {
 			ScriptView view = new ScriptView(desktop, this, new SemExport(this));
 			this.codeView.add(view);
@@ -1750,7 +1764,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 			@Override
 			public boolean accept(File file) {
-				return file.getName().endsWith(".txt");
+				return file.getName().endsWith(".png");
 			}
 		});
 		fc.setAcceptAllFileFilterUsed(true);
@@ -3096,6 +3110,10 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		return (this.mri.getStrategy() == Strategy.MCMC);
 	}
 
+	/**
+	 * Provide Tooltip text for various contexts within a model.
+	 * 
+	 */
 	@Override
 	public String getToolTipText(MouseEvent event) {
 
@@ -3143,17 +3161,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 						String erg = "<html>";
 						if (isConnected && combinedData != null)
 							erg += combinedData.getDataDistributionString(selected);
-						/*
-						 * { int[] columnIDs = new int[selected.size()]; String[] varNames = new
-						 * String[selected.size()]; int i = 0; for (Node n : selected) { varNames[i] =
-						 * n.getCaption(); columnIDs[i++] = Desktop.getLinkHandler()
-						 * .getDatasetField(n.getObservedVariableContainer()).columnId; } erg +=
-						 * Desktop.getLinkHandler().getDatasetField(
-						 * node.getObservedVariableContainer()).dataset.getDataDistribution(columnIDs,
-						 * varNames);
-						 * 
-						 * if (erg.length() > 0) erg += "<br><br>"; }
-						 */
+	
 						erg += mri.getModelDistribution(selected, this.showingEstimate);
 						return erg + "</html>";
 					}
@@ -3188,7 +3196,6 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 							pseudor2 = "\nR^2: " + Math.round(pr2 * 1000) / 1000.0 + "\n";
 						}
 
-						// if (pr2==0.0)
 
 						return "Latent variable " + node.getCaption() + idString + "\n" + pseudor2;
 					} else if (node.isMeanTriangle()) {
@@ -5589,6 +5596,10 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			menuShowLavaanCode = new JMenuItem("lavaan");
 			menuShowLavaanCode.addActionListener(this);
 		}
+		if (menuShowJuliaCode == null) {
+			menuShowJuliaCode = new JMenuItem("StructuralEquationModels.jl");
+			menuShowJuliaCode.addActionListener(this);
+		}
 		if (menuShowSemCode == null) {
 			menuShowSemCode = new JMenuItem("sem package");
 			menuShowSemCode.addActionListener(this);
@@ -5620,6 +5631,8 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 			menuShowCode.add(menuShowLavaanCode);
 			menuShowCode.add(menuShowSemCode);
+			menuShowCode.addSeparator();
+			menuShowCode.add(menuShowJuliaCode);
 			menuShowCode.addSeparator();
 			menuShowCode.add(menuShowMPlusCode);
 			menuShowCode.addSeparator();
@@ -5696,6 +5709,12 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			menuExportLavaan = new JMenuItem("lavaan");
 			menuExportLavaan.addActionListener(this);
 		}
+		
+		if (menuExportJulia == null) {
+			menuExportJulia = new JMenuItem("StructuralEquationModels.jl");
+			menuExportJulia.addActionListener(this);
+		}
+
 
 		if (menuExportSem == null) {
 			menuExportSem = new JMenuItem("sem (package)");
@@ -5872,6 +5891,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			menuSaveScript.add(menuExport);
 			menuSaveScript.add(menuExportMplus);
 			menuSaveScript.add(menuExportLavaan);
+			menuSaveScript.add(menuExportJulia);
 			menuSaveScript.add(menuExportSem);
 		}
 

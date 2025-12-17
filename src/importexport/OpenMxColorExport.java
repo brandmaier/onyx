@@ -37,7 +37,7 @@ import gui.linker.DatasetField;
 import gui.linker.LinkHandler;
 import gui.views.ModelView;
 
-public class OpenMxColorExport extends RExport {
+public class OpenMxColorExport extends GenericSyntaxExport {
 
 	public static final int LABEL = 3, TO = 2;
 

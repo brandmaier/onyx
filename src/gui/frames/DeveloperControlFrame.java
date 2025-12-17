@@ -79,7 +79,7 @@ public class DeveloperControlFrame extends Dialog implements ChangeListener
 			Desktop.DRAW_LINKS_ON_DESKTOP = drawLinks.isSelected();
 	//		Edge.Curvature = Integer.parseInt(numCenter.getValue().toString());
 			
-			EdgeProxy.ARROW_PAD = edgepad.getValue();
+		//	EdgeProxy.ARROW_PAD = edgepad.getValue();
 			desktop.repaint();
 	}
 	

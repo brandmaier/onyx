@@ -264,7 +264,7 @@ public class ScriptView extends View implements ModelListener, ComponentListener
 		String representation;
 		
 		try {
-		representation = exporter.createModelSpec(modelView,modelView.getName(), false);
+		representation = exporter.getModelSpec(modelView,modelView.getName(), false);
 		} catch (Exception e) {
 			representation = "An error occured!";
 			e.printStackTrace();

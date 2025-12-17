@@ -37,7 +37,7 @@ import gui.linker.DatasetField;
 import gui.linker.LinkHandler;
 import gui.views.ModelView;
 
-public class OpenMxMatrixExport extends RExport {
+public class OpenMxMatrixExport extends GenericSyntaxExport {
 
 	public static final int LABEL = 3, TO = 2;
 

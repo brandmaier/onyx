@@ -18,7 +18,7 @@ package engine.externalRunner;
 import java.util.HashMap;
 
 import gui.graph.VariableContainer;
-import importexport.RExport;
+import importexport.GenericSyntaxExport;
 import importexport.SemExport;
 
 public class SemRunUnit extends OpenMxRunUnit {
@@ -27,7 +27,7 @@ public class SemRunUnit extends OpenMxRunUnit {
     
     public String getAgentLabel() {return "sem package";}
 
-    protected RExport getExporter() {
+    protected GenericSyntaxExport getExporter() {
         if (exporter==null) exporter = new SemExport(modelView);
         return exporter;
     }

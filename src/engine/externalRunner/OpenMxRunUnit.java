@@ -17,7 +17,7 @@ package engine.externalRunner;
 
 import importexport.OpenMxExport;
 import importexport.RConnection;
-import importexport.RExport;
+import importexport.GenericSyntaxExport;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,7 +46,7 @@ public class OpenMxRunUnit extends ExternalRunUnit {
     
     public String getAgentLabel() {return "OpenMx";}
 
-    protected RExport getExporter() {return new OpenMxExport(modelView);}
+    protected GenericSyntaxExport getExporter() {return new OpenMxExport(modelView);}
 
     protected String getOutputCommands() {
         return "c(\"Onyx input\","
@@ -62,7 +62,7 @@ public class OpenMxRunUnit extends ExternalRunUnit {
      */
     protected void parseResult(BufferedReader rOutput) throws IOException {
         steps = 0; status = 999;
-        RExport exporter = getExporter();
+        GenericSyntaxExport exporter = getExporter();
         boolean readingOnyxInput = false;
         String debug = "";
         while (true) {
@@ -97,8 +97,8 @@ public class OpenMxRunUnit extends ExternalRunUnit {
     protected void makeOutsideCall() {
     	
     	try {
-            RExport exporter = getExporter();
-            String tempScriptContent = exporter.createModelSpec(modelView, "OpenMx runner model", true);
+            GenericSyntaxExport exporter = getExporter();
+            String tempScriptContent = exporter.getModelSpec(modelView, "OpenMx runner model", true);
 
             String dataFile = createTemporaryDataFile(exporter.getVariableMapping());
             

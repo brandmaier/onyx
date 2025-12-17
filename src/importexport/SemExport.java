@@ -28,7 +28,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SemExport extends RExport {
+public class SemExport extends GenericSyntaxExport {
 
     public boolean useFIML;
     

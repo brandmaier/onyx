@@ -18,7 +18,7 @@ package engine.externalRunner;
 import java.util.List;
 
 import importexport.LavaanExport;
-import importexport.RExport;
+import importexport.GenericSyntaxExport;
 import importexport.SemExport;
 
 public class LavaanRunUnit extends OpenMxRunUnit {
@@ -27,7 +27,7 @@ public class LavaanRunUnit extends OpenMxRunUnit {
     
     public String getAgentLabel() {return "Lavaan";}
 
-    protected RExport getExporter() {return (exporter = new LavaanExport(modelView));}
+    protected GenericSyntaxExport getExporter() {return (exporter = new LavaanExport(modelView));}
 
     protected String getOutputCommands() {
         String parameterNameList = "c(";

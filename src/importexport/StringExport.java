@@ -28,7 +28,29 @@ public abstract class StringExport extends Export {
     
     private int textWidth;
     
-    public StringExport(ModelView modelView, FileFilter fileFilter, String[] defaultExtensions)
+    private String syntax_prefix = "";
+    private String syntax_postfix = "";
+    
+    protected String comment_symbol = "!";
+    
+	protected void setPostfix(String string) {
+		syntax_postfix = string;
+		
+	}
+
+	protected void setPrefix(String string) {
+		syntax_prefix = string;
+	}
+    
+    public String getPrefix() {
+		return syntax_prefix;
+	}
+
+	public String getPostfix() {
+		return syntax_postfix;
+	}
+
+	public StringExport(ModelView modelView, FileFilter fileFilter, String[] defaultExtensions)
     {
         super(modelView, fileFilter, defaultExtensions);
     }
@@ -46,11 +68,16 @@ public abstract class StringExport extends Export {
         return textWidth;
     }
     
-//    public String createModelSpec(ModelView modelView, String modelName) {return createModelSpec(modelView, modelName, false);}
-	public abstract String createModelSpec(ModelView modelView, String modelName, boolean useUniqueNames);
+	protected abstract String createModelSpec(ModelView modelView, String modelName, boolean useUniqueNames);
+	
+	public String getModelSpec(ModelView modelView, String modelName, boolean useUniqueNames)
+	{
+		return( this.getPrefix()+createModelSpec(modelView, modelName, useUniqueNames)+getPostfix());
+	}
+	
     public void export(File file)
     {
-        String content = createModelSpec(modelView, modelView.getName(), false); // exportNaive(g);
+        String content = getModelSpec(modelView, modelView.getName(), false); 
         
         try {
             createFile(file, content);
