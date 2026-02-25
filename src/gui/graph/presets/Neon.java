@@ -48,15 +48,6 @@ public class Neon extends Preset {
 	public void apply(Graph graph, Node node) {
 		node.setStrokeWidth(1.8f);
 		
-		/*if (node.isLatent()) {
-			node.setFillColor(Color.);
-			//node.setFillColor(c1);
-		} else {
-			node.setFillColor(Color.white);
-			//node.setFillColor(c2);
-			//node.setFillColor(Color.white);
-			
-		}*/
 		
 		node.nodeFillGradient =  FillStyle.NONE;
 

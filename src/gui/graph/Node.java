@@ -896,6 +896,7 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 		if (image != null) {
 			int space = 2;
 			int size = this.width;
+			Shape oldClip = g2d.getClip();
 			g2d.setClip(shape);
 			// g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 			// RenderingHints.VALUE_ANTIALIAS_ON);
@@ -905,7 +906,7 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 			// RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 			g2d.drawImage(image, this.x + this.width - size + space, this.y + this.height - size + space, size, size,
 					null);
-			g2d.setClip(null);
+			g2d.setClip(oldClip);
 		}
 
 		if (stroke != null)

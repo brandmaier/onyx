@@ -183,6 +183,7 @@ import gui.graph.presets.FadedColors;
 import gui.graph.presets.Schoeneberg;
 import gui.graph.presets.Sketch;
 import gui.graph.presets.Vertical;
+import gui.graph.presets.Xmas;
 import gui.graph.presets.Amelie;
 import gui.graph.presets.Posh;
 import gui.graph.presets.Chalk;
@@ -291,7 +292,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 	public final static int THINSTROKE = 0, MEDIUMSTROKE = 1, THICKSTROKE = 2;
 
 	static {
-		presets = new Preset[19];
+		presets = new Preset[20];
 		presets[0] = new Default();
 
 		presets[1] = new Modern();
@@ -313,6 +314,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		presets[16] = new Comic();
 		presets[17] = new Celestial();
 		presets[18] = new Vertical();
+		presets[19] = new Xmas();
 		/*
 		 * presets[16] = new Amelie();
 		 */
@@ -692,7 +694,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		}
 		parameterView.updatePosition();
 
-		// establish node counter for automatically labelling nodes
+		// establish node counter for automatically labeling nodes
 		nodeIdCounter = 1;
 
 		// model creation is also a model change
@@ -1166,7 +1168,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 		if (e.getSource() == menuDeleteNode) {
 
-			setAtomicOperationInProgress(true);
+/*			setAtomicOperationInProgress(true);
 
 			MainFrame.undoStack.startCollectSteps();
 
@@ -1174,11 +1176,15 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 			for (Node node : getSelectedNodes()) {
 
+				// in case a mean triangle is deleted, delete
+				// all outgoing edges first
 				if (node.isMeanTriangle()) {
 					List<Edge> edges = graph.getAllEdgesAtNode(node);
 					for (int i = 0; i < edges.size(); i++) {
 						try {
 							ok = ok & mri.requestRemoveEdge(edges.get(i));
+							
+								
 						} catch (Exception ee) {
 							ee.printStackTrace();
 						}
@@ -1203,6 +1209,9 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 				this.messageObjectContainer.add(mo);
 				this.redraw();
 			}
+			*/
+			
+			removeNodesAndEdges(getSelectedNodes(), new ArrayList<Edge>());
 		}
 
 		if (e.getSource() == menuToggleEdgeHeads) {
@@ -3258,17 +3267,6 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		if (varianceComponent == null)
 			return (Double.NaN);
 
-		/*
-		 * double obsVar = df.dataset.getColumnStandardDeviation(df.columnId);
-		 * double[][] cov = EngineHelper.getCovarianceMatrix(this, true); OnyxModel
-		 * model = this.getModelRequestInterface().getModel(); String[] nms =
-		 * model.getObservedVariableNames(); String colNm =
-		 * df.dataset.getColumnName(df.columnId); int fInd = -1; for (int i=0; i <
-		 * nms.length; i++) { if (nms[i].equals(colNm)) {fInd=i; break;} } if (fInd !=
-		 * -1) obsVar = cov[fInd][fInd]; else obsVar = Double.NaN;
-		 */
-		// obsVar = obsVar*obsVar;
-
 		double modeVar = EngineHelper.getModelCovariance(this, node.getCaption());
 
 		double pr2 = 1 - (varianceComponent.getValue() / modeVar);
@@ -4817,6 +4815,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			g.drawLine(0, guide_vertical_active, this.getWidth(), guide_vertical_active);
 		}
 
+
 		// draw Graph with all nodes and edges
 		this.graph.draw(g2d, nodeGroupManager);
 
@@ -6294,38 +6293,41 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		this.decorators.remove(dec);
 		this.repaint();
 	}
+	
+	
+	public void removeAllSelectedNodesAndEdges()  {
+		List<Edge> edges = getSelectedEdges();
+		List<Node> nodes = getSelectedNodes();
+		
+		removeNodesAndEdges(nodes, edges);
+	}
 
 	/**
 	 * removes all nodes and all edges between them
 	 * 
+	 * 
+	 * 
 	 * TODO: move this to Graph class
 	 */
-	public void removeAllSelectedNodesAndEdges() {
+	public void removeNodesAndEdges(List<Node> nodes, List<Edge> edges ) {
 
+		setAtomicOperationInProgress(true);
 		MainFrame.undoStack.startCollectSteps();
-
+		
 		// delete all selected edges
-		for (Edge edge : getSelectedEdges()) {
+		for (Edge edge : edges) {
 			mri.requestRemoveEdge(edge);
 		}
 
-		// compile list of all nodes to be deleted
-
-		List<Node> nodes = new ArrayList<Node>();
-		for (Node node : graph.getNodes()) {
-			if (node.isSelected()) {
-				nodes.add(node);
-			}
-		}
 
 		// find all edges adjacent to the selected nodes
-		List<Edge> edges = new ArrayList<Edge>();
+		List<Edge> more_edges = new ArrayList<Edge>();
 
 		for (Node node : nodes) {
 			for (Edge edge : graph.getEdges()) {
 				if (edge.getSource() == node || edge.getTarget() == node) {
-					if (!edges.contains(edge)) {
-						edges.add(edge);
+					if (!more_edges.contains(edge)) {
+						more_edges.add(edge);
 					}
 				}
 			}
@@ -6333,7 +6335,14 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		}
 
 		// delete all edges
-		for (Edge edge : edges) {
+		for (Edge edge : more_edges) {
+			
+			// TODO TvO: 25.02.2026 this is a dirty hack because the
+			// backend does not send back the request to delete the edge
+			if (edge.isFixed() && edge.getValue()==0 && edge.getSource().isMeanTriangle()) {
+				graph.removeEdge(edge);
+			}
+			
 			mri.requestRemoveEdge(edge);
 		}
 
@@ -6343,6 +6352,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		}
 
 		MainFrame.undoStack.endCollectSteps();
+		setAtomicOperationInProgress(false);
 	}
 
 	@Override

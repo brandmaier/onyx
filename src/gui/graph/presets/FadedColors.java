@@ -26,9 +26,8 @@ import gui.graph.Node;
 
 public class FadedColors extends Default {
 
-	Color[] cols = new Color[] {
-			new Color(169,196,216), new Color(96,163,82), new Color(215,176,133),
-			new Color(167,124,164), new Color(171,216,171), new Color(215,135,111)};
+	Palette pal = OnyxPalette.faded;
+	
 	int colpointer = 0;
 	
 	HashMap<Node, Color> colmap = new HashMap<Node, Color>();
@@ -44,7 +43,7 @@ public class FadedColors extends Default {
 		super.apply(graph);
 		graph.backgroundColor = Color.white;
 		
-
+		colpointer = 0;
 	}
 	
 	public void init(Graph graph)
@@ -53,11 +52,24 @@ public class FadedColors extends Default {
 		colmap.clear();
 			// map all latents
 			for (Node tnode : graph.getLatentNodes()) {
-				colmap.put(tnode, cols[colpointer]);
+				colmap.put(tnode, pal.get(colpointer));
 				colpointer++;
-				colpointer = colpointer % cols.length;
+				colpointer = colpointer % pal.getSize();
 			}
 		//}
+	}
+	
+	@Override
+	public void apply(Graph graph, Edge edge) {
+		edge.setLineWidth(strokeWidth);
+		edge.setArrowStyle(1);
+		Color cc = Color.black;
+		cc = colmap.get(edge.getSource());
+		if (cc == null) cc = Color.black;
+		edge.setLineColor(cc);
+		
+		edge.getLabel().setColor(Color.black);
+		
 	}
 	
 	@Override
@@ -65,10 +77,13 @@ public class FadedColors extends Default {
 		
 		node.setRough(false);
 		node.setShadow(false);
+		node.setFillStyle(FillStyle.FILL);
+		node.setFontColor(Color.black);
 		
 		if (node.isLatent()) {
 			node.setFillColor( colmap.get(node) );
-			node.setFillStyle(FillStyle.FILL);
+			node.setLineColor( Palette.darker(colmap.get(node),100) );
+			
 		} else {
 			for (Edge edge : graph.getAllEdgesAtNode(node)) {
 				Color cc = null;

@@ -397,12 +397,6 @@ public class Edge implements Cloneable, LineColorable, VariableContainerListener
 	public void setValue(double value) {
 		this.value = value;
 		this.standardizedValue = Double.NaN;
-
-		// TvO 23.11.2023 removed this warning since setting value on free paths might
-		// make sense at some points (e.g., scripts).
-//		if (!this.isFixed()) {
-//			System.err.println("Warning! Used Edge.setValue() on a non-fixed path.");
-//		}
 	}
 
 	public void setValue(double value, double svalue) {
@@ -781,8 +775,8 @@ public class Edge implements Cloneable, LineColorable, VariableContainerListener
 		else
 			gui.fancy.Rough.draw(g2d, edgePath);
 
-		//g2d.setClip(oldClip);
-		g2d.setClip(null);
+		g2d.setClip(oldClip);
+		//g2d.setClip(null);
 
 		// draw arrow heads
 		for (Arrow arrow : arrows) {

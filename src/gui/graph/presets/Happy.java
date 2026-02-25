@@ -26,7 +26,7 @@ public class Happy extends Preset {
 
 	protected Color f1 = new Color(255,204,204), f2 = new Color(204,255,204), f3= new Color(204,204,255);
 	
-	private float strokeWidth = 2.5f;
+	private float strokeWidth = 2.3f;
 
 	@Override
 	public String getName() {
@@ -74,6 +74,7 @@ public class Happy extends Preset {
 		edge.setLineWidth(strokeWidth);
 		edge.setArrowStyle(1);
 		edge.setLineColor(Color.black);
+		edge.getLabel().setColor(Color.black);
 	}
 	
 	@Override

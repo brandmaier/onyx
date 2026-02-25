@@ -27,4 +27,18 @@ public class Palette {
 	int getSize() {
 		return colors.length;
 	}
+	
+	public Color getDarker(int i, int j)
+	{
+		return(darker(get(i),j));
+
+	}
+
+	public static Color darker(Color col, int j) {
+		return(		
+				new Color( Math.max(0,col.getRed()-j), 
+				Math.max(0, col.getGreen()-j),
+				Math.max(0, col.getBlue()-j)
+				));
+	}
 }

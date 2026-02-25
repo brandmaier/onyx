@@ -52,9 +52,9 @@ public class SingleFactorModelWizard extends Dialog implements ChangeListener {
 
 	private JCheckBox uniqueResiduals, latentCovariance;
 
-	private SpinnerNumberModel centerModel;
+	private SpinnerNumberModel centerModel = new SpinnerNumberModel(5,2,100,1);
 
-	private JSpinner numCenter;
+	//private JSpinner numCenter;
 	
 	public SingleFactorModelWizard(Desktop desktop)
 	{
@@ -64,7 +64,7 @@ public class SingleFactorModelWizard extends Dialog implements ChangeListener {
 		Dimension d = new Dimension(150,30);
 		
 		// # of observations
-		 numObsInput = new JSpinner(new SpinnerNumberModel(5,2,100,1));
+		 numObsInput = new JSpinner(centerModel);
 		 numObsInput.addChangeListener(this);
 		this.addElement("Observed variables",numObsInput);
 		
@@ -99,29 +99,27 @@ public class SingleFactorModelWizard extends Dialog implements ChangeListener {
 		ModelView mv = new ModelView(desktop);
 		desktop.add(mv);
 		
+
 		ModelRequestInterface model = mv.getModelRequestInterface();
 		
 		int numObs = Integer.parseInt((String) numObsInput.getValue().toString());
 
-		double[] timepoints = new double[numObs];
-		for (int i=0; i < numObs; i++)
-		{
-			timepoints[i] = i / (numObs-1.0);
-		}
+		int N = numObs;
 		
 		int xOffset = 70;
 		int yOffset = 100;
+
+		int xFactor = (xOffset + (xOffset+80*(N-1))) / 2;
 		
-		int N = timepoints.length;
+		Node factor = new Node(nameSlopeInput.getText());
 		
-		//System.out.println("Rebuild with "+N+ " time points");
+		factor.setPosition(xFactor, yOffset+70);
+		
+		model.requestAddNode(factor);
+		
+		int maxx = 200;
 		
 
-		Node slope = new Node(nameSlopeInput.getText());
-		slope.setPosition(xOffset+200, yOffset+70);
-		model.requestAddNode(slope);
-		
-	
 		
 		Node[] obs = new Node[N];
 		for (int i=0; i < N; i++) {
@@ -129,7 +127,22 @@ public class SingleFactorModelWizard extends Dialog implements ChangeListener {
 			obs[i].setIsLatent(false);
 			obs[i].setPosition(xOffset+i*80, yOffset+200);
 			model.requestAddNode(obs[i]);
-			//obs[i].setConnected(true); // workaround
+
+			
+			if (i>0) {
+				Node m = new Node();
+				m.setTriangle(true);
+				m.setPosition(xOffset+i*80, yOffset+200+100);
+				model.requestAddNode(m);
+				
+				Edge edge = new Edge(m, obs[i]);
+				edge.setDoubleHeaded(false);
+				edge.setValue(0);
+				edge.setFixed(false);
+				model.requestAddEdge(edge);
+				
+				maxx = Math.max(maxx, m.getX()+80);
+			}
 		}
 		
 		//int centerAt = Integer.parseInt(numCenter.getValue().toString())-1;
@@ -142,7 +155,7 @@ public class SingleFactorModelWizard extends Dialog implements ChangeListener {
 			double loading = 1.0/N;
 			
 			//if (loading != 0) {
-				Edge edge2 = new Edge(slope, obs[i],false);
+				Edge edge2 = new Edge(factor, obs[i],false);
 				
 				edge2.edgeLabelRelativePosition = ((i+1)/(float)N);
 				
@@ -174,7 +187,7 @@ public class SingleFactorModelWizard extends Dialog implements ChangeListener {
 		// latent variances
 		
 		
-		Edge edgeS = new Edge(slope, slope, true);
+		Edge edgeS = new Edge(factor, factor, true);
 		edgeS.setValue(1.0);
 		edgeS.setParameterName("sigma_s");
 		edgeS.setAutomaticNaming(false);
@@ -193,13 +206,14 @@ public class SingleFactorModelWizard extends Dialog implements ChangeListener {
 		model.requestAddEdge(edgeMi);
 		*/
 		
-		Edge edgeMs = new Edge(mean, slope);
+		Edge edgeMs = new Edge(mean, factor);
 		edgeMs.setFixed(false);
 		edgeMs.setAutomaticNaming(false);
 		edgeMs.setParameterName("\\mu");
 		model.requestAddEdge(edgeMs);
 		
 	
+		
 	/*	Node slopeNode = new Node();
 		Node iceptNode = new Node();
 		mv.getModelRequestInterface().requestAddNode(iceptNode);
@@ -224,6 +238,8 @@ public class SingleFactorModelWizard extends Dialog implements ChangeListener {
 			mv.getModelRequestInterface().requestAddEdge(edge2);
 			mv.getModelRequestInterface().requestAddEdge(edge3);
 		}*/
+		
+		mv.setSize(maxx, 500);
 	
 		this.dispose();
 	}
@@ -231,15 +247,15 @@ public class SingleFactorModelWizard extends Dialog implements ChangeListener {
 	@Override
 	public void stateChanged(ChangeEvent arg0) {
 		
-		if (arg0.getSource() == numObsInput)
+	/*	if (arg0.getSource() == numObsInput)
 		{
 			int max =  Integer.parseInt(numObsInput.getValue().toString());
 			centerModel.setMaximum( max );
-			if (Integer.parseInt(numCenter.getValue().toString()) > max) {
-				numCenter.setValue(max);
+			if (Integer.parseInt(numObsInput.getValue().toString()) > max) {
+				numObsInput.setValue(max);
 			}
 		}
-		
+		*/
 	}
 	
 	

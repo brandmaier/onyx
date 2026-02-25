@@ -55,17 +55,17 @@ public class Posh extends Preset {
 		
 		if (node.isLatent()) {
 			node.setFillColor(carmesin);
-			node.setLineColor(carmesin);
+			node.setLineColor(Palette.darker(carmesin, 45));
 
 			if (node.isMeanTriangle()) {
 				node.setFillColor(gold);
-				node.setLineColor(gold);
+				node.setLineColor(Palette.darker(gold,45));
 			}
 		
 			node.nodeFillGradient =  FillStyle.GRADIENT;			
 		} else {
 			node.setFillColor(cyn);
-			node.setLineColor(cyn);
+			node.setLineColor(Palette.darker(cyn, 45));
 			node.nodeFillGradient =  FillStyle.GRADIENT;
 		}
 		
@@ -77,7 +77,7 @@ public class Posh extends Preset {
 		node.setFontSize(10);
 		node.setRough(false);
 		
-		node.setStrokeWidth(2);
+		node.setStrokeWidth(1.75f);
 	}
 
 	@Override

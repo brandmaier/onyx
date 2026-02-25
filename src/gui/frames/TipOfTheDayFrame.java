@@ -85,12 +85,6 @@ public class TipOfTheDayFrame extends JDialog implements ActionListener, MouseLi
 		close.addActionListener(this);
 		dontshow.addActionListener(this);
 		
-		// wait for preferences to be loaded!
-	/*	while(true) {
-			i
-			Thread.sleep(100);
-		}*/
-		
 		dontshow.setSelected(
 				Boolean.parseBoolean(
 						Preferences.getAsString("ShowTipOfTheDay")));

@@ -233,7 +233,7 @@ public class Desktop extends JLayeredPane
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			System.err.println("Could not set background image!");
 		}
 

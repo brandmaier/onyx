@@ -171,6 +171,14 @@ public class Graph {
 		return edges;
 	}
 	
+	public Edge getVarianceEdgeOfNode(Node node)
+	{
+		for (Edge edge : this.edges) {
+			if (edge.getSource()==edge.getTarget() && edge.getSource()==node) return edge;
+		}
+		return null;
+	}
+	
 	public NodeGroup getSelectedNodes()
 	{
 		NodeGroup selection = new NodeGroup();
@@ -720,6 +728,7 @@ public class Graph {
 				}
 			}
 		}   
+		
 
 		try {
     		Iterator<Edge> iterEdge = edges.iterator();
@@ -746,8 +755,10 @@ public class Graph {
         		
         			if (edge.isDoubleHeaded()) {
                         if (cov != null && cov.length > inidx && cov.length > outidx && cov[inidx][inidx] > 0 && cov[outidx][outidx]>0 )
-        					svalue = value / (Math.sqrt(cov[inidx][inidx])*Math.sqrt(cov[outidx][outidx]));
-        				else 
+                        {	svalue = value / (Math.sqrt(cov[inidx][inidx])*Math.sqrt(cov[outidx][outidx]));
+                        	//svalue = value / (Math.sqrt());
+                        
+                        } else 
         					svalue = Double.NaN;
         			} else {
         				if (cov != null && cov[inidx][inidx] > 0 && cov[outidx][outidx]>0 )

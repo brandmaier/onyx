@@ -38,9 +38,10 @@ public class Vertical extends Preset {
 	
 //	Color[] colors = new Color[] {gold, carmesin, cyn};
 	
-	Palette pal = OnyxPalette.pastel1;
+	Palette pal = OnyxPalette.bluey; 
+			//OnyxPalette.pastel1;
 	
-	float strokeWidth = 2.5f;
+	float strokeWidth = 1.5f;
 	
 	double[] ys = new double[] {0, 100, 200, 300, 400, 500, 600, 700, 800};
 	
@@ -69,12 +70,9 @@ public class Vertical extends Preset {
 		node.setStrokeWidth(strokeWidth);
 		
 		if (node.isLatent()) {
-			//node.setFillColor(carmesin);
-
-			//if (node.isMeanTriangle())
-			//	node.setFillColor(gold);
+	
 		
-			node.nodeFillGradient =  FillStyle.GRADIENT;			
+			node.nodeFillGradient =  FillStyle.FILL;			
 		} else {
 		//	node.setFillColor(cyn);
 			node.nodeFillGradient =  FillStyle.GRADIENT;
@@ -87,8 +85,9 @@ public class Vertical extends Preset {
 		}
 		Color col = pal.get(i);
 		node.setFillColor(col);
-		
-		node.setLineColor(Color.black);
+
+//		node.setLineColor(Color.black);
+		node.setLineColor(pal.getDarker(i, 100));
 		node.setShadow(false);
 		
 		
@@ -96,7 +95,7 @@ public class Vertical extends Preset {
 		node.setFontSize(10);
 		node.setRough(false);
 		
-		node.setStrokeWidth(2);
+		node.setStrokeWidth(1.2f);
 	}
 
 	@Override
@@ -126,7 +125,7 @@ public class Vertical extends Preset {
 		    Arrays.sort(a);
 
 		    List<Double> clusters = new ArrayList<>();
-		    clusters.add(a[0]);
+		    //clusters.add(a[0]);
 		    double cur = a[0];
 
 		    for (int i = 1; i < a.length; i++) {
@@ -141,5 +140,6 @@ public class Vertical extends Preset {
 		            .mapToDouble(Double::doubleValue)
 		            .toArray();
 		  }	
+	 
 
 }
