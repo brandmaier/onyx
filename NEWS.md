@@ -1,3 +1,8 @@
+## Onyx 1.0-1045 2026-02-25
+
+- fixed the bug discovered by Christian G, where fixed paths from a constant with value 0 were not deleted [AB]
+- fixed bug with overpainting of models over their frame due to faulty clipping in nodes and edges [AB]
+
 ## Onyx 1.0-1044 2025-07-30
 
 - deactivated overspecification warning because of unresolved bug, AB
