@@ -28,6 +28,7 @@ import gui.actions.CreateDCSMAction;
 import gui.actions.CreateEmptyModelAction;
 import gui.actions.CreateLDEAction;
 import gui.actions.CreateLGCMAction;
+import gui.actions.CreateLatentMeanAction;
 import gui.actions.CreateMeasurementInvarianceAction;
 import gui.actions.CreateSingleFactorModelAction;
 import gui.actions.CreateUARAction;
@@ -720,12 +721,14 @@ public class Desktop extends JLayeredPane
 			menu.add(create);
 
 			create.add(new CreateEmptyModelAction(this, arg0.getX(), arg0.getY()));
+			create.add(new CreateLatentMeanAction(this, arg0.getX(), arg0.getY()));
+			create.add(new CreateSingleFactorModelAction(this, arg0.getX(), arg0.getY()));
 			create.add(new CreateLGCMAction(this, arg0.getX(), arg0.getY()));
 			create.add(new CreateUARAction(this, arg0.getX(), arg0.getY()));
 			if (MainFrame.DEVMODE) {
 				create.add(new CreateApproxUARAction(this, arg0.getX(), arg0.getY()));
 			}
-			create.add(new CreateSingleFactorModelAction(this, arg0.getX(), arg0.getY()));
+
 			create.add(new CreateDCSMAction(this, arg0.getX(), arg0.getY()));
 			create.add(new CreateLDEAction(this, arg0.getX(), arg0.getY()));
 			create.add(new CreateMeasurementInvarianceAction(this, arg0.getX(), arg0.getY()));

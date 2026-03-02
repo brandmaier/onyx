@@ -1056,5 +1056,22 @@ public class Graph {
 		this.lockedStyle = b;
 		
 	}
+
+	public Node getFirstNodeByCaption(String caption) {
+		for (Node node : getNodes()) if (node.getCaption().equals(caption)) return(node);
+		
+		return(null);
+	}
+
+	public int getNodeMaxX() {
+		int maxx = 0;
+		for (Node node : getNodes()) maxx = Math.max(maxx, node.getX()+node.getWidth());
+		return(maxx);
+	}
+
+	public Node getFirstNodeByTag(String tag) {
+		for (Node node : this.getNodes()) if (node.isTagged(tag)) return(node);
+		return(null);
+	}
 	
 }

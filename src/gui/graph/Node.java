@@ -29,6 +29,7 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import engine.ModelRequestInterface;
@@ -100,6 +101,16 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	VariableContainer groupingVariableContainer;
 	
 	private NodeDrawProxy drawProxy = null;
+	
+	ArrayList<String> tag = new ArrayList<>();
+	
+	public boolean isTagged(String tag) {
+		return (this.tag.contains(tag));
+	}
+	
+	public void addTag(String tag) {
+		this.tag.add(tag);
+	}
 
 	public VariableContainer getGroupingVariableContainer() {
 		return groupingVariableContainer;
@@ -1256,6 +1267,11 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 
 	public void setShadow_type(int shadow_type) {
 		this.shadow_type = shadow_type;
+	}
+
+	public String getGroupName() {
+		if (this.groupName==null) return("");
+		return(this.groupName);
 	}
 
 }

@@ -49,6 +49,7 @@ public class CreateSingleFactorModelAction extends AbstractAction {
 	public void actionPerformed(ActionEvent arg0) {
 		//ModelView mv = new ModelView(desktop);
 		//LGCMWizard w = new LGCMWizard(desktop);
+		
 		SingleFactorModelWizard w = new SingleFactorModelWizard(desktop);
 //		mv.setLocation(x, y);
 //		desktop.add(mv);

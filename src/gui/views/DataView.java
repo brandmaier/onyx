@@ -797,7 +797,8 @@ public class DataView extends View implements KeyListener, ActionListener,
 			for (Node node : view.getGraph().getNodes())
 			{
 				for (int i = 0; i < dataset.getNumColumns(); i++) {
-					if (node.isGrouping() && node.groupName.equals(dataset.getColumnName(i))) {
+					//System.out.println(i+":"+node.getGroupName() + "vs" + dataset.getColumnName(i));
+					if (node.isGrouping() && node.getGroupName().equals(dataset.getColumnName(i))) {
 					    try {
 					        Desktop.getLinkHandler().link(dataset, i, node.getGroupingVariableContainer(), view.getModelRequestInterface());
 					    } catch (Exception e) {System.err.println("Error in linking group variable: "+e);}

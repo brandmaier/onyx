@@ -25,6 +25,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -50,7 +51,7 @@ public class SingleFactorModelWizard extends Dialog implements ChangeListener {
 
 	private JTextArea nameSlopeInput;
 
-	private JCheckBox uniqueResiduals, latentCovariance;
+	private JCheckBox itemIdentification;
 
 	private SpinnerNumberModel centerModel = new SpinnerNumberModel(5,2,100,1);
 
@@ -84,6 +85,8 @@ public class SingleFactorModelWizard extends Dialog implements ChangeListener {
 		nameSlopeInput.setSize(d);
 		this.addElement("Name of factor ",nameSlopeInput);
 	
+		itemIdentification = new JCheckBox("Standardized latent scale");
+		this.addElement("Latent scale ", itemIdentification);
 		
 		this.addSendButton("Create");
 		
@@ -101,145 +104,19 @@ public class SingleFactorModelWizard extends Dialog implements ChangeListener {
 		
 
 		ModelRequestInterface model = mv.getModelRequestInterface();
-		
+
 		int numObs = Integer.parseInt((String) numObsInput.getValue().toString());
 
-		int N = numObs;
-		
-		int xOffset = 70;
-		int yOffset = 100;
-
-		int xFactor = (xOffset + (xOffset+80*(N-1))) / 2;
-		
-		Node factor = new Node(nameSlopeInput.getText());
-		
-		factor.setPosition(xFactor, yOffset+70);
-		
-		model.requestAddNode(factor);
-		
-		int maxx = 200;
-		
-
-		
-		Node[] obs = new Node[N];
-		for (int i=0; i < N; i++) {
-			obs[i] = new Node(nameObsInput.getText()+(i+1));
-			obs[i].setIsLatent(false);
-			obs[i].setPosition(xOffset+i*80, yOffset+200);
-			model.requestAddNode(obs[i]);
-
-			
-			if (i>0) {
-				Node m = new Node();
-				m.setTriangle(true);
-				m.setPosition(xOffset+i*80, yOffset+200+100);
-				model.requestAddNode(m);
-				
-				Edge edge = new Edge(m, obs[i]);
-				edge.setDoubleHeaded(false);
-				edge.setValue(0);
-				edge.setFixed(false);
-				model.requestAddEdge(edge);
-				
-				maxx = Math.max(maxx, m.getX()+80);
-			}
+		ArrayList<String> xnames = new ArrayList<String>();
+		ArrayList<String> enames = new ArrayList<String>();
+		for (int i=0; i < numObs; i++) {
+		xnames.add( nameObsInput.getText()+(i+1) );
+		enames.add (nameErrInput.getText()+(i+1) );
 		}
+		ModelFactory.createFactorModel(model, numObs, nameSlopeInput.getText(), 
+				xnames, enames, -1, 70, 100, !itemIdentification.isSelected(),false,"", "");
 		
-		//int centerAt = Integer.parseInt(numCenter.getValue().toString())-1;
-		
-		// Loadings
-		for (int i=0; i < N; i++) {
-		//	Edge edge1 = new Edge(icept, obs[i],false);
-		//	model.requestAddEdge(edge1);
-			
-			double loading = 1.0/N;
-			
-			//if (loading != 0) {
-				Edge edge2 = new Edge(factor, obs[i],false);
-				
-				edge2.edgeLabelRelativePosition = ((i+1)/(float)N);
-				
-				if (i!=0){
-				edge2.setFixed(false);
-				edge2.setValue(loading);
-				}
-				
-				edge2.setAutomaticNaming(false);
-				edge2.setParameterName("\\lambda"+(i+1));
-				
-				model.requestAddEdge(edge2);
-			//}
-		}
-		
-		// residual variances
-		for (int i=0; i < N; i++) {
-			Edge edge = new Edge(obs[i], obs[i],true);
-			edge.setValue(1.0);
-			//if (uniqueResiduals.isSelected())
-			//	edge.setParameterName(nameErrInput.getText()+(i+1));
-			//else
-				edge.setParameterName(nameErrInput.getText()+(i+1));
-			edge.setAutomaticNaming(false);
-			edge.setFixed(false);
-			model.requestAddEdge(edge);
-		}
-		
-		// latent variances
-		
-		
-		Edge edgeS = new Edge(factor, factor, true);
-		edgeS.setValue(1.0);
-		edgeS.setParameterName("sigma_s");
-		edgeS.setAutomaticNaming(false);
-		edgeS.setFixed(false);
-		model.requestAddEdge(edgeS);
-		
-		// add mean
-		
-		Node mean = new Node();
-		mean.setPosition(xOffset+100, yOffset-60);
-		mean.setTriangle(true);
-		model.requestAddNode(mean);
-		
-		/*Edge edgeMi = new Edge(mean, icept);
-		edgeMi.setFixed(false);
-		model.requestAddEdge(edgeMi);
-		*/
-		
-		Edge edgeMs = new Edge(mean, factor);
-		edgeMs.setFixed(false);
-		edgeMs.setAutomaticNaming(false);
-		edgeMs.setParameterName("\\mu");
-		model.requestAddEdge(edgeMs);
-		
-	
-		
-	/*	Node slopeNode = new Node();
-		Node iceptNode = new Node();
-		mv.getModelRequestInterface().requestAddNode(iceptNode);
-		mv.getModelRequestInterface().requestAddNode(slopeNode);
-
-		iceptNode = 
-		
-		int x = 0;
-		for (int i = 0; i <numObs; i++)
-		{
-			Node obsNode = new Node();
-			mv.getModelRequestInterface().requestAddNode(obsNode);
-			Node errNode = new Node();
-			mv.getModelRequestInterface().requestAddNode(errNode);
-			
-			// add paths
-			Edge edge1 = new Edge(iceptNode, obsNode);
-			Edge edge2 = new Edge(slopeNode, obsNode);
-			Edge edge3 = new Edge(errNode, obsNode);
-			
-			mv.getModelRequestInterface().requestAddEdge(edge1);
-			mv.getModelRequestInterface().requestAddEdge(edge2);
-			mv.getModelRequestInterface().requestAddEdge(edge3);
-		}*/
-		
-		mv.setSize(maxx, 500);
+		mv.setSize( 200+numObs*80, 500);
 	
 		this.dispose();
 	}
