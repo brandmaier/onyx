@@ -14,7 +14,7 @@ jobs:
           java-version: 1.8
       - name: Build with Ant
         run: ant -noinput -buildfile build.xml
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
             name: Onyx-Build
             path: dist/onyx.jar
