@@ -1,3 +1,7 @@
+## Onyx 1.0-1046 2026-03-02
+
+- introduced the latent means model wizard supporting SMM and MIMIC approaches [AB]
+
 ## Onyx 1.0-1045 2026-02-25
 
 - fixed the bug discovered by Christian G, where fixed paths from a constant with value 0 were not deleted [AB]

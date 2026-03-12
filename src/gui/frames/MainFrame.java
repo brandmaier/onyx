@@ -92,7 +92,7 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 	 */
 	
 	public static final String MAJOR_VERSION = "1.0";
-	public static final int MINOR_VERSION = 1044;
+	public static final int MINOR_VERSION = 1046;
 	
 	
 	/**
