@@ -30,6 +30,7 @@ import engine.DatasetChangedListener;
 import engine.RawDataset;
 import gui.Desktop;
 import gui.Utilities;
+import gui.fancy.DropShadowBorder;
 import gui.views.DataView;
 import gui.views.View;
 
@@ -53,6 +54,10 @@ public class ChartView  extends View implements ActionListener, ComponentListene
 		
 	}
 	
+	public void updateTitle(String title) {
+		this.setBorder(new DropShadowBorder(title, 3, Color.gray));
+	}
+	
 	public static boolean contains(int[] x, int v) {
 	    for (int n : x) {
 	        if (n == v) {
@@ -66,6 +71,8 @@ public class ChartView  extends View implements ActionListener, ComponentListene
 	{
 		super(desktop);
 		this.dataView = dataView;
+		
+		updateTitle("");
 	}
 	
 	protected void initChartPanel(JComponent cpanel)

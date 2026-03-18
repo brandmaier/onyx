@@ -62,7 +62,7 @@ public class BoxplotChart extends ChartView {
 	                .xAxisTitle("X")
 	                .yAxisTitle("Y")
 	                .build(); 
-		
+		chart.getStyler().setChartBackgroundColor(Color.white);
 		Dataset ds = dataView.getDataset();
 
 		if (ds instanceof RawDataset) {
