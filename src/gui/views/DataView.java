@@ -53,6 +53,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
 
+import charts.BoxplotChart;
+import charts.LongitudinalChart;
 import engine.BootstrappedDataset;
 import engine.CovarianceDataset;
 import engine.Dataset;
@@ -103,6 +105,8 @@ public class DataView extends View implements KeyListener, ActionListener,
 	private JMenuItem menuResimulate;
 
 	private JMenuItem menuCopyToClipboard;
+	
+	private JMenuItem menuPlot;
 
 	FontMetrics fm;
 
@@ -529,6 +533,12 @@ public class DataView extends View implements KeyListener, ActionListener,
 
 				menu.addSeparator();
 				
+				if (MainFrame.DEVMODE) {
+					menuPlot = new JMenuItem("Plot data");
+					menuPlot.addActionListener(this);
+					menu.add(menuPlot);
+				}
+				
 				int numbs=0;
 				if (this.dataset instanceof RawDataset)
 					menu.add(menuBootstrap);
@@ -564,6 +574,14 @@ public class DataView extends View implements KeyListener, ActionListener,
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
+		
+		if (menuPlot == arg0.getSource()) {
+			// TODO: check type conversion
+			LongitudinalChart chart = new LongitudinalChart(this.getDesktop(), (RawDataset)this.getDataset());
+			BoxplotChart c2 = new BoxplotChart(this.getDesktop(), (RawDataset)this.getDataset());
+			this.getDesktop().add(chart);
+			this.getDesktop().add(c2);
+		}
 
 		if (menuSetIdColumn == arg0.getSource()
 				&& dataset instanceof RawDataset) {

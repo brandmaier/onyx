@@ -1,0 +1,130 @@
+package charts;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
+
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+
+import org.knowm.xchart.BoxChartBuilder;
+import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.XChartPanel;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.internal.chartpart.Chart;
+import org.knowm.xchart.style.markers.None;
+
+import engine.Dataset;
+import engine.RawDataset;
+import gui.Desktop;
+import gui.Utilities;
+import gui.fancy.DropShadowBorder;
+import gui.views.DataView;
+import gui.views.View;
+
+public class LongitudinalChart extends ChartView {
+
+
+
+	public LongitudinalChart(Desktop desktop, RawDataset data)
+	{
+		super(desktop);
+		
+		this.movable = true;
+		this.resizable = true;
+		
+		this.setSize(800, 400);
+		this.setVisible(true);
+		this.setBackground(Color.white);
+		
+		this.addComponentListener(this);
+		
+
+		XYChart chart = new XYChartBuilder()
+	                .width(600)
+	                .height(400)
+	                .title("Multi-line plot")
+	                .xAxisTitle("X")
+	                .yAxisTitle("Y")
+	                .build(); 
+		
+
+	        for (int i = 0; i < data.getSampleSize(); i++) {
+	        	
+
+	        	double[] row;
+	        	
+	        	row = data.getData()[i];
+	        
+	            chart.addSeries("Series " + i, row)
+	                 .setMarker(new None());
+	        }
+	      
+	     cpanel = new XChartPanel<>(chart);
+	     
+	     chart.setTitle(data.getName());
+	     
+	     chart.getStyler().setLegendVisible(false);
+	     
+/*	    cpanel.addMouseMotionListener(new MouseMotionAdapter() {
+
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				
+				 LongitudinalChart.this.mouseDragged(e);
+			}
+
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				
+				 LongitudinalChart.this.mouseMoved(e);
+			}
+		
+	     });
+	     
+	    cpanel.addMouseListener(new MouseAdapter() {
+	    	 @Override
+	    	 public void mousePressed(MouseEvent e) {
+	    		 System.out.println("Mouse pressed");
+	    		 LongitudinalChart.this.mousePressed(e);
+	    	        e.consume();
+	    	    }
+	    	 
+	    	 @Override
+	    	 public void mouseReleased(MouseEvent e) {
+	    		 LongitudinalChart.this.mouseReleased(e);
+	    	        e.consume();
+	    	    }
+	    	 
+	    	 @Override
+	    	 public void mouseClicked(MouseEvent e) {
+	    		 LongitudinalChart.this.mouseClicked(e);
+	    	        e.consume();
+	    	    }
+	     });
+	    */
+
+	     initChartPanel(cpanel);
+	    //    new SwingWrapper<>(chart).displayChart();
+	}
+	
+
+	
+	public void updateChart() 
+	{
+		
+	}
+
+}
