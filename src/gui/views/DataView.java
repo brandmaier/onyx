@@ -55,6 +55,7 @@ import javax.swing.text.BadLocationException;
 
 import charts.BoxplotChart;
 import charts.LongitudinalChart;
+import charts.ScatterChart;
 import engine.BootstrappedDataset;
 import engine.CovarianceDataset;
 import engine.Dataset;
@@ -65,12 +66,12 @@ import engine.SimulatedDataset;
 import engine.Statik;
 import gui.Desktop;
 import gui.LabeledInputBox;
-import gui.Utilities;
+
 import gui.frames.MainFrame;
 import gui.graph.Edge;
 import gui.graph.Node;
 import gui.linker.LinkException;
-import gui.undo.LinkChangedStep;
+
 import gui.undo.LinkStep;
 import importexport.CSVExport;
 
@@ -127,6 +128,12 @@ public class DataView extends View implements KeyListener, ActionListener,
 
 	private LabeledInputBox dataNameInput;
 
+	private JMenuItem menuPlotLong;
+
+	private JMenuItem menuPlotBox;
+
+	private JMenuItem menuPlotScatter;
+
 	public DataView(Desktop desktop) {
 		super(desktop);
 
@@ -175,6 +182,7 @@ public class DataView extends View implements KeyListener, ActionListener,
 		/*
 		 * this.setVisible(true); adjustScrollPanesize(); this.validate();
 		 */
+		this.revalidate();
 	}
 
 	public File getFile() {
@@ -414,19 +422,30 @@ public class DataView extends View implements KeyListener, ActionListener,
 	public boolean hasRowsSelected() {
 		return (this.list.getSelectedIndices().length > 0);
 	}
+	
+	public int[] getSelectedIndices() {
+		return this.list.getSelectedIndices();
+	}
+	
+
 
 	@Override
-	public void mouseClicked(MouseEvent arg0) {
+	public void mouseReleased(MouseEvent arg0) {
 
+	
+		
+		System.out.println(arg0);
+		
 		clickedX = arg0.getX();
 		clickedY = arg0.getY();
 
-		super.mouseClicked(arg0);
+		super.mouseReleased(arg0);
 		if (arg0.isConsumed())
 			return;
 
-		if (Utilities.isRightMouseButton(arg0)) {
-
+	//	if (Utilities.isRightMouseButton(arg0)) {
+		if (arg0.isPopupTrigger()) {
+		
 			JPopupMenu menu = new JPopupMenu();
 
 			if (arg0.getSource() == list) {
@@ -534,9 +553,20 @@ public class DataView extends View implements KeyListener, ActionListener,
 				menu.addSeparator();
 				
 				if (MainFrame.DEVMODE) {
-					menuPlot = new JMenuItem("Plot data");
-					menuPlot.addActionListener(this);
+					
+					menuPlotLong = new JMenuItem("Plot longitudinal data");
+					menuPlotBox = new JMenuItem("Plot box plot");
+					menuPlotScatter = new JMenuItem("Plot scatter plot");
+					
+					menuPlot = new JMenu("Plot data");
+					menuPlotBox.addActionListener(this);
+					menuPlotLong.addActionListener(this);
+					menuPlotScatter.addActionListener(this);
 					menu.add(menuPlot);
+					
+					menuPlot.add(menuPlotLong);
+					menuPlot.add(menuPlotBox);
+					menuPlot.add(menuPlotScatter);
 				}
 				
 				int numbs=0;
@@ -575,11 +605,23 @@ public class DataView extends View implements KeyListener, ActionListener,
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		
-		if (menuPlot == arg0.getSource()) {
-			// TODO: check type conversion
-			LongitudinalChart chart = new LongitudinalChart(this.getDesktop(), (RawDataset)this.getDataset());
-			BoxplotChart c2 = new BoxplotChart(this.getDesktop(), (RawDataset)this.getDataset());
+		if (menuPlotLong == arg0.getSource()) {
+	
+			LongitudinalChart chart = new LongitudinalChart(this.getDesktop(), this);
+			this.getDataset().addDatasetChangedListener(chart);			
 			this.getDesktop().add(chart);
+		
+		}
+		
+		if (menuPlotBox == arg0.getSource()) {
+			BoxplotChart c2 = new BoxplotChart(this.getDesktop(), this);
+			this.getDataset().addDatasetChangedListener(c2);			
+			this.getDesktop().add(c2);
+		}
+		
+		if (menuPlotScatter == arg0.getSource()) {
+			ScatterChart c2 = new ScatterChart(this.getDesktop(), this);
+			this.getDataset().addDatasetChangedListener(c2);
 			this.getDesktop().add(c2);
 		}
 

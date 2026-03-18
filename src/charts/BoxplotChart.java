@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.util.Arrays;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -26,6 +27,7 @@ import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
 import org.knowm.xchart.internal.chartpart.Chart;
 import org.knowm.xchart.style.markers.None;
+import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import engine.Dataset;
 import engine.RawDataset;
@@ -37,11 +39,11 @@ import gui.views.View;
 
 public class BoxplotChart extends ChartView {
 
+	BoxChart chart;
 
-
-	public BoxplotChart(Desktop desktop, RawDataset data)
+	public BoxplotChart(Desktop desktop, DataView dataView)
 	{
-		super(desktop);
+		super(desktop, dataView);
 		
 		this.movable = true;
 		this.resizable = true;
@@ -53,7 +55,7 @@ public class BoxplotChart extends ChartView {
 		this.addComponentListener(this);
 		
 
-		BoxChart chart = new BoxChartBuilder()
+		chart = new BoxChartBuilder()
 	                .width(600)
 	                .height(400)
 	                .title("Multi-line plot")
@@ -61,21 +63,20 @@ public class BoxplotChart extends ChartView {
 	                .yAxisTitle("Y")
 	                .build(); 
 		
+		Dataset ds = dataView.getDataset();
 
-	        for (int i = 0; i < data.getNumColumns(); i++) {
-	        	
+		if (ds instanceof RawDataset) {
+			rds = (RawDataset)ds;
+		} else {
+			rds = new RawDataset();
+		}
+		
 
-	        	double[] row;
-	        	
-	        	row = data.getColumn(i);
-	        
-	            chart.addSeries("Series " + i, row)
-	                 .setMarker(new None());
-	        }
+		datasetChanged();
 	      
 	     cpanel = new XChartPanel<BoxChart>(chart);
 	     
-	     chart.setTitle(data.getName());
+	     chart.setTitle(rds.getName());
 	     
 	     chart.getStyler().setLegendVisible(false);
 	     
@@ -123,9 +124,27 @@ public class BoxplotChart extends ChartView {
 	
 
 	
-	public void updateChart() 
-	{
+	public void datasetChanged() {
+
+		removeAllSeries(chart);
 		
+
+        for (int i = 0; i < rds.getNumColumns(); i++) {
+        	
+        	boolean match = contains(dataView.getSelectedIndices(), i);
+        	
+        	if (dataView.hasRowsSelected() && !match) continue;
+        	
+        	double[] row;
+        	
+        	row = rds.getColumn(i);
+        
+            chart.addSeries(rds.getColumnName(i), row)
+                 .setMarker(new None());
+        }
+	   	     this.revalidate();
+	   	     this.repaint();
+
 	}
 
 }

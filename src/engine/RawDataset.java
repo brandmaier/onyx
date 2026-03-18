@@ -47,6 +47,8 @@ public class RawDataset extends Dataset {
 		this.numColumns = colNames.size();
 		this.columnNames = colNames;
 		this.centralizationMeans = new double[numColumns];
+		
+		datasetChangedEvent();
 	}
 	
 	public void setData(double[][] data, List<String> colNames, double[] centralizationMeans) {

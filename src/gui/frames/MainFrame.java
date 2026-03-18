@@ -240,11 +240,14 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 
 		desktop.setLocation(10, 10);
 		
-		this.setVisible(true);
-
-
-	
 		
+		desktop.requestFocusInWindow();
+		
+
+
+		this.revalidate();
+	
+		this.setVisible(true);		
 		// DEBUG
 	
 		/*MultiGroupModelView mg = new MultiGroupModelView(this.desktop);

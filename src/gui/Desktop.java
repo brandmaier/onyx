@@ -660,7 +660,7 @@ public class Desktop extends JLayeredPane
 	public void mouseClicked(MouseEvent arg0) {
 
 		// MainFrame.logger.log("mouse clicked"+arg0);
-
+		
 		if (Utilities.isLeftMouseButton(arg0)) {
 
 			Iterator<ViewConnection> iterViewConnections = viewConnections.iterator();
@@ -701,7 +701,44 @@ public class Desktop extends JLayeredPane
 			this.repaint();
 		}
 
-		if (Utilities.isRightMouseButton(arg0)) {
+	
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		//mousePressedX = arg0.getX();
+		//mousePressedY = arg0.getY();
+
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+
+
+
+		mouseDragX = -1;
+		mouseDragY = -1;
+
+
+		if (dragSource != null) {
+			this.dragSource = null;
+			repaint();
+		}
+		
+		if (arg0.isPopupTrigger()) {
 
 			// open context menu for desktop
 			JPopupMenu menu = new JPopupMenu();
@@ -766,45 +803,6 @@ public class Desktop extends JLayeredPane
 			menu.add(closeAll);
 
 			menu.show(arg0.getComponent(), arg0.getX(), arg0.getY());
-		}
-
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mousePressed(MouseEvent arg0) {
-		//mousePressedX = arg0.getX();
-		//mousePressedY = arg0.getY();
-
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent arg0) {
-
-		// System.out.println("Mouse released");
-
-		//currentDragSource = null;
-
-		mouseDragX = -1;
-		mouseDragY = -1;
-
-	//	mousePressedX = arg0.getX();
-	//	mousePressedY = arg0.getY();
-
-		if (dragSource != null) {
-			this.dragSource = null;
-			repaint();
 		}
 
 	}

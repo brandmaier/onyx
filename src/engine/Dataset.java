@@ -41,6 +41,16 @@ public abstract class Dataset {
 		changeListeners = new ArrayList<DatasetChangedListener>();
 	}
 	
+	public void addDatasetChangedListener(DatasetChangedListener l) {
+		this.changeListeners.add(l);
+	}
+	
+	protected void datasetChangedEvent() {
+		for (DatasetChangedListener c : this.changeListeners) {
+			c.datasetChanged();
+		}
+	}
+	
 	// should be overwritten by subtypes that may contain invalid data.
 	public boolean isValid() {return true;}
 	

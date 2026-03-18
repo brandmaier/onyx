@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.util.List;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -25,6 +26,7 @@ import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
 import org.knowm.xchart.internal.chartpart.Chart;
 import org.knowm.xchart.style.markers.None;
+import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import engine.Dataset;
 import engine.RawDataset;
@@ -36,11 +38,11 @@ import gui.views.View;
 
 public class LongitudinalChart extends ChartView {
 
+	XYChart chart;
 
-
-	public LongitudinalChart(Desktop desktop, RawDataset data)
+	public LongitudinalChart(Desktop desktop, DataView dataView)
 	{
-		super(desktop);
+		super(desktop, dataView);
 		
 		this.movable = true;
 		this.resizable = true;
@@ -52,7 +54,7 @@ public class LongitudinalChart extends ChartView {
 		this.addComponentListener(this);
 		
 
-		XYChart chart = new XYChartBuilder()
+		chart = new XYChartBuilder()
 	                .width(600)
 	                .height(400)
 	                .title("Multi-line plot")
@@ -60,21 +62,19 @@ public class LongitudinalChart extends ChartView {
 	                .yAxisTitle("Y")
 	                .build(); 
 		
+		Dataset ds = dataView.getDataset();
 
-	        for (int i = 0; i < data.getSampleSize(); i++) {
-	        	
+		if (ds instanceof RawDataset) {
+			rds = (RawDataset)ds;
+		} else {
+			rds = new RawDataset();
+		}
 
-	        	double[] row;
-	        	
-	        	row = data.getData()[i];
-	        
-	            chart.addSeries("Series " + i, row)
-	                 .setMarker(new None());
-	        }
+		datasetChanged();
 	      
 	     cpanel = new XChartPanel<>(chart);
 	     
-	     chart.setTitle(data.getName());
+	     chart.setTitle(rds.getName());
 	     
 	     chart.getStyler().setLegendVisible(false);
 	     
@@ -122,9 +122,30 @@ public class LongitudinalChart extends ChartView {
 	
 
 	
-	public void updateChart() 
-	{
+	@Override
+	public void datasetChanged() {
+
+		removeAllSeries(chart);
 		
+	       for (int i = 0; i < rds.getSampleSize(); i++) {
+	        	
+
+	        	double[] row;
+	        	
+	        	row = rds.getData()[i];
+	        
+	            chart.addSeries("Series " + i, row)
+	                 .setMarker(new None());
+	        }
+
+	       List<String> names = rds.getColumnNamesAsList();
+	       
+	       chart.setCustomXAxisTickLabelsFormatter(x -> names.get((int)Math.round(x-1)));
+	       
+	       
+	   	     this.revalidate();
+	   	  this.repaint();
 	}
+
 
 }

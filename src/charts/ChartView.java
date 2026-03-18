@@ -7,10 +7,15 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Map;
 
+import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -18,26 +23,58 @@ import javax.swing.JPopupMenu;
 import org.knowm.xchart.BoxChart;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYSeries;
+import org.knowm.xchart.internal.chartpart.Chart;
 
+import engine.DatasetChangedListener;
+import engine.RawDataset;
 import gui.Desktop;
 import gui.Utilities;
+import gui.views.DataView;
 import gui.views.View;
 
-public class ChartView  extends View implements ComponentListener {
+public class ChartView  extends View implements ActionListener, ComponentListener, DatasetChangedListener {
 
 	protected XChartPanel cpanel;
+	protected RawDataset rds;
 	
-	public ChartView(Desktop desktop)
+	protected DataView dataView;
+	
+	
+	protected void removeAllSeries(Chart chart)
 	{
-		super(desktop);
+		Map<String, XYSeries> ser = chart.getSeriesMap();
+
+		// copy the keys before starting removal
+		for (String name : new ArrayList<>(ser.keySet())) {
+		    chart.removeSeries(name);
+		}
+		
+		
 	}
 	
-	protected void initChartPanel(XChartPanel cpanel)
+	public static boolean contains(int[] x, int v) {
+	    for (int n : x) {
+	        if (n == v) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+	
+	public ChartView(Desktop desktop, DataView dataView)
+	{
+		super(desktop);
+		this.dataView = dataView;
+	}
+	
+	protected void initChartPanel(JComponent cpanel)
 	{
 	    cpanel.setPreferredSize(new Dimension(200,200));
 
 	     
 	     JPanel panel = new JPanel();
+	     panel.setOpaque(false);
 	     panel.setPreferredSize(new Dimension(400,400));
 	     this.setLayout(new BorderLayout());
 	     this.add(panel, BorderLayout.CENTER);
@@ -105,7 +142,9 @@ public class ChartView  extends View implements ComponentListener {
 
 			JPopupMenu menu = new JPopupMenu();
 		
-			menu.add(new JMenuItem("Placeholder"));
+			JMenuItem menuClose = new JMenuItem("Close");
+			menu.add(menuClose);
+			menuClose.addActionListener(this);
 			
 			menu.show(arg0.getComponent(), arg0.getX(), arg0.getY());
 		}
@@ -134,6 +173,18 @@ public class ChartView  extends View implements ComponentListener {
 	public void componentHidden(ComponentEvent e) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void datasetChanged() {
+		
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		
+		this.getDesktop().removeView(this);
+		//Desktop.getLinkHandler().unlink(getGraph());
 	}
 
 }

@@ -3910,15 +3910,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 		// System.out.println("right mouse:" + Utilities.isRightMouseButton(arg0));
 
-		// otherwise: context !
-		if (Utilities.isRightMouseButton(arg0)) {
 
-			// this.desktop.requestFocus();
-			// this.desktop.mainFrame.requestFocus();
-
-			populateMenu(arg0);
-
-		}
 
 	}
 
@@ -4405,7 +4397,8 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			return;
 
 		// abort right-drags
-		if (Utilities.isRightMouseButton(arg0) && System.currentTimeMillis() - lastMousePressedTime < 100) {
+		if (Utilities.isRightMouseButton(arg0) && 
+				System.currentTimeMillis() - lastMousePressedTime < 100) {
 
 			// we assume that the user accidentally right-dragged instead of
 			// right-clicked, so let's show them a menu if drag length it less
