@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JMenuItem;
@@ -129,18 +130,39 @@ public class LongitudinalChart extends ChartView {
 
 		removeAllSeries(chart);
 		
+		int[] selection = dataView.getSelectedIndices();
+		
+		
+		
 	       for (int i = 0; i < rds.getSampleSize(); i++) {
 	        	
 
 	        	double[] row;
 	        	
-	        	row = rds.getData()[i];
+	        	if (dataView.hasRowsSelected()) {
+	        		row = new double[selection.length];
+	        		for (int j=0; j < selection.length; j++)
+	        			row[j] = rds.getData()[i][selection[j]];
+	        	} else {
+	        		row = rds.getData()[i];
+	        	}
+	        	
+	        	
+	        	
 	        
 	            chart.addSeries("Series " + i, row)
 	                 .setMarker(new None());
 	        }
 
-	       List<String> names = rds.getColumnNamesAsList();
+	       List<String> names;
+	       
+	       if (dataView.hasRowsSelected()) {
+	    	   names = new ArrayList<String>();
+	    	   for (int j=0; j < selection.length; j++)
+	    		   names.add(rds.getColumnName(selection[j]));
+	       } else {
+	    	   names = rds.getColumnNamesAsList();
+	       }
 	       
 	       chart.setCustomXAxisTickLabelsFormatter(x -> names.get((int)Math.round(x-1)));
 	       

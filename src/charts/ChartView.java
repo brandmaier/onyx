@@ -149,9 +149,7 @@ public class ChartView  extends View implements ActionListener, ComponentListene
 
 			JPopupMenu menu = new JPopupMenu();
 		
-			JMenuItem menuClose = new JMenuItem("Close");
-			menu.add(menuClose);
-			menuClose.addActionListener(this);
+			populateContextMenu(menu);
 			
 			menu.show(arg0.getComponent(), arg0.getX(), arg0.getY());
 		}
@@ -193,5 +191,12 @@ public class ChartView  extends View implements ActionListener, ComponentListene
 		this.getDesktop().removeView(this);
 		//Desktop.getLinkHandler().unlink(getGraph());
 	}
+	
+	protected void populateContextMenu(JPopupMenu menu) {
+		JMenuItem menuClose = new JMenuItem("Close");
+		menu.add(menuClose);
+		menuClose.addActionListener(this);
+	}
+
 
 }
