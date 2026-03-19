@@ -12,14 +12,20 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.filechooser.FileFilter;
 
+import org.knowm.xchart.BitmapEncoder;
+import org.knowm.xchart.BitmapEncoder.BitmapFormat;
 import org.knowm.xchart.BoxChart;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
@@ -27,6 +33,7 @@ import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.internal.chartpart.Chart;
 
 import engine.DatasetChangedListener;
+import engine.Preferences;
 import engine.RawDataset;
 import gui.Desktop;
 import gui.Utilities;
@@ -36,10 +43,13 @@ import gui.views.View;
 
 public class ChartView  extends View implements ActionListener, ComponentListener, DatasetChangedListener {
 
+	protected Chart chart;
 	protected XChartPanel cpanel;
 	protected RawDataset rds;
 	
 	protected DataView dataView;
+	private JMenuItem menuClose;
+	private JMenuItem menuSave;
 	
 	
 	protected void removeAllSeries(Chart chart)
@@ -188,12 +198,52 @@ public class ChartView  extends View implements ActionListener, ComponentListene
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		
-		this.getDesktop().removeView(this);
+		if (e.getSource() == menuClose)
+			this.getDesktop().removeView(this);
 		//Desktop.getLinkHandler().unlink(getGraph());
+		
+		else if (e.getSource() == menuSave) {
+			
+	File dir = new File(Preferences.getAsString("DefaultWorkingPath"));
+			
+			
+			final JFileChooser fc = new JFileChooser(dir);
+
+			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			//fc.setFileHidingEnabled(false);
+//			fc.setFileFilter(fileFilter);
+		
+			//fc.addChoosableFileFilter(new FileFilter());
+			fc.setAcceptAllFileFilterUsed(true);
+			
+			
+			fc.setDialogTitle("Export plot");
+			//In response to a button click:
+			int returnVal = fc.showSaveDialog(this );
+
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				String fpath = file.getAbsolutePath();
+				try {
+					BitmapEncoder.saveBitmapWithDPI(chart, fpath,BitmapFormat.PNG, 300);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			
+			}
+		}
 	}
 	
 	protected void populateContextMenu(JPopupMenu menu) {
-		JMenuItem menuClose = new JMenuItem("Close");
+		
+		//menu.addSeparator();
+		menuSave = new JMenuItem("Save as PNG");
+		menuSave.addActionListener(this);
+		menu.add(menuSave);
+		menu.addSeparator();
+		
+		menuClose = new JMenuItem("Close");
 		menu.add(menuClose);
 		menuClose.addActionListener(this);
 	}

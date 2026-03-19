@@ -1,21 +1,10 @@
 package charts;
 
-import java.awt.BorderLayout;
+
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.Shape;
+
 import java.awt.event.ActionEvent;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionAdapter;
-import java.util.Arrays;
-import java.util.Map;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -96,11 +85,13 @@ public class ScatterChart extends ChartView {
 		datasetChanged();
 	      
 	     cpanel = new XChartPanel<>(chart);
-	     
+	     MouseListener[] ml = cpanel.getMouseListeners();
+	     for (int i=0; i < ml.length; i++)
+	    	 cpanel.removeMouseListener(ml[i]);
 
  
 	     chart.getStyler().setLegendVisible(false);
-	
+
 
 	     initChartPanel(cpanel);
 	     

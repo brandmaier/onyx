@@ -75,51 +75,18 @@ public class BoxplotChart extends ChartView {
 		datasetChanged();
 	      
 	     cpanel = new XChartPanel<BoxChart>(chart);
+	     MouseListener[] ml = cpanel.getMouseListeners();
+	     for (int i=0; i < ml.length; i++)
+	    	 cpanel.removeMouseListener(ml[i]);
 	     
 	     chart.setTitle(rds.getName());
 	     
 	     chart.getStyler().setLegendVisible(false);
 	     
-/*	    cpanel.addMouseMotionListener(new MouseMotionAdapter() {
 
-			@Override
-			public void mouseDragged(MouseEvent e) {
-				
-				 LongitudinalChart.this.mouseDragged(e);
-			}
-
-			@Override
-			public void mouseMoved(MouseEvent e) {
-				
-				 LongitudinalChart.this.mouseMoved(e);
-			}
-		
-	     });
-	     
-	    cpanel.addMouseListener(new MouseAdapter() {
-	    	 @Override
-	    	 public void mousePressed(MouseEvent e) {
-	    		 System.out.println("Mouse pressed");
-	    		 LongitudinalChart.this.mousePressed(e);
-	    	        e.consume();
-	    	    }
-	    	 
-	    	 @Override
-	    	 public void mouseReleased(MouseEvent e) {
-	    		 LongitudinalChart.this.mouseReleased(e);
-	    	        e.consume();
-	    	    }
-	    	 
-	    	 @Override
-	    	 public void mouseClicked(MouseEvent e) {
-	    		 LongitudinalChart.this.mouseClicked(e);
-	    	        e.consume();
-	    	    }
-	     });
-	    */
 
 	     initChartPanel(cpanel);
-	    //    new SwingWrapper<>(chart).displayChart();
+
 	}
 	
 
