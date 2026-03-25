@@ -31,6 +31,7 @@ import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.internal.chartpart.Chart;
+import org.knowm.xchart.internal.series.Series;
 
 import engine.DatasetChangedListener;
 import engine.Preferences;
@@ -39,6 +40,7 @@ import gui.Desktop;
 import gui.Utilities;
 import gui.fancy.DropShadowBorder;
 import gui.views.DataView;
+import gui.views.ModelView;
 import gui.views.View;
 
 public class ChartView  extends View implements ActionListener, ComponentListener, DatasetChangedListener {
@@ -48,13 +50,26 @@ public class ChartView  extends View implements ActionListener, ComponentListene
 	protected RawDataset rds;
 	
 	protected DataView dataView;
+	protected ModelView modelView;
 	private JMenuItem menuClose;
 	private JMenuItem menuSave;
 	
 	
-	protected void removeAllSeries(Chart chart)
+	protected void removeAllXYSeries(Chart chart)
 	{
 		Map<String, XYSeries> ser = chart.getSeriesMap();
+
+		// copy the keys before starting removal
+		for (String name : new ArrayList<>(ser.keySet())) {
+		    chart.removeSeries(name);
+		}
+		
+		
+	}
+	
+	protected void removeAllSeries(Chart chart)
+	{
+		Map<String, Series> ser = chart.getSeriesMap();
 
 		// copy the keys before starting removal
 		for (String name : new ArrayList<>(ser.keySet())) {
@@ -81,6 +96,14 @@ public class ChartView  extends View implements ActionListener, ComponentListene
 	{
 		super(desktop);
 		this.dataView = dataView;
+		
+		updateTitle("");
+	}
+	
+	public ChartView(Desktop desktop, ModelView modelView)
+	{
+		super(desktop);
+		this.modelView = modelView;
 		
 		updateTitle("");
 	}
