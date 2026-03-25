@@ -17,7 +17,8 @@ package gui.frames;
 
 
 import java.awt.BorderLayout;
-
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -33,7 +34,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -181,6 +184,8 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 		}
 		
 		this.addFocusListener(this);
+		
+		this.setApplicationIcons();
 
 		// create components
 		desktop = new Desktop(this);
@@ -449,10 +454,28 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 		}
 		
 	}
+	
+	private void setApplicationIcons() {
+		URL imageResource = MainFrame.class.getClassLoader().getResource("images/onyx-taskbar.png");
+		if (imageResource == null) {
+			return;
+		}
+		Image icon = Toolkit.getDefaultToolkit().getImage(imageResource);
+		List<Image> iconSizes = Arrays.asList(
+				icon.getScaledInstance(16, 16, Image.SCALE_SMOOTH),
+				icon.getScaledInstance(24, 24, Image.SCALE_SMOOTH),
+				icon.getScaledInstance(32, 32, Image.SCALE_SMOOTH),
+				icon.getScaledInstance(48, 48, Image.SCALE_SMOOTH),
+				icon.getScaledInstance(64, 64, Image.SCALE_SMOOTH),
+				icon.getScaledInstance(128, 128, Image.SCALE_SMOOTH));
+		this.setIconImages(iconSizes);
+	}
+	
 
 	public void addToRecentFiles(File file) {
 		addToRecentFiles(file, true);
 	}
+	
 
 	public void addToRecentFiles(File file, boolean update) {
 		if (file == null | recentFiles == null)
