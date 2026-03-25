@@ -253,39 +253,66 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 	int guide_horizontal_active = -1;
 
 	private MessageObject messageNonPositiveDefiniteDataSet = new MessageObject(
-			"Data covariance matrix is not positive definite.", "warning");
+			I18n.tr("modelview.message.nonPositiveDefiniteDataSet", "Data covariance matrix is not positive definite."),
+			"warning");
 	private MessageObject messageSwitchedToImplicitMeanTreatment = new MessageObject(
-			"One or more variables with non-zero means exists; means are added implicitly. You may switch to an explicit mean structure.",
+			I18n.tr("modelview.message.switchedToImplicitMeanTreatment",
+					"One or more variables with non-zero means exists; means are added implicitly. You may switch to an explicit mean structure."),
 			"information");
 	private MessageObject messageSwitchedToExplicitMeanTreatment = new MessageObject(
-			"Means are treated explicitly now.", "information");
-	private MessageObject messageDatasetHasNoParticipants = new MessageObject("Data set has no observations.", "error");
+			I18n.tr("modelview.message.switchedToExplicitMeanTreatment", "Means are treated explicitly now."),
+			"information");
+	private MessageObject messageDatasetHasNoParticipants = new MessageObject(
+			I18n.tr("modelview.message.datasetHasNoParticipants", "Data set has no observations."), "error");
 	private MessageObject messageMultipleDatasetsWithoutID = new MessageObject(
-			"Multiple data sets without identifier column are used, those will be treated as independent.", "warning");
+			I18n.tr("modelview.message.multipleDatasetsWithoutID",
+					"Multiple data sets without identifier column are used, those will be treated as independent."),
+			"warning");
 	private MessageObject messageAddVariables = new MessageObject(
-			"Add observed variables by dragging them from a dataset onto the model!", "information");
+			I18n.tr("modelview.message.addVariables",
+					"Add observed variables by dragging them from a dataset onto the model!"),
+			"information");
 	private MessageObject messageNoGroupsOrDefinitionOnCovariance = new MessageObject(
-			"Definition variables and groups are not permitted on covariance data sets.", "information");
+			I18n.tr("modelview.message.noGroupsOrDefinitionOnCovariance",
+					"Definition variables and groups are not permitted on covariance data sets."),
+			"information");
 	private MessageObject messageGroupingHasMissing = new MessageObject(
-			"Group variables have missingness, for these cases, grouped variables will be ignored.", "warning");
+			I18n.tr("modelview.message.groupingHasMissing",
+					"Group variables have missingness, for these cases, grouped variables will be ignored."),
+			"warning");
 	private MessageObject messageDefinitionHasMissing = new MessageObject(
-			"Definition variables are not available for all observations.", "information");
-	private MessageObject messageError = new MessageObject("An unspecified error has occured!", "error");
-	private MessageObject messageObjectRunning = new MessageObject("Model parameters are being estimated right now!",
-			"gears");
-	private MessageObject messageObjectNA = new MessageObject("One or more columns have only missing data!", "error");
-	private MessageObject messageOverspecified = new MessageObject("Model is overspecified.", "warning");
-	private MessageObject messageSingular = new MessageObject("The model-implied covariance matrix is singular!",
+			I18n.tr("modelview.message.definitionHasMissing",
+					"Definition variables are not available for all observations."),
+			"information");
+	private MessageObject messageError = new MessageObject(
+			I18n.tr("modelview.message.unspecifiedError", "An unspecified error has occured!"), "error");
+	private MessageObject messageObjectRunning = new MessageObject(
+			I18n.tr("modelview.message.modelIsEstimating", "Model parameters are being estimated right now!"), "gears");
+	private MessageObject messageObjectNA = new MessageObject(
+			I18n.tr("modelview.message.columnsOnlyMissingData", "One or more columns have only missing data!"), "error");
+	private MessageObject messageOverspecified = new MessageObject(
+			I18n.tr("modelview.message.modelOverspecified", "Model is overspecified."), "warning");
+	private MessageObject messageSingular = new MessageObject(
+			I18n.tr("modelview.message.modelImpliedCovarianceSingular",
+					"The model-implied covariance matrix is singular!"),
 			"warning");
 	private MessageObject messageAcceleratingCycle = new MessageObject(
-			"The single-headed edges form a cylce of product greater than one.", "warning");
+			I18n.tr("modelview.message.acceleratingCycle",
+					"The single-headed edges form a cylce of product greater than one."),
+			"warning");
 	private MessageObject msgConnectGroupVariables = new MessageObject(
-			"Connect all group indicator variables to obtain parameter estimates!", ImageLoaderWorker.INFORMATION,
+			I18n.tr("modelview.message.connectGroupVariables",
+					"Connect all group indicator variables to obtain parameter estimates!"),
+			ImageLoaderWorker.INFORMATION,
 			this);
 	private MessageObject msgConnectDefinitionVariables = new MessageObject(
-			"Connect all definition variables to obtain parameter estimates!", ImageLoaderWorker.INFORMATION, this);
+			I18n.tr("modelview.message.connectDefinitionVariables",
+					"Connect all definition variables to obtain parameter estimates!"),
+			ImageLoaderWorker.INFORMATION, this);
 	private MessageObject msgConnectObservedVariables = new MessageObject(
-			"Connect all observed variables to obtain parameter estimates!", ImageLoaderWorker.INFORMATION, this);
+			I18n.tr("modelview.message.connectObservedVariables",
+					"Connect all observed variables to obtain parameter estimates!"),
+			ImageLoaderWorker.INFORMATION, this);
 	private MessageObject messageObjectAllMissing = new MessageObject(
 			"There is at least one data row without any observed data! This may bias your fit statistics!",
 			ImageLoaderWorker.WARNING, this);
@@ -1330,7 +1357,8 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 		if (e.getSource() == menuNodeFontColor) {
 			setUnsavedChanges(true);
-			Color newColor = JColorChooser.showDialog(this, "Choose Font Color", menuContextNode.getFontColor());
+			Color newColor = JColorChooser.showDialog(this,
+					I18n.tr("modelview.dialog.chooseFontColor", "Choose Font Color"), menuContextNode.getFontColor());
 
 			MultiStep mstep = new MultiStep();
 
@@ -1347,7 +1375,8 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		if (e.getSource() == menuEdgeColor) {
 
 			setUnsavedChanges(true);
-			Color newColor = JColorChooser.showDialog(this, "Choose Path Color", menuContextEdge.getLineColor());
+			Color newColor = JColorChooser.showDialog(this,
+					I18n.tr("modelview.dialog.choosePathColor", "Choose Path Color"), menuContextEdge.getLineColor());
 
 			MultiStep mstep = new MultiStep();
 
@@ -1363,7 +1392,9 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 		if (e.getSource() == menuBackgroundColor) {
 			setUnsavedChanges(true);
-			Color newColor = JColorChooser.showDialog(this, "Choose Background Color", getGraph().backgroundColor);
+			Color newColor = JColorChooser.showDialog(this,
+					I18n.tr("modelview.dialog.chooseBackgroundColor", "Choose Background Color"),
+					getGraph().backgroundColor);
 
 			this.getGraph().backgroundColor = newColor;
 			this.redraw();
@@ -1729,7 +1760,8 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		MultiStep mstep = new MultiStep();
 
 		setUnsavedChanges(true);
-		Color newColor = JColorChooser.showDialog(this, "Choose Fill Color", menuContextNode.getFillColor());
+		Color newColor = JColorChooser.showDialog(this,
+				I18n.tr("modelview.dialog.chooseFillColor", "Choose Fill Color"), menuContextNode.getFillColor());
 
 		for (Node node : getSelectedNodes()) {
 
@@ -1751,7 +1783,8 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		MultiStep mstep = new MultiStep();
 
 		setUnsavedChanges(true);
-		Color newColor = JColorChooser.showDialog(this, "Choose Line Color", menuContextNode.getLineColor());
+		Color newColor = JColorChooser.showDialog(this,
+				I18n.tr("modelview.dialog.chooseLineColor", "Choose Line Color"), menuContextNode.getLineColor());
 		for (Node node : getSelectedNodes()) {
 			// if (node.isSelected())
 			mstep.add(new LineColorChangeStep(this, node));
@@ -1781,7 +1814,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		});
 		fc.setAcceptAllFileFilterUsed(true);
 
-		fc.setDialogTitle("Load Parameters");
+		fc.setDialogTitle(I18n.tr("modelview.dialog.loadParameters.title", "Load Parameters"));
 		int returnVal = fc.showSaveDialog(this);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -1815,7 +1848,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		});
 		fc.setAcceptAllFileFilterUsed(true);
 
-		fc.setDialogTitle("Load Parameters");
+		fc.setDialogTitle(I18n.tr("modelview.dialog.loadParameters.title", "Load Parameters"));
 		int returnVal = fc.showSaveDialog(this);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
