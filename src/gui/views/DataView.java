@@ -65,6 +65,7 @@ import engine.RawDataset;
 import engine.SimulatedDataset;
 import engine.Statik;
 import gui.Desktop;
+import gui.i18n.I18n;
 import gui.LabeledInputBox;
 
 import gui.frames.MainFrame;
@@ -195,7 +196,7 @@ public class DataView extends View implements KeyListener, ActionListener,
 		listModel.removeAllElements();
 
 		if (dataset == null) {
-			System.out.println("EMPTY LIST!");
+			System.out.println(I18n.tr("dataview.emptyList", "EMPTY LIST!"));
 			return;
 		}
 
@@ -211,19 +212,11 @@ public class DataView extends View implements KeyListener, ActionListener,
 
 	private void updateTooltip() {
 		if (this.dataset instanceof RawDataset) {
-			this.setToolTipText("<html><h2>" + dataset.getName()
-					+ "</h2>This dataset contains "
-					+ ((RawDataset) dataset).getNumRows()
-					+ " observations and "
-					+ ((RawDataset) dataset).getNumColumns() + " variables."
-					+ "</html>");
+			this.setToolTipText(I18n.trf("dataview.tooltip.raw", "<html><h2>{0}</h2>This dataset contains {1} observations and {2} variables.</html>",
+					dataset.getName(), ((RawDataset) dataset).getNumRows(), ((RawDataset) dataset).getNumColumns()));
 		} else {
-			this.setToolTipText("<html><h2>" + dataset.getName()
-					+ "</h2>This dataset contains "
-					+ ((CovarianceDataset) dataset).getSampleSize()
-					+ " observations " + "and "
-					+ ((CovarianceDataset) dataset).getNumColumns()
-					+ " variables");
+			this.setToolTipText(I18n.trf("dataview.tooltip.cov", "<html><h2>{0}</h2>This dataset contains {1} observations and {2} variables",
+					dataset.getName(), ((CovarianceDataset) dataset).getSampleSize(), ((CovarianceDataset) dataset).getNumColumns()));
 		}
 
 	}
@@ -451,11 +444,11 @@ public class DataView extends View implements KeyListener, ActionListener,
 			if (arg0.getSource() == list) {
 
 				if (menuSetIdColumn == null) {
-					menuSetIdColumn = new JMenuItem("Set ID Column");
+					menuSetIdColumn = new JMenuItem(I18n.tr("dataview.menu.setIdColumn", "Set ID Column"));
 					menuSetIdColumn.addActionListener(this);
 				}
 				if (menuRemoveIdColumn == null) {
-					menuRemoveIdColumn = new JMenuItem("Remove ID Column");
+					menuRemoveIdColumn = new JMenuItem(I18n.tr("dataview.menu.removeIdColumn", "Remove ID Column"));
 					menuRemoveIdColumn.addActionListener(this);
 				}
 
@@ -468,42 +461,42 @@ public class DataView extends View implements KeyListener, ActionListener,
 
 			} else {
 
-				dataNameInput = new LabeledInputBox("Data Set Name");
+				dataNameInput = new LabeledInputBox(I18n.tr("dataview.input.datasetName", "Data Set Name"));
 				menu.add(dataNameInput);
 				dataNameInput.setText(this.getName());
 				dataNameInput.getDocument().addDocumentListener(this);
 
 				if (menuCreateModel == null) {
-					menuCreateModel = new JMenuItem("Create Model From Data Set");
+					menuCreateModel = new JMenuItem(I18n.tr("dataview.menu.createModel", "Create Model From Data Set"));
 					menuCreateModel.addActionListener(this);
 				}
 
 				if (menuSaveData == null) {
-					menuSaveData = new JMenuItem("Save Data Set");
+					menuSaveData = new JMenuItem(I18n.tr("dataview.menu.saveData", "Save Data Set"));
 					menuSaveData.addActionListener(this);
 				}
 
 				if (menuDeleteView == null) {
-					menuDeleteView = new JMenuItem("Close Data Set");
+					menuDeleteView = new JMenuItem(I18n.tr("dataview.menu.closeData", "Close Data Set"));
 					menuDeleteView.addActionListener(this);
 				}
 
 				if (menuIconify == null) {
-					menuIconify = new JMenuItem("Iconify");
+					menuIconify = new JMenuItem(I18n.tr("common.menu.iconify", "Iconify"));
 					menuIconify.addActionListener(this);
 				}
 
 				if (menuCopyToClipboard == null) {
-					menuCopyToClipboard = new JMenuItem("Copy To Clipboard");
+					menuCopyToClipboard = new JMenuItem(I18n.tr("dataview.menu.copyToClipboard", "Copy To Clipboard"));
 					menuCopyToClipboard.addActionListener(this);
 				}
 
 				if (menuSendData == null) {
-					menuSendData = new JMenu("Send Data To Model");
+					menuSendData = new JMenu(I18n.tr("dataview.menu.sendData", "Send Data To Model"));
 				}
 				if (menuSendSelectedData == null) {
 					menuSendSelectedData = new JMenu(
-							"Send Selected Data To Model");
+							I18n.tr("dataview.menu.sendSelectedData", "Send Selected Data To Model"));
 				}
 
 				menu.add(menuSendData);
@@ -528,19 +521,19 @@ public class DataView extends View implements KeyListener, ActionListener,
 			
 				
 				if (menuBootstrap == null) {
-					menuBootstrap = new JMenuItem("Bootstrap Data Set");
+					menuBootstrap = new JMenuItem(I18n.tr("dataview.menu.bootstrap", "Bootstrap Data Set"));
 					menuBootstrap.addActionListener(this);
 				}
 
 				if (menuRebootstrap == null) {
 					menuRebootstrap = new JMenuItem(
-							"Rebootstrap Data Set (in-place)");
+							I18n.tr("dataview.menu.rebootstrap", "Rebootstrap Data Set (in-place)"));
 					menuRebootstrap.addActionListener(this);
 				}
 
 				if (menuResimulate == null) {
 					menuResimulate = new JMenuItem(
-							"Resimulate Data Set (in-place)");
+							I18n.tr("dataview.menu.resimulate", "Resimulate Data Set (in-place)"));
 					menuResimulate.addActionListener(this);
 				}
 
@@ -554,11 +547,11 @@ public class DataView extends View implements KeyListener, ActionListener,
 				
 				if (MainFrame.DEVMODE) {
 					
-					menuPlotLong = new JMenuItem("Plot longitudinal data");
-					menuPlotBox = new JMenuItem("Plot box plot");
-					menuPlotScatter = new JMenuItem("Plot scatter plot");
+					menuPlotLong = new JMenuItem(I18n.tr("dataview.menu.plot.longitudinal", "Plot longitudinal data"));
+					menuPlotBox = new JMenuItem(I18n.tr("dataview.menu.plot.box", "Plot box plot"));
+					menuPlotScatter = new JMenuItem(I18n.tr("dataview.menu.plot.scatter", "Plot scatter plot"));
 					
-					menuPlot = new JMenu("Plot data");
+					menuPlot = new JMenu(I18n.tr("dataview.menu.plot", "Plot data"));
 					menuPlotBox.addActionListener(this);
 					menuPlotLong.addActionListener(this);
 					menuPlotScatter.addActionListener(this);
@@ -662,7 +655,7 @@ public class DataView extends View implements KeyListener, ActionListener,
 
 			if (!(getDataset() instanceof RawDataset)) {
 				JOptionPane.showMessageDialog(this,
-						"Bootstrap is not possible from Covariance Dataset!");
+						I18n.tr("dataview.error.bootstrapCovariance", "Bootstrap is not possible from Covariance Dataset!"));
 				return;
 			}
 
@@ -690,7 +683,7 @@ public class DataView extends View implements KeyListener, ActionListener,
 				}
 			} else {
 				JOptionPane.showMessageDialog(this,
-						"Rebootstrapping is not possible!");
+						I18n.tr("dataview.error.rebootstrapNotPossible", "Rebootstrapping is not possible!"));
 			}
 		}
 
@@ -707,7 +700,7 @@ public class DataView extends View implements KeyListener, ActionListener,
 				}
 			} else {
 				JOptionPane.showMessageDialog(this,
-						"Rebootstrapping is not possible!");
+						I18n.tr("dataview.error.rebootstrapNotPossible", "Rebootstrapping is not possible!"));
 			}
 		}
 
@@ -906,7 +899,7 @@ public class DataView extends View implements KeyListener, ActionListener,
 
 	public String getName() {
 		if (dataset == null)
-			return "(unknown)";
+			return I18n.tr("common.unknown", "(unknown)");
 		return dataset.getName();
 	}
 
@@ -949,8 +942,8 @@ public class DataView extends View implements KeyListener, ActionListener,
 					int result = JOptionPane
 							.showConfirmDialog(
 									this,
-									"Warning: File exists!",
-									"A file with the selected name already exists. Do you want to overwrite the existing file?",
+									I18n.tr("dataview.dialog.fileExists.message", "A file with the selected name already exists. Do you want to overwrite the existing file?"),
+									I18n.tr("dataview.dialog.fileExists.title", "Warning: File exists!"),
 									
 									/*"File exists!",
 									"The selected file exists already. Do you want to overwrite the existing file?",*/
@@ -976,7 +969,7 @@ public class DataView extends View implements KeyListener, ActionListener,
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(this, "An error has occured!");
+			JOptionPane.showMessageDialog(this, I18n.tr("common.errorOccurred", "An error has occured!"));
 		}
 	}
 
