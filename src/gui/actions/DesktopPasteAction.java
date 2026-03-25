@@ -26,6 +26,8 @@ import java.io.File;
 
 import javax.swing.AbstractAction;
 
+import gui.i18n.I18n;
+
 
 public class DesktopPasteAction extends AbstractAction {
 
@@ -38,8 +40,8 @@ public class DesktopPasteAction extends AbstractAction {
 	{
 		this.desktop = desktop;
 	
-		putValue(NAME, "Paste");
-        putValue(SHORT_DESCRIPTION, "Pastes Clipboard on the desktop");
+		putValue(NAME, I18n.tr("action.desktopPaste.name", "Paste"));
+        putValue(SHORT_DESCRIPTION, I18n.tr("action.desktopPaste.description", "Pastes clipboard on the desktop"));
         this.x = x;
         this.y = y;
 	}

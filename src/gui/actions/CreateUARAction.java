@@ -24,6 +24,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import gui.i18n.I18n;
+
 
 public class CreateUARAction extends AbstractAction {
 
@@ -34,8 +36,8 @@ public class CreateUARAction extends AbstractAction {
 	{
 		this.desktop = desktop;
 	
-		putValue(NAME, "Create new univariate AR");
-		putValue(SHORT_DESCRIPTION, "Create an AR model on the desktop");
+		putValue(NAME, I18n.tr("action.createUAR.name", "Create new univariate AR"));
+		putValue(SHORT_DESCRIPTION, I18n.tr("action.createUAR.description", "Create an AR model on the desktop"));
 	}
 	
 	public CreateUARAction(Desktop desktop, int x, int y)

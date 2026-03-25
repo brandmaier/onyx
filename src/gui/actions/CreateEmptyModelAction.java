@@ -23,6 +23,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import gui.i18n.I18n;
+
 
 public class CreateEmptyModelAction extends AbstractAction {
 
@@ -33,8 +35,8 @@ public class CreateEmptyModelAction extends AbstractAction {
 	{
 		this.desktop = desktop;
 	
-		putValue(NAME, "Create Empty Model");
-		putValue(SHORT_DESCRIPTION, "Create an empty model on the desktop");
+		putValue(NAME, I18n.tr("action.createEmptyModel.name", "Create Empty Model"));
+		putValue(SHORT_DESCRIPTION, I18n.tr("action.createEmptyModel.description", "Create an empty model on the desktop"));
 	}
 	
 	public CreateEmptyModelAction(Desktop desktop, int x, int y)

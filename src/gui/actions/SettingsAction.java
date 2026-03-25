@@ -24,6 +24,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 
+import gui.i18n.I18n;
+
 
 
 
@@ -35,8 +37,8 @@ import javax.swing.JFrame;
 		public SettingsAction(Desktop desktop)
 		{
 			this.desktop = desktop;
-			putValue(NAME, "Settings");
-			putValue(SHORT_DESCRIPTION, "Settings of the application");
+			putValue(NAME, I18n.tr("action.settings.name", "Settings"));
+			putValue(SHORT_DESCRIPTION, I18n.tr("action.settings.description", "Settings of the application"));
 		}
 		
 		

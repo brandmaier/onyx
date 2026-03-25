@@ -21,6 +21,7 @@ import javax.swing.AbstractAction;
 
 import gui.Desktop;
 import gui.dialogs.MeasurementInvarianceWizard;
+import gui.i18n.I18n;
 
 public class CreateMeasurementInvarianceAction extends AbstractAction {
 
@@ -31,7 +32,7 @@ public class CreateMeasurementInvarianceAction extends AbstractAction {
 	{
 		this.desktop = desktop;
 	
-		putValue(NAME, "Create a Measurement Invariance Model");
+		putValue(NAME, I18n.tr("action.createMeasurementInvariance.name", "Create a Measurement Invariance Model"));
 		//putValue(SHORT_DESCRIPTION, "Create an LGCM on the desktop");
 	}
 	

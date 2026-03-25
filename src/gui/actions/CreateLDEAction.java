@@ -24,6 +24,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import gui.i18n.I18n;
+
 
 public class CreateLDEAction extends AbstractAction {
 
@@ -34,8 +36,8 @@ public class CreateLDEAction extends AbstractAction {
 	{
 		this.desktop = desktop;
 	
-		putValue(NAME, "Create new LDE");
-		putValue(SHORT_DESCRIPTION, "Create an LDE on the desktop");
+		putValue(NAME, I18n.tr("action.createLDE.name", "Create new LDE"));
+		putValue(SHORT_DESCRIPTION, I18n.tr("action.createLDE.description", "Create an LDE on the desktop"));
 	}
 	
 	public CreateLDEAction(Desktop desktop, int x, int y)
