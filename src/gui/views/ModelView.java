@@ -5044,7 +5044,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 				menuAux = new JMenu("Auxiliary Variables");
 
 			if (menuRemoveAllAux == null) {
-				menuRemoveAllAux = new JMenuItem("Remove All Auxiliary Variables");
+				menuRemoveAllAux = new JMenuItem(I18n.tr("modelview.menu.removeAllAuxiliaryVariables", "Remove All Auxiliary Variables"));
 				menuAux.add(menuRemoveAllAux);
 				menuRemoveAllAux.addActionListener(this);
 				;
@@ -5073,9 +5073,9 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 				menuCreatePath = new JMenu("Add Path");
 				menuCreatePath.addActionListener(this);
 
-				menuCreatePathVariance = new JMenuItem("Add Variance");
-				menuCreatePathCovariance = new JMenuItem("Add Covariance");
-				menuCreatePathRegression = new JMenuItem("Add Regression");
+				menuCreatePathVariance = new JMenuItem(I18n.tr("modelview.menu.addVariance", "Add Variance"));
+				menuCreatePathCovariance = new JMenuItem(I18n.tr("modelview.menu.addCovariance", "Add Covariance"));
+				menuCreatePathRegression = new JMenuItem(I18n.tr("modelview.menu.addRegression", "Add Regression"));
 				menuCreatePathVariance.addActionListener(this);
 				menuCreatePathCovariance.addActionListener(this);
 				menuCreatePathRegression.addActionListener(this);
@@ -5085,14 +5085,14 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			}
 
 			if (menuSwapLatent == null) {
-				menuSwapLatent = new JMenuItem("Swap Latent / Manifest");
+				menuSwapLatent = new JMenuItem(I18n.tr("modelview.menu.swapLatentManifest", "Swap Latent / Manifest"));
 				menuSwapLatent.addActionListener(this);
 			}
 
 			if (menuContextNode.isLatent()) {
-				menuSwapLatent.setText("Change to Observed");
+				menuSwapLatent.setText(I18n.tr("modelview.menu.changeToObserved", "Change to Observed"));
 			} else {
-				menuSwapLatent.setText("Change to Latent");
+				menuSwapLatent.setText(I18n.tr("modelview.menu.changeToLatent", "Change to Latent"));
 			}
 
 			menu.add(menuCreatePath);
@@ -5103,7 +5103,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 					menuSwapGrouping = new JMenuItem("");
 					menuSwapGrouping.addActionListener(this);
 				}
-				menuSwapGrouping.setText((menuContextNode.isGrouping() ? "Remove Grouping" : "Add Grouping"));
+				menuSwapGrouping.setText((menuContextNode.isGrouping() ? I18n.tr("modelview.menu.removeGrouping", "Remove Grouping") : I18n.tr("modelview.menu.addGrouping", "Add Grouping")));
 				menu.add(menuSwapGrouping);
 
 				if (menuSwapNormalized == null) {
@@ -5111,12 +5111,12 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 					menuSwapNormalized.addActionListener(this);
 				}
 				menuSwapNormalized
-						.setText((menuContextNode.isNormalized() ? "Remove z-Transform" : "Apply z-Transform"));
+						.setText((menuContextNode.isNormalized() ? I18n.tr("modelview.menu.removeZTransform", "Remove z-Transform") : I18n.tr("modelview.menu.applyZTransform", "Apply z-Transform")));
 				menu.add(menuSwapNormalized);
 			}
 
 			if (menuUnlinkGrouping == null && menuContextNode.isGrouping()) {
-				menuUnlinkGrouping = new JMenuItem("Unlink Grouping");
+				menuUnlinkGrouping = new JMenuItem(I18n.tr("modelview.menu.unlinkGrouping", "Unlink Grouping"));
 				menuUnlinkGrouping.addActionListener(this);
 			}
 			if (menuContextNode.isGrouping())
@@ -5124,40 +5124,40 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 			if (!menuContextNode.isLatent()) {
 				if (menuUnlinkNode == null) {
-					menuUnlinkNode = new JMenuItem("Unlink Variable");
+					menuUnlinkNode = new JMenuItem(I18n.tr("modelview.menu.unlinkVariable", "Unlink Variable"));
 					menuUnlinkNode.addActionListener(this);
 				}
 				menu.add(menuUnlinkNode);
 			}
 
 			// if (menuDeleteNode == null) {
-			// menuDeleteNode = new JMenuItem("Delete Variable");
+			// menuDeleteNode = new JMenuItem(I18n.tr("modelview.menu.deleteVariable", "Delete Variable"));
 			// menuDeleteNode.addActionListener(this);
 			// }
 			// menu.add(menuDeleteNode);
 
 			if (menuNodeColor == null) {
-				menuNodeColor = new JMenuItem("Change Line Color");
+				menuNodeColor = new JMenuItem(I18n.tr("modelview.menu.changeLineColor", "Change Line Color"));
 				menuNodeColor.addActionListener(this);
 			}
 
 			if (menuNodeFillColor == null) {
-				menuNodeFillColor = new JMenuItem("Change Fill Color");
+				menuNodeFillColor = new JMenuItem(I18n.tr("modelview.menu.changeFillColor", "Change Fill Color"));
 				menuNodeFillColor.addActionListener(this);
 			}
 
 			if (menuNodeFontColor == null) {
-				menuNodeFontColor = new JMenuItem("Change Font Color");
+				menuNodeFontColor = new JMenuItem(I18n.tr("modelview.menu.changeFontColor", "Change Font Color"));
 				menuNodeFontColor.addActionListener(this);
 			}
 
 			if (menuNodeFillStyle == null) {
 				menuNodeFillStyle = new JMenu("Change Fill Style");
-				menuNodeFillStyleGradient = new JMenuItem("Gradient");
-				menuNodeFillStyleFill = new JMenuItem("Plain");
-				menuNodeFillStyleR2 = new JMenuItem("Boker's R2");
-				menuNodeFillStyleHand = new JMenuItem("Hand");
-				menuNodeFillStyleNone = new JMenuItem("None");
+				menuNodeFillStyleGradient = new JMenuItem(I18n.tr("modelview.menu.gradient", "Gradient"));
+				menuNodeFillStyleFill = new JMenuItem(I18n.tr("modelview.menu.plain", "Plain"));
+				menuNodeFillStyleR2 = new JMenuItem(I18n.tr("modelview.menu.bokersR2", "Boker's R2"));
+				menuNodeFillStyleHand = new JMenuItem(I18n.tr("modelview.menu.hand", "Hand"));
+				menuNodeFillStyleNone = new JMenuItem(I18n.tr("modelview.menu.none", "None"));
 				menuNodeFillStyle.add(menuNodeFillStyleGradient);
 				menuNodeFillStyle.add(menuNodeFillStyleFill);
 				menuNodeFillStyle.add(menuNodeFillStyleR2);
@@ -5171,7 +5171,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			}
 
 			if (menuAddImage == null) {
-				menuAddImage = new JMenuItem("Add Image");
+				menuAddImage = new JMenuItem(I18n.tr("modelview.menu.addImage", "Add Image"));
 				menuAddImage.addActionListener(this);
 			}
 
@@ -5200,7 +5200,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			// menuCustomize.add(menuNodeColor);
 
 			if (menuDeleteNode == null) {
-				menuDeleteNode = new JMenuItem("Delete Variable");
+				menuDeleteNode = new JMenuItem(I18n.tr("modelview.menu.deleteVariable", "Delete Variable"));
 				menuDeleteNode.addActionListener(this);
 			}
 
@@ -5258,14 +5258,14 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 				labelsizeInput.setText(String.valueOf(edgeUnderMouse.getLabel().getFontSize()));
 				labelsizeInput.getDocument().addDocumentListener(this);
 
-				menuEdgeLabelColor = new JMenuItem("Change Font Color");
+				menuEdgeLabelColor = new JMenuItem(I18n.tr("modelview.menu.changeFontColor", "Change Font Color"));
 				menuEdgeLabelColor.addActionListener(this);
 
 				if (arrow == null) {
 					arrow = new JMenu("Arrowhead");
-					arrow1 = new JMenuItem("V-Shaped");
-					arrow2 = new JMenuItem("Filled");
-					arrow3 = new JMenuItem("Pointy");
+					arrow1 = new JMenuItem(I18n.tr("modelview.menu.vShaped", "V-Shaped"));
+					arrow2 = new JMenuItem(I18n.tr("modelview.menu.filled", "Filled"));
+					arrow3 = new JMenuItem(I18n.tr("modelview.menu.pointy", "Pointy"));
 					arrow.add(arrow1);
 					arrow.add(arrow2);
 					arrow.add(arrow3);
@@ -5275,13 +5275,13 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 				}
 
 				if (menuEdgeColor == null) {
-					menuEdgeColor = new JMenuItem("Change Path Color");
+					menuEdgeColor = new JMenuItem(I18n.tr("modelview.menu.changePathColor", "Change Path Color"));
 					menuEdgeColor.addActionListener(this);
 
 				}
 
 				if (menuDashStyle == null) {
-					menuDashStyle = new JMenuItem("Change Dash Style");
+					menuDashStyle = new JMenuItem(I18n.tr("modelview.menu.changeDashStyle", "Change Dash Style"));
 					menuDashStyle.addActionListener(this);
 				}
 
@@ -5295,7 +5295,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 				customizeEdge.addSeparator();
 
 				if (menuDeleteEdge == null) {
-					menuDeleteEdge = new JMenuItem("Delete Path");
+					menuDeleteEdge = new JMenuItem(I18n.tr("modelview.menu.deletePath", "Delete Path"));
 					menuDeleteEdge.addActionListener(this);
 				}
 				// menu.add(menuDeleteEdge);
@@ -5309,7 +5309,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 					menuToggleAutomaticNaming.setSelected(edgeUnderMouse.isAutomaticNaming());
 
 				if (menuToggleEdgeHeads == null) {
-					menuToggleEdgeHeads = new JMenuItem("Toggle Path Heads");
+					menuToggleEdgeHeads = new JMenuItem(I18n.tr("modelview.menu.togglePathHeads", "Toggle Path Heads"));
 					menuToggleEdgeHeads.addActionListener(this);
 				}
 
@@ -5324,9 +5324,9 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 				String fixedLabel = "";
 				if (edgeUnderMouse.isFixed()) {
-					fixedLabel = "Free Parameter";
+					fixedLabel = I18n.tr("modelview.menu.freeParameter", "Free Parameter");
 				} else {
-					fixedLabel = "Fix Parameter";
+					fixedLabel = I18n.tr("modelview.menu.fixParameter", "Fix Parameter");
 				}
 
 				menuToggleFixed = new JMenuItem(fixedLabel);
@@ -5339,7 +5339,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 					menu.add(menuToggleEdgeHeads);
 
 				if (menuMakeDefinition == null) {
-					menuMakeDefinition = new JMenuItem("Add Definition Variable");
+					menuMakeDefinition = new JMenuItem(I18n.tr("modelview.menu.addDefinitionVariable", "Add Definition Variable"));
 					menuMakeDefinition.addActionListener(this);
 				}
 
@@ -5354,7 +5354,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 				menu.add(customizeEdge);
 
 				if (menuDeleteEdge == null) {
-					menuDeleteEdge = new JMenuItem("Delete Path");
+					menuDeleteEdge = new JMenuItem(I18n.tr("modelview.menu.deletePath", "Delete Path"));
 					menuDeleteEdge.addActionListener(this);
 				}
 
@@ -5446,7 +5446,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		menuStrategy.add(priorityMenu);
 
 		if (menuDeleteModel == null) {
-			menuDeleteModel = new JMenuItem("Close Model");
+			menuDeleteModel = new JMenuItem(I18n.tr("modelview.menu.closeModel", "Close Model"));
 			menuDeleteModel.addActionListener(this);
 		}
 
@@ -5465,12 +5465,12 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		menuToggleLockToGrid.setSelected(lockToGrid);
 
 		if (menuResetToDefaults == null) {
-			menuResetToDefaults = new JMenuItem("Reset All Elements To Default");
+			menuResetToDefaults = new JMenuItem(I18n.tr("modelview.menu.resetAllElementsToDefault", "Reset All Elements To Default"));
 			menuResetToDefaults.addActionListener(this);
 		}
 
 		if (menuAutoLayout == null) {
-			menuAutoLayout = new JMenuItem("Apply Auto-Layout");
+			menuAutoLayout = new JMenuItem(I18n.tr("modelview.menu.applyAutoLayout", "Apply Auto-Layout"));
 			menuAutoLayout.addActionListener(this);
 		}
 
@@ -5479,9 +5479,9 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			menuShowAux.addActionListener(this);
 		}
 		if (graph.getAuxiliaryStack().isHidden()) {
-			menuShowAux.setText("Show Auxiliary Variable Stack");
+			menuShowAux.setText(I18n.tr("modelview.menu.showAuxiliaryVariableStack", "Show Auxiliary Variable Stack"));
 		} else {
-			menuShowAux.setText("Hide Auxiliary Variable Stack");
+			menuShowAux.setText(I18n.tr("modelview.menu.hideAuxiliaryVariableStack", "Hide Auxiliary Variable Stack"));
 		}
 
 		if (menuSaveModel == null) {
@@ -5490,24 +5490,24 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		}
 
 		if (menuSaveAsModel == null) {
-			menuSaveAsModel = new JMenuItem("Save Model As");
+			menuSaveAsModel = new JMenuItem(I18n.tr("modelview.menu.saveModelAs", "Save Model As"));
 			menuSaveAsModel.addActionListener(this);
 		}
 
 		if (menuSaveModelAndData == null) {
-			menuSaveModelAndData = new JMenuItem("Save Model & Data");
+			menuSaveModelAndData = new JMenuItem(I18n.tr("modelview.menu.saveModelAndData", "Save Model & Data"));
 			menuSaveModelAndData.addActionListener(this);
 		}
 
 		if (menuLoadStartingValues == null) {
-			menuLoadStartingValues = new JMenuItem("Load Starting Values");
+			menuLoadStartingValues = new JMenuItem(I18n.tr("modelview.menu.loadStartingValues", "Load Starting Values"));
 			menuLoadStartingValues.addActionListener(this);
 		}
 
 		if (menuDPClustering == null) {
 			menuDPClustering = new JMenu("DP Clustering");
 			menuDPClustering.addActionListener(this);
-			menuDPClusteringStart = new JMenuItem("Start Clustering");
+			menuDPClusteringStart = new JMenuItem(I18n.tr("modelview.menu.startClustering", "Start Clustering"));
 			menuDPClusteringStart.addActionListener(this);
 			menuDPClustering.add(menuDPClusteringStart);
 			menuAnzBurninDPClustering = new LabeledInputBox("     Burnin:");
@@ -5562,13 +5562,13 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		}
 
 		if (menuSimulationStart == null) {
-			menuSimulationStart = new JMenuItem("Start Simulation");
+			menuSimulationStart = new JMenuItem(I18n.tr("modelview.menu.startSimulation", "Start Simulation"));
 			menuSimulationStart.addActionListener(this);
 		}
 		menuSimulation.add(menuSimulationStart);
 
 		if (menuSimulationCovarianceDataset == null) {
-			menuSimulationCovarianceDataset = new JMenuItem("Create Covariance Dataset");
+			menuSimulationCovarianceDataset = new JMenuItem(I18n.tr("modelview.menu.createCovarianceDataset", "Create Covariance Dataset"));
 			menuSimulationCovarianceDataset.addActionListener(this);
 		}
 		if (MainFrame.DEVMODE)
@@ -5591,77 +5591,77 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		menuSimulation.add(menuPercentMissingSimulation);
 
 		if (menuExportJPEG == null) {
-			menuExportJPEG = new JMenuItem("JPEG");
+			menuExportJPEG = new JMenuItem(I18n.tr("modelview.menu.jpeg", "JPEG"));
 			menuExportJPEG.addActionListener(this);
 		}
 
 		if (menuExportPNG == null) {
-			menuExportPNG = new JMenuItem("PNG");
+			menuExportPNG = new JMenuItem(I18n.tr("modelview.menu.png", "PNG"));
 			menuExportPNG.addActionListener(this);
 		}
 
 		if (menuExportLaTeX == null) {
-			menuExportLaTeX = new JMenuItem("LaTeX");
+			menuExportLaTeX = new JMenuItem(I18n.tr("modelview.menu.latex", "LaTeX"));
 			menuExportLaTeX.addActionListener(this);
 		}
 
 		if (menuExportSVG == null) {
-			menuExportSVG = new JMenuItem("SVG");
+			menuExportSVG = new JMenuItem(I18n.tr("modelview.menu.svg", "SVG"));
 			menuExportSVG.addActionListener(this);
 		}
 
 		if (menuExportPDF == null) {
-			menuExportPDF = new JMenuItem("PDF");
+			menuExportPDF = new JMenuItem(I18n.tr("modelview.menu.pdf", "PDF"));
 			menuExportPDF.addActionListener(this);
 		}
 
 		if (menuExportEPS == null) {
-			menuExportEPS = new JMenuItem("EPS");
+			menuExportEPS = new JMenuItem(I18n.tr("modelview.menu.eps", "EPS"));
 			menuExportEPS.addActionListener(this);
 		}
 
 		if (menuShowOpenMXCode == null) {
-			menuShowOpenMXCode = new JMenuItem("OpenMx (Path)");
+			menuShowOpenMXCode = new JMenuItem(I18n.tr("modelview.menu.openmxPath", "OpenMx (Path)"));
 			menuShowOpenMXCode.addActionListener(this);
 		}
 
 		if (menuShowOpenMXMatrixCode == null) {
-			menuShowOpenMXMatrixCode = new JMenuItem("OpenMx (Matrix)");
+			menuShowOpenMXMatrixCode = new JMenuItem(I18n.tr("modelview.menu.openmxMatrix", "OpenMx (Matrix)"));
 			menuShowOpenMXMatrixCode.addActionListener(this);
 		}
 
 		if (menuShowMPlusCode == null) {
-			menuShowMPlusCode = new JMenuItem("Mplus");
+			menuShowMPlusCode = new JMenuItem(I18n.tr("modelview.menu.mplus", "Mplus"));
 			menuShowMPlusCode.addActionListener(this);
 		}
 		if (menuShowLavaanCode == null) {
-			menuShowLavaanCode = new JMenuItem("lavaan");
+			menuShowLavaanCode = new JMenuItem(I18n.tr("modelview.menu.lavaan", "lavaan"));
 			menuShowLavaanCode.addActionListener(this);
 		}
 		if (menuShowJuliaCode == null) {
-			menuShowJuliaCode = new JMenuItem("StructuralEquationModels.jl");
+			menuShowJuliaCode = new JMenuItem(I18n.tr("modelview.menu.structuralEquationModelsJl", "StructuralEquationModels.jl"));
 			menuShowJuliaCode.addActionListener(this);
 		}
 		if (menuShowSemCode == null) {
-			menuShowSemCode = new JMenuItem("sem package");
+			menuShowSemCode = new JMenuItem(I18n.tr("modelview.menu.semPackage", "sem package"));
 			menuShowSemCode.addActionListener(this);
 		}
 		if (menuShowRAMMatrices == null) {
-			menuShowRAMMatrices = new JMenuItem("RAM Matrices");
+			menuShowRAMMatrices = new JMenuItem(I18n.tr("modelview.menu.ramMatrices", "RAM Matrices"));
 			menuShowRAMMatrices.addActionListener(this);
 		}
 		if (menuShowLISRELMatrices == null) {
-			menuShowLISRELMatrices = new JMenuItem("LISREL Matrices");
+			menuShowLISRELMatrices = new JMenuItem(I18n.tr("modelview.menu.lisrelMatrices", "LISREL Matrices"));
 			menuShowLISRELMatrices.addActionListener(this);
 		}
 
 		if (menuShowCorrelationMatrix == null) {
-			menuShowCorrelationMatrix = new JMenuItem("Covariance Matrix");
+			menuShowCorrelationMatrix = new JMenuItem(I18n.tr("modelview.menu.covarianceMatrix", "Covariance Matrix"));
 			menuShowCorrelationMatrix.addActionListener(this);
 		}
 
 		if (menuShowOnyxJavaCode == null) {
-			menuShowOnyxJavaCode = new JMenuItem("Onyx Java");
+			menuShowOnyxJavaCode = new JMenuItem(I18n.tr("modelview.menu.onyxJava", "Onyx Java"));
 			menuShowOnyxJavaCode.addActionListener(this);
 		}
 
@@ -5693,7 +5693,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		}
 
 		if (menuSelectEdgeStyle == null) {
-			menuSelectEdgeStyle = new JMenuItem("Change Path Style");
+			menuSelectEdgeStyle = new JMenuItem(I18n.tr("modelview.menu.changePathStyle", "Change Path Style"));
 			menuSelectEdgeStyle.addActionListener(this);
 		}
 
@@ -5702,23 +5702,23 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		}
 
 		if (menuCopy == null) {
-			menuCopy = new JMenuItem("Copy");
+			menuCopy = new JMenuItem(I18n.tr("modelview.menu.copy", "Copy"));
 			menuCopy.addActionListener(this);
 		}
 		if (menuPaste == null) {
-			menuPaste = new JMenuItem("Paste and Rename");
+			menuPaste = new JMenuItem(I18n.tr("modelview.menu.pasteAndRename", "Paste and Rename"));
 			menuPaste.addActionListener(this);
 		}
 		if (menuPasteDontMess == null) {
-			menuPasteDontMess = new JMenuItem("Paste");
+			menuPasteDontMess = new JMenuItem(I18n.tr("modelview.menu.paste", "Paste"));
 			menuPasteDontMess.addActionListener(this);
 		}
 
 		if (menuFlipHorizontal == null) {
-			menuFlipHorizontal = new JMenuItem("Flip horizontally");
+			menuFlipHorizontal = new JMenuItem(I18n.tr("modelview.menu.flipHorizontally", "Flip horizontally"));
 		}
 		if (menuFlipVertically == null) {
-			menuFlipVertically = new JMenuItem("Flip vertically");
+			menuFlipVertically = new JMenuItem(I18n.tr("modelview.menu.flipVertically", "Flip vertically"));
 			menuFlipHorizontal.addActionListener(this);
 			menuFlipVertically.addActionListener(this);
 		}
@@ -5743,54 +5743,54 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		 * thickStroke.addActionListener(this); menuStroke.add(thickStroke); }
 		 */
 		if (menuExportMplus == null) {
-			menuExportMplus = new JMenuItem("Mplus");
+			menuExportMplus = new JMenuItem(I18n.tr("modelview.menu.mplus", "Mplus"));
 			menuExportMplus.addActionListener(this);
 		}
 
 		if (menuExportLavaan == null) {
-			menuExportLavaan = new JMenuItem("lavaan");
+			menuExportLavaan = new JMenuItem(I18n.tr("modelview.menu.lavaan", "lavaan"));
 			menuExportLavaan.addActionListener(this);
 		}
 		
 		if (menuExportJulia == null) {
-			menuExportJulia = new JMenuItem("StructuralEquationModels.jl");
+			menuExportJulia = new JMenuItem(I18n.tr("modelview.menu.structuralEquationModelsJl", "StructuralEquationModels.jl"));
 			menuExportJulia.addActionListener(this);
 		}
 
 
 		if (menuExportSem == null) {
-			menuExportSem = new JMenuItem("sem (package)");
+			menuExportSem = new JMenuItem(I18n.tr("modelview.menu.semPackageWithParens", "sem (package)"));
 			menuExportSem.addActionListener(this);
 		}
 
 		if (menuExport == null) {
-			menuExport = new JMenuItem("OpenMx");
+			menuExport = new JMenuItem(I18n.tr("modelview.menu.openmx", "OpenMx"));
 			menuExport.addActionListener(this);
 		}
 
 		if (menuAddTriangle == null) {
-			menuAddTriangle = new JMenuItem("Constant");
+			menuAddTriangle = new JMenuItem(I18n.tr("modelview.menu.constant", "Constant"));
 			menuAddTriangle.addActionListener(this);
 		}
 
 		if (menuAddMultiplication == null) {
-			menuAddMultiplication = new JMenuItem("Multiplication");
+			menuAddMultiplication = new JMenuItem(I18n.tr("modelview.menu.multiplication", "Multiplication"));
 			menuAddMultiplication.addActionListener(this);
 		}
 
 		if (menuCreateLatent == null) {
-			menuCreateLatent = new JMenuItem("Latent");
+			menuCreateLatent = new JMenuItem(I18n.tr("modelview.menu.latent", "Latent"));
 			menuCreateLatent.addActionListener(this);
 		}
 
 		if (menuCreateManifest == null) {
-			menuCreateManifest = new JMenuItem("Observed");
+			menuCreateManifest = new JMenuItem(I18n.tr("modelview.menu.observed", "Observed"));
 			menuCreateManifest.addActionListener(this);
 		}
 
 		// menuRemoveDefinitionStatus = new JMenuItem();
 		if (menuRemoveDefinitionStatus == null) {
-			menuRemoveDefinitionStatus = new JMenuItem("Remove Definition Variable");
+			menuRemoveDefinitionStatus = new JMenuItem(I18n.tr("modelview.menu.removeDefinitionVariable", "Remove Definition Variable"));
 			menuRemoveDefinitionStatus.addActionListener(this);
 		}
 
@@ -5800,15 +5800,15 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		 * menuSwapManifestLatent.addActionListener(this); }
 		 */
 		if (menuClone == null) {
-			menuClone = new JMenuItem("Clone Model");
+			menuClone = new JMenuItem(I18n.tr("modelview.menu.cloneModel", "Clone Model"));
 			menuClone.addActionListener(this);
 		}
 
 		if (menuShowHide == null) {
 			menuShowHide = new JMenu("Show/Hide");
-			menuShowHideVariances = new JMenuItem("Show/Hide Variances");
-			menuShowHideCovariances = new JMenuItem("Show/Hide Covariances");
-			menuShowHideRegressions = new JMenuItem("Show/Hide Regressions");
+			menuShowHideVariances = new JMenuItem(I18n.tr("modelview.menu.showHideVariances", "Show/Hide Variances"));
+			menuShowHideCovariances = new JMenuItem(I18n.tr("modelview.menu.showHideCovariances", "Show/Hide Covariances"));
+			menuShowHideRegressions = new JMenuItem(I18n.tr("modelview.menu.showHideRegressions", "Show/Hide Regressions"));
 
 			menuShowHide.add(menuShowHideVariances);
 			menuShowHide.add(menuShowHideCovariances);
@@ -5879,27 +5879,27 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		}
 
 		if (menuAllRunner == null) {
-			menuAllRunner = new JMenuItem("Show All Runners");
+			menuAllRunner = new JMenuItem(I18n.tr("modelview.menu.showAllRunners", "Show All Runners"));
 			menuAllRunner.addActionListener(this);
 		}
 		if (menuShowStartingValues == null) {
-			menuShowStartingValues = new JMenuItem("Show Starting Values");
+			menuShowStartingValues = new JMenuItem(I18n.tr("modelview.menu.showStartingValues", "Show Starting Values"));
 			menuShowStartingValues.addActionListener(this);
 		}
 		if (menuShowBestML == null) {
-			menuShowBestML = new JMenuItem("Show Best ML Estimate");
+			menuShowBestML = new JMenuItem(I18n.tr("modelview.menu.showBestMLEstimate", "Show Best ML Estimate"));
 			menuShowBestML.addActionListener(this);
 		}
 		if (menuShowBestLS == null) {
-			menuShowBestLS = new JMenuItem("Show Best LS Estimate");
+			menuShowBestLS = new JMenuItem(I18n.tr("modelview.menu.showBestLSEstimate", "Show Best LS Estimate"));
 			menuShowBestLS.addActionListener(this);
 		}
 		if (menuShowTextOutput == null) {
-			menuShowTextOutput = new JMenuItem("Show Estimate Summary");
+			menuShowTextOutput = new JMenuItem(I18n.tr("modelview.menu.showEstimateSummary", "Show Estimate Summary"));
 			menuShowTextOutput.addActionListener(this);
 		}
 		if (menuShowTextHistory == null) {
-			menuShowTextHistory = new JMenuItem("Show Estimate History");
+			menuShowTextHistory = new JMenuItem(I18n.tr("modelview.menu.showEstimateHistory", "Show Estimate History"));
 			menuShowTextHistory.addActionListener(this);
 		}
 
@@ -5950,18 +5950,18 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		}
 
 		if (menuUndo == null) {
-			menuUndo = new JMenuItem("Undo");
+			menuUndo = new JMenuItem(I18n.tr("modelview.menu.undo", "Undo"));
 			menuUndo.addActionListener(this);
 		}
 
 		if (menuRedo == null) {
-			menuRedo = new JMenuItem("Redo");
+			menuRedo = new JMenuItem(I18n.tr("modelview.menu.redo", "Redo"));
 			menuRedo.addActionListener(this);
 		}
 		// menuRedo.setEnabled(false);
 
 		if (menuSelectAll == null) {
-			menuSelectAll = new JMenuItem("Select All");
+			menuSelectAll = new JMenuItem(I18n.tr("modelview.menu.selectAll", "Select All"));
 			menuSelectAll.addActionListener(this);
 		}
 
@@ -5975,10 +5975,10 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		if (menuPrior == null) {
 			menuPrior = new JMenu("Prior");
 
-			menuPriorGaussian = new JMenuItem("Normal");
-			menuPriorChi2 = new JMenuItem("Chi Square");
-			menuPriorGamma = new JMenuItem("Gamma");
-			menuPriorUniform = new JMenuItem("Uniform");
+			menuPriorGaussian = new JMenuItem(I18n.tr("modelview.menu.normal", "Normal"));
+			menuPriorChi2 = new JMenuItem(I18n.tr("modelview.menu.chiSquare", "Chi Square"));
+			menuPriorGamma = new JMenuItem(I18n.tr("modelview.menu.gamma", "Gamma"));
+			menuPriorUniform = new JMenuItem(I18n.tr("modelview.menu.uniform", "Uniform"));
 
 			menuPrior.add(menuPriorGaussian);
 			menuPrior.add(menuPriorChi2);
@@ -6002,17 +6002,17 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		// menuShowStandardizedEstimates.setSelected(false);
 
 		if (menuSaveStartingValues == null) {
-			menuSaveStartingValues = new JMenuItem("Save Starting Values");
+			menuSaveStartingValues = new JMenuItem(I18n.tr("modelview.menu.saveStartingValues", "Save Starting Values"));
 			menuSaveStartingValues.addActionListener(this);
 		}
 
 		if (menuSaveCurrentEstimate == null) {
-			menuSaveCurrentEstimate = new JMenuItem("Save Current Estimate");
+			menuSaveCurrentEstimate = new JMenuItem(I18n.tr("modelview.menu.saveCurrentEstimate", "Save Current Estimate"));
 			menuSaveCurrentEstimate.addActionListener(this);
 		}
 
 		if (menuBackgroundColor == null) {
-			menuBackgroundColor = new JMenuItem("Change Background Color");
+			menuBackgroundColor = new JMenuItem(I18n.tr("modelview.menu.changeBackgroundColor", "Change Background Color"));
 			menuBackgroundColor.addActionListener(this);
 		}
 
@@ -6035,7 +6035,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		 * Decorators
 		 */
 		JMenu menuCreateDecorator = new JMenu("Create Decorator");
-		menuAddRectangle = new JMenuItem("Add Box");
+		menuAddRectangle = new JMenuItem(I18n.tr("modelview.menu.addBox", "Add Box"));
 		menuAddRectangle.addActionListener(this);
 		menuCreateDecorator.add(menuAddRectangle);
 
@@ -6149,7 +6149,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		JMenu menuEstimation = new JMenu("Estimation");
 
 		if (menuLatentScores == null) {
-			menuLatentScores = new JMenuItem("Obtain Latent / Missing Scores");
+			menuLatentScores = new JMenuItem(I18n.tr("modelview.menu.obtainLatentMissingScores", "Obtain Latent / Missing Scores"));
 			menuLatentScores.addActionListener(this);
 		}
 
@@ -6228,7 +6228,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 				// if (edgeUnderMouse != null) {
 				if (edgeUnderMouse.isDefinitionVariable()) {
-					menuUnlinkDefinition = new JMenuItem("Unlink Definition Variable");
+					menuUnlinkDefinition = new JMenuItem(I18n.tr("modelview.menu.unlinkDefinitionVariable", "Unlink Definition Variable"));
 					menuUnlinkDefinition.addActionListener(this);
 					menu.add(menuUnlinkDefinition);
 				}
