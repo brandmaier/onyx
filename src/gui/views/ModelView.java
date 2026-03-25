@@ -148,6 +148,7 @@ import gui.MessageObject;
 import gui.MessageObjectContainer;
 import gui.TransferableVariableList;
 import gui.Utilities;
+import gui.i18n.I18n;
 import gui.actions.DesktopPasteAction;
 import gui.actions.ModelViewCopyAction;
 import gui.actions.ModelViewPasteAction;
@@ -1280,7 +1281,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 				try {
 					export.export(this.file);
 				} catch (Exception e1) {
-					JOptionPane.showMessageDialog(this, "Error! File could not be saved!");
+					JOptionPane.showMessageDialog(this, I18n.tr("modelview.error.fileNotSaved", "Error! File could not be saved!"));
 				}
 
 			desktop.mainFrame.addToRecentFiles(this.file);
@@ -1312,7 +1313,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 		if (e.getSource() == menuEdgeLabelColor) {
 			setUnsavedChanges(true);
-			Color newColor = JColorChooser.showDialog(this, "Choose Font Color", menuContextEdge.getLabel().getColor());
+			Color newColor = JColorChooser.showDialog(this, I18n.tr("modelview.dialog.chooseFontColor", "Choose Font Color"), menuContextEdge.getLabel().getColor());
 
 			MultiStep mstep = new MultiStep();
 
@@ -1604,8 +1605,8 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			if (graph.hasTriangles()) {
 
 				JOptionPane.showMessageDialog(this,
-						"The model has an explicit mean structure. Delete the explicit mean structure before setting mean treatment to saturated. ",
-						"Mean Treatment Error", JOptionPane.ERROR_MESSAGE);
+						I18n.tr("modelview.error.explicitMeanStructure", "The model has an explicit mean structure. Delete the explicit mean structure before setting mean treatment to saturated. "),
+						I18n.tr("modelview.error.meanTreatmentTitle", "Mean Treatment Error"), JOptionPane.ERROR_MESSAGE);
 
 			} else {
 
@@ -1975,7 +1976,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			if (df == null) {
 
 				messageObjectContainer
-						.add(new MessageObject("An error occurred with the mapping of your variables. Blame Andy.",
+						.add(new MessageObject(I18n.tr("modelview.error.variableMapping", "An error occurred with the mapping of your variables. Blame Andy."),
 								ImageLoaderWorker.ERROR, this));
 
 				System.err.println("An error occurred with the variable mapping! Variable is linked to NULL dataset");
@@ -1984,7 +1985,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 			if (!(df.dataset instanceof RawDataset)) {
 				JOptionPane.showMessageDialog(this,
-						"An error has occurred during assemblin data when linking dataset and model!");
+						I18n.tr("modelview.error.assemblingData", "An error has occurred during assemblin data when linking dataset and model!"));
 
 				return (null);
 			}
@@ -2003,7 +2004,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 				for (int j = 0; j < rdataset.getNumRows(); j++) {
 
 					if (!(datasetField.dataset instanceof RawDataset)) {
-						JOptionPane.showMessageDialog(this, "An error has occurred during linking dataset and model!");
+						JOptionPane.showMessageDialog(this, I18n.tr("modelview.error.linkingDataset", "An error has occurred during linking dataset and model!"));
 						return (null);
 					}
 
@@ -2825,7 +2826,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 						if (dataset instanceof CovarianceDataset) {
 							JOptionPane.showMessageDialog(this,
-									"Cannot apply covariance dataset to multiple group model");
+									I18n.tr("modelview.error.covarianceForMultiGroup", "Cannot apply covariance dataset to multiple group model"));
 							return;
 						}
 
@@ -5451,7 +5452,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		}
 
 		if (menuSaveModel == null) {
-			menuSaveModel = new JMenuItem("Save Model");
+			menuSaveModel = new JMenuItem(I18n.tr("modelview.dialog.saveModel.title", "Save Model"));
 			menuSaveModel.addActionListener(this);
 		}
 
@@ -5654,7 +5655,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		}
 
 		if (menuIconify == null) {
-			menuIconify = new JMenuItem("Iconify");
+			menuIconify = new JMenuItem(I18n.tr("common.menu.iconify", "Iconify"));
 			menuIconify.addActionListener(this);
 		}
 
@@ -6446,8 +6447,9 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 	public void requestDeleteView() {
 		if (isUnsavedChanges()) {
 			int result = JOptionPane.showConfirmDialog(this,
-					"Do you want to save your unsaved changes in model '" + this.getName() + "' before closing it?",
-					"Save Model", JOptionPane.YES_NO_CANCEL_OPTION);
+					I18n.trf("modelview.dialog.saveUnsavedBeforeClose.message",
+							"Do you want to save your unsaved changes in model '{0}' before closing it?", this.getName()),
+					I18n.tr("modelview.dialog.saveModel.title", "Save Model"), JOptionPane.YES_NO_CANCEL_OPTION);
 			boolean exportAborted = false;
 			if (result == JOptionPane.YES_OPTION) {
 				XMLExport export = new XMLExport(this);
