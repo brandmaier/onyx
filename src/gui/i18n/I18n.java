@@ -7,9 +7,25 @@ import java.util.ResourceBundle;
 
 public final class I18n {
 
+    public static final String LANGUAGE_ENGLISH = "en";
+    public static final String LANGUAGE_GERMAN = "de";
+
     private static final String BUNDLE_NAME = "i18n.messages";
 
     private I18n() {
+    }
+
+
+    public static void setApplicationLocale(String languageCode) {
+        Locale locale = localeForLanguageCode(languageCode);
+        Locale.setDefault(locale);
+    }
+
+    public static Locale localeForLanguageCode(String languageCode) {
+        if (LANGUAGE_GERMAN.equalsIgnoreCase(languageCode)) {
+            return Locale.GERMAN;
+        }
+        return Locale.ENGLISH;
     }
 
     public static String tr(String key, String defaultValue) {

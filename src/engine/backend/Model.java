@@ -1409,6 +1409,30 @@ public abstract class Model
         return Math.sqrt(erg);
     }
     
+    /** get matrix of standardized residuals */
+    public static double[][] getStandardizedResiduals(double[][] sigma, double[][] saturatedCov) {
+        
+    	double[][] erg = new double[sigma.length][sigma.length];
+    	
+    	for (int i=0; i<sigma.length; i++) for (int j=i; j<sigma.length; j++) {
+    		erg[i][i] = saturatedCov[i][j]/Math.sqrt(saturatedCov[i][i]*saturatedCov[j][j]) - sigma[i][j]/Math.sqrt(sigma[i][i]*sigma[j][j]);
+        }    	
+    	
+    	return(erg);
+    }
+    
+    /** get matrix of standardized residuals */
+    public static double[][] getAbsoluteRawResiduals(double[][] sigma, double[][] saturatedCov) {
+        
+    	double[][] erg = new double[sigma.length][sigma.length];
+    	
+    	for (int i=0; i<sigma.length; i++) for (int j=i; j<sigma.length; j++) {
+    		erg[i][i] = Math.abs(saturatedCov[i][j] - sigma[i][j]);
+        }    	
+    	
+    	return(erg);
+    }
+    
     /** computes the Akaike Information Criterion index*/
     public static double getAIC(double ll, int anzPar) {return ll + 2*anzPar;}
 

@@ -578,6 +578,19 @@ public class ModelRunUnit implements ParameterReader {
         }
     }
     
+    public double[][] getStandardizedResiduals()
+    {
+        try {
+        	OnyxModel model = modelRun.model.copy(); model.evaluateMuAndSigma(position);
+        	double[][] residuals = Model.getStandardizedResiduals(model.sigma, modelRun.precomputedSaturatedCov);
+        //	} catch(Exception e) {}
+    		return(residuals);
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    		return(null);
+    	}
+	}
+    
     public String getDescription() {
 
     	final int digits = 3;

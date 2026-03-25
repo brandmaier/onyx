@@ -35,6 +35,7 @@ import gui.Desktop;
 import gui.ImageLoaderWorker;
 import gui.frames.MainFrame;
 import gui.frames.WelcomeFrame;
+import gui.i18n.I18n;
 
 import java.awt.Image;
 import java.awt.Taskbar;
@@ -45,6 +46,7 @@ import java.net.URL;
 
 import javax.swing.SwingUtilities;
 
+import engine.Preferences;
 import parallelProcesses.ParallelProcessHandler;
 
 
@@ -113,6 +115,7 @@ public class Main {
 		MainFrame mFrame = new MainFrame();
         mFrame.setDeveloperMode(devloperMode);
         
+		I18n.setApplicationLocale(Preferences.getAsString("Language"));
 
 
         // set an application image (currently broken)

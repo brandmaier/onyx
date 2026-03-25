@@ -26,6 +26,9 @@ import java.util.Properties;
 public class Preferences {
 	private static Properties userPreferences;
 	
+	private static final String SETTINGS_DIRECTORY_NAME = ".onyx";
+	private static final String SETTINGS_FILENAME = "onyxProperties";
+	
 	public static Object get(String key)
 	{
 		return userPreferences.get(key);
@@ -84,6 +87,7 @@ public class Preferences {
 				userPreferences.put("ShowTipOfTheDay","true");
 				userPreferences.put("BackgroundImage","");
 				userPreferences.put("HoldWhenInBackground", "false");
+				userPreferences.put("Language", "en");
 				// now load properties
 				// from last invocation
 				FileInputStream in;
@@ -101,37 +105,34 @@ public class Preferences {
 	}
 	
 	public static String getSettingsFilename() {
-		File settingsDirectory = null;
-		boolean ok = true;
-	    String userHome = System.getProperty("user.home");
-	    if(userHome == null) {
-	        ok = false;
-	    } else {
-	    File home = new File(userHome);
-	    settingsDirectory = new File(home, ".onyx");
-	    if(!settingsDirectory.exists()) {
-	        if(!settingsDirectory.mkdir()) {
-	            ok = false;
-	        }
-	    }
-	    }
-	    String fullname = settingsDirectory.getAbsoluteFile().toString()+File.separator+"onyxProperties";
-	    
-	    try {
-	    	FileInputStream fin = new FileInputStream(fullname);
-	    	fin.close();
-	    } catch (Exception e) {
-	    	//e.printStackTrace();
-	    	//TODO: tell the user that it would be great if their home directory was writable...
-	    	ok = false;
-	    }
-//System.out.println(	 settingsDirectory.getAbsoluteFile().toString()+System.getProperty("path.separator")+"onyxProperties");
-	    ok = false;
-	    if (ok)
-	    	return fullname;
-	    else
-	    	return "./onyxProperties";
+		
+		File homeSettings = getHomeSettingsFile();
+		if (homeSettings != null) {
+			return homeSettings.getAbsolutePath();
+		}
+
+		return "." + File.separator + SETTINGS_FILENAME;
 	}
+
+	private static File getHomeSettingsFile() {
+		String userHome = System.getProperty("user.home");
+		if (userHome == null || userHome.trim().isEmpty()) {
+			return null;
+		}
+
+		File home = new File(userHome);
+		File settingsDirectory = new File(home, SETTINGS_DIRECTORY_NAME);
+		if (!settingsDirectory.exists() && !settingsDirectory.mkdirs()) {
+			return null;
+		}
+		if (!settingsDirectory.isDirectory() || !settingsDirectory.canWrite()) {
+			return null;
+		}
+
+		return new File(settingsDirectory, SETTINGS_FILENAME);
+	}		
+
+
 
 	public static boolean contains(String key) {
 		return userPreferences.containsKey(key);

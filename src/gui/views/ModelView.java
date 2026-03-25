@@ -116,6 +116,8 @@ import bayes.Chain;
 import bayes.ParameterSet;
 import bayes.engine.BayesianModelRun;
 import bayes.engine.BayesianModelRunUnit;
+import charts.GaugeChart;
+import charts.ResidualsChart;
 import engine.CombinedDataset;
 import engine.CovarianceDataset;
 import engine.Dataset;
@@ -3334,6 +3336,20 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 			directTypeEdge = edgeUnderMouse;
 
+		}
+		
+		/*
+		 * develop
+		 * (remove later!)
+		 */
+		if (arg0.getKeyChar() == '-') {
+			ResidualsChart c = new ResidualsChart(this.getDesktop(), this);
+			this.getModelRequestInterface().addModelListener(c);
+			this.getDesktop().add(c);
+			
+			GaugeChart d = new GaugeChart(this.getDesktop(), this);
+			this.getModelRequestInterface().addModelListener(d);
+			this.getDesktop().add(d);			
 		}
 
 		/*
