@@ -23,6 +23,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import gui.i18n.I18n;
+
 
 public class CreateLGCMAction extends AbstractAction {
 
@@ -33,8 +35,8 @@ public class CreateLGCMAction extends AbstractAction {
 	{
 		this.desktop = desktop;
 	
-		putValue(NAME, "Create new LGCM");
-		putValue(SHORT_DESCRIPTION, "Create an LGCM on the desktop");
+		putValue(NAME, I18n.tr("action.createLGCM.name", "Create new LGCM"));
+		putValue(SHORT_DESCRIPTION, I18n.tr("action.createLGCM.description", "Create an LGCM on the desktop"));
 	}
 	
 	public CreateLGCMAction(Desktop desktop, int x, int y)

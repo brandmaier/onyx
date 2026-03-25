@@ -54,6 +54,9 @@ name="Create Runnable Jar for Project Onyx" xmlns:ivy="antlib:org.apache.ivy.ant
 		<copy todir="${build}/data">
 		  <fileset dir="${src}/data"/>
 		</copy>
+		<copy todir="${build}/i18n">
+		  <fileset dir="${src}/i18n" includes="*.properties"/>
+		</copy>
 	
 	  </target>
 	  

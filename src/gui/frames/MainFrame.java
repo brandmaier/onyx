@@ -72,6 +72,7 @@ import gui.views.ScriptView;
 import gui.views.DataView;
 import gui.views.ModelView;
 import gui.views.MultiGroupModelView;
+import gui.i18n.I18n;
 
 /**
  * 
@@ -342,7 +343,7 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 	 * @param y
 	 */
 	public JMenu getLoadRecent(int x, int y) {
-		JMenu loadRecent = new JMenu("Recent Files");
+		JMenu loadRecent = new JMenu(I18n.tr("menu.recentFiles", "Recent Files"));
 
 		for (int i = 0; i < recentFiles.size(); i++) {
 			LoadFileAction lfa = new LoadFileAction(desktop,
@@ -377,14 +378,14 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 
 		menuBar.add(Box.createHorizontalGlue());
 
-		JMenu helpMenu = new JMenu("Help");
+		JMenu helpMenu = new JMenu(I18n.tr("menu.help", "Help"));
 		menuBar.add(helpMenu);
 
-		helpDocumentation = new JMenuItem("Manual");
+		helpDocumentation = new JMenuItem(I18n.tr("menu.manual", "Manual"));
 		helpDocumentation.addActionListener(this);
 
 
-		JMenu loadTutorial = new JMenu("Load Tutorial Data");
+		JMenu loadTutorial = new JMenu(I18n.tr("menu.loadTutorialData", "Load Tutorial Data"));
 
 		loadTutorialX = new JMenuItem[tutorialNum];
 		for (int i = 0; i < tutorialNum; i++)
@@ -394,7 +395,7 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 			loadTutorialX[i].addActionListener(this);
 		}
 		
-		loadRecent = new JMenu("Recent Files");
+		loadRecent = new JMenu(I18n.tr("menu.recentFiles", "Recent Files"));
 
 
 
@@ -417,14 +418,14 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 		 * editUndo.addActionListener(this);
 		 */
 		
-		menuUpdates = new JCheckBoxMenuItem("Check For Updates On Startup");
+		menuUpdates = new JCheckBoxMenuItem(I18n.tr("menu.checkForUpdates", "Check For Updates On Startup"));
 		menuUpdates.addActionListener(this);
 		updateMenuUpdates();
 		
-		menuTutorial = new JMenuItem("Interactive Tutorial");
+		menuTutorial = new JMenuItem(I18n.tr("menu.interactiveTutorial", "Interactive Tutorial"));
 		menuTutorial.addActionListener(this);
 		
-		menuTip = new JMenuItem("Show Tip Of The Day");
+		menuTip = new JMenuItem(I18n.tr("menu.tipOfDay", "Show Tip Of The Day"));
 		menuTip.addActionListener(this);
 		
 		helpMenu.add(helpDocumentation);
@@ -519,14 +520,14 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 				JOptionPane
 						.showMessageDialog(
 								this,
-								"An error has occured! You can manually access the documentation at out website: onyx.brandmaier.de");
+								I18n.tr("error.documentation", "An error has occurred! You can manually access the documentation on our website: onyx.brandmaier.de"));
 				e.printStackTrace();
 			} catch (URISyntaxException e) {
 				
 				JOptionPane
 						.showMessageDialog(
 								this,
-								"An error has occured! You can manually access the documentation at out website: onyx.brandmaier.de");
+								I18n.tr("error.documentation", "An error has occurred! You can manually access the documentation on our website: onyx.brandmaier.de"));
 
 				e.printStackTrace();
 			}
@@ -557,7 +558,7 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 					JOptionPane
 					.showMessageDialog(
 							this,
-							"An error has occured while loading the tutorial data! Tutorial data file not found.");
+							I18n.tr("error.tutorialLoad", "An error occurred while loading the tutorial data. Tutorial data file not found."));
 	
 				}
 			}
@@ -651,7 +652,7 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 		boolean hasUnsavedChanges = desktop.hasUnsavedChanges();
 		if (hasUnsavedChanges) {
 			int result = JOptionPane.showConfirmDialog(this,
-					"Do you want to save all changes?", "Exit Onyx",
+					I18n.tr("dialog.saveChanges", "Do you want to save all changes?"), I18n.tr("dialog.exitOnyx", "Exit Onyx"),
 					JOptionPane.YES_NO_CANCEL_OPTION);
 			if (result == JOptionPane.CANCEL_OPTION)
 				return;

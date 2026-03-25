@@ -20,6 +20,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import gui.i18n.I18n;
+
 
 
 
@@ -28,8 +30,8 @@ import javax.swing.AbstractAction;
 		public ExitAction()
 		{
 	
-			putValue(NAME, "Quit");
-			putValue(SHORT_DESCRIPTION, "Quit the application");
+			putValue(NAME, I18n.tr("action.exit.name", "Quit"));
+			putValue(SHORT_DESCRIPTION, I18n.tr("action.exit.description", "Quit the application"));
 		}
 		
 		

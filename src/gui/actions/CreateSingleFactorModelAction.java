@@ -24,6 +24,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import gui.i18n.I18n;
+
 
 public class CreateSingleFactorModelAction extends AbstractAction {
 
@@ -34,7 +36,7 @@ public class CreateSingleFactorModelAction extends AbstractAction {
 	{
 		this.desktop = desktop;
 	
-		putValue(NAME, "Create new single factor model");
+		putValue(NAME, I18n.tr("action.createSingleFactor.name", "Create new single factor model"));
 		//putValue(SHORT_DESCRIPTION, "Create an LGCM on the desktop");
 	}
 	

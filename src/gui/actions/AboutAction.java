@@ -21,6 +21,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 
+import gui.i18n.I18n;
+
 
 public class AboutAction extends AbstractAction {
 
@@ -31,8 +33,8 @@ public class AboutAction extends AbstractAction {
 
 	public AboutAction()
 	{
-		putValue(NAME, "About Onyx");
-		putValue(SHORT_DESCRIPTION, "Display information about the program");
+		putValue(NAME, I18n.tr("action.about.name", "About Onyx"));
+		putValue(SHORT_DESCRIPTION, I18n.tr("action.about.description", "Display information about the program"));
 
 	}
 	

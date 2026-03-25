@@ -24,6 +24,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import gui.i18n.I18n;
+
 
 public class CreateDCSMAction extends AbstractAction {
 
@@ -34,8 +36,8 @@ public class CreateDCSMAction extends AbstractAction {
 	{
 		this.desktop = desktop;
 	
-		putValue(NAME, "Create new DCSM");
-		putValue(SHORT_DESCRIPTION, "Create a DCSM on the desktop");
+		putValue(NAME, I18n.tr("action.createDCSM.name", "Create new DCSM"));
+		putValue(SHORT_DESCRIPTION, I18n.tr("action.createDCSM.description", "Create a DCSM on the desktop"));
 	}
 	
 	public CreateDCSMAction(Desktop desktop, int x, int y)

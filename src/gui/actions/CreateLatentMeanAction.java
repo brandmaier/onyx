@@ -25,6 +25,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import gui.i18n.I18n;
+
 
 public class CreateLatentMeanAction extends AbstractAction {
 
@@ -35,7 +37,7 @@ public class CreateLatentMeanAction extends AbstractAction {
 	{
 		this.desktop = desktop;
 	
-		putValue(NAME, "Create new latent mean difference model");
+		putValue(NAME, I18n.tr("action.createLatentMean.name", "Create new latent mean difference model"));
 
 	}
 	

@@ -27,6 +27,8 @@ import java.io.IOException;
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 
+import gui.i18n.I18n;
+
 
 public class LoadAction extends AbstractAction {
 
@@ -49,8 +51,8 @@ public class LoadAction extends AbstractAction {
 	{
 		this.desktop = desktop;
 	
-		putValue(NAME, "Load Model or Data");
-        putValue(SHORT_DESCRIPTION, "Loads file (model or data set) on the desktop");
+		putValue(NAME, I18n.tr("action.load.name", "Load Model or Data"));
+        putValue(SHORT_DESCRIPTION, I18n.tr("action.load.description", "Load a model or data set on the desktop"));
 		this.name = name;
 		this.file = file;
         this.x = x;
@@ -71,10 +73,10 @@ public class LoadAction extends AbstractAction {
     			   	desktop.importFromFile(file, file.getName(), x, y);
     		   }
 		} catch (FileNotFoundException e) {
-			JOptionPane.showMessageDialog(this.desktop, "Unable to load file!");
+			JOptionPane.showMessageDialog(this.desktop, I18n.tr("action.load.error.unable", "Unable to load file!"));
 			e.printStackTrace();
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(this.desktop, "Unable to load file!");
+			JOptionPane.showMessageDialog(this.desktop, I18n.tr("action.load.error.unable", "Unable to load file!"));
 			e.printStackTrace();
 		} 
 		
