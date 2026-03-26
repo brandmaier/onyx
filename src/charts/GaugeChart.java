@@ -157,7 +157,7 @@ public class GaugeChart extends ChartView implements ModelListener {
 		
 		dc.addSeries("Model Fit", value,	"RMSEA");
 		
-		this.invalidate();
+		this.revalidate();
 		this.repaint();
 	}
 

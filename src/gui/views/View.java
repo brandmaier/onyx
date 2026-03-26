@@ -398,7 +398,7 @@ public class View extends JPanel implements MouseListener, MouseMotionListener, 
 	}
 
 	public void redraw() {
-		this.invalidate();
+		//this.invalidate();
 		this.repaint();
 	}
 

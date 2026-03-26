@@ -664,8 +664,7 @@ public class DataView extends View implements KeyListener, ActionListener,
 
 			desktop.add(dv);
 
-			dv.invalidate();
-			dv.validate();
+			dv.revalidate();
 			dv.repaint();
 
 		}

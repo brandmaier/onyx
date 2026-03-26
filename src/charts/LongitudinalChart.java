@@ -28,6 +28,7 @@ import org.knowm.xchart.style.markers.None;
 import charts.LongitudinalPlotSettingsDialog.PlotSettings;
 import engine.Dataset;
 import engine.RawDataset;
+import engine.backend.Model;
 import gui.Desktop;
 
 import gui.views.DataView;
@@ -124,10 +125,18 @@ public class LongitudinalChart extends ChartView {
 	        	
 	        	if (dataView.hasRowsSelected()) {
 	        		row = new double[selection.length];
-	        		for (int j=0; j < selection.length; j++)
+	        		for (int j=0; j < selection.length; j++) {
 	        			row[j] = rds.getData()[i][selection[j]];
+	        			if (Model.isMissing(row[j])) {
+	        				row[j] = Double.NaN;
+	        			}
+	        		}
 	        	} else {
 	        		row = rds.getData()[i];
+	        		for (int j=0; j < row.length; j++)
+	        			if (Model.isMissing(row[j])) {
+	        				row[j] = Double.NaN;
+	        			}
 	        	}
 	        	
 	        	

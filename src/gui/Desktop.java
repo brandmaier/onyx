@@ -238,7 +238,7 @@ public class Desktop extends JLayeredPane
 			System.err.println("Could not set background image!");
 		}
 
-		this.invalidate();
+		this.revalidate();
 		this.repaint();
 	}
 
@@ -952,8 +952,7 @@ public class Desktop extends JLayeredPane
 
 		dv.setLocation(x, y);
 		this.add(dv);
-		dv.invalidate();
-		dv.validate();
+		dv.revalidate();
 		dv.repaint();
 
 		return dv;
@@ -977,8 +976,7 @@ public class Desktop extends JLayeredPane
 		DataView dv = new DataView(this, dataset);
 		dv.setLocation(x, y);
 		this.add(dv);
-		dv.invalidate();
-		dv.validate();
+		dv.revalidate();
 		dv.repaint();
 
 		return dv;
@@ -1046,11 +1044,8 @@ public class Desktop extends JLayeredPane
 		DataView dv = new DataView(this, dataset);
 		dv.setLocation(x, y);
 		this.add(dv);
-		// this.add(dv);
-		// dv.invalidate();dv.repaint();
-		// this.redraw();
-		dv.invalidate();
-		dv.validate();
+
+		dv.revalidate();
 		dv.repaint();
 
 		return dv;

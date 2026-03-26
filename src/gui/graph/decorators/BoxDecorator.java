@@ -1,33 +1,18 @@
 package gui.graph.decorators;
 
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 
 
 public class BoxDecorator extends ShapeDecorator {
 
-	@Override
-	public int getX() {
+
 	
-		return x;
+	public Color getColor()
+	{
+		return(Color.black);
 	}
-
-	@Override
-	public int getY() {
-
-		return y;
-	}
-
-	@Override
-	public void setX(int x) {
-		this.x=x;
-	}
-
-	@Override
-	public void setY(int y) {
-		this.y=y;
-	}
-
 	
 	public BoxDecorator(int w, int h) {
 		super( new Rectangle2D.Double(0,0, w, h));

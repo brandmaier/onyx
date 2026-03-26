@@ -31,6 +31,7 @@ import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import engine.Dataset;
 import engine.RawDataset;
+import engine.backend.Model;
 import gui.Desktop;
 import gui.Utilities;
 import gui.fancy.DropShadowBorder;
@@ -105,6 +106,11 @@ public class BoxplotChart extends ChartView {
         	double[] row;
         	
         	row = rds.getColumn(i);
+        	
+        	for (int j=0; j < row.length; j++)
+    			if (Model.isMissing(row[j])) {
+    				row[j] = Double.NaN;
+    			}
         
             chart.addSeries(rds.getColumnName(i), row)
                  .setMarker(new None());

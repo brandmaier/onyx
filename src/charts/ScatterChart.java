@@ -27,6 +27,7 @@ import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import engine.Dataset;
 import engine.RawDataset;
+import engine.backend.Model;
 import gui.Desktop;
 import gui.Utilities;
 import gui.fancy.DropShadowBorder;
@@ -143,6 +144,14 @@ public class ScatterChart extends ChartView {
 	        	double[] row2 = rds.getColumn(sel[1]);
 	        	
 
+	        	for (int j=0; j < row1.length; j++)
+        			if (Model.isMissing(row1[j])) {
+        				row1[j] = Double.NaN;
+        			}
+	        	for (int j=0; j < row2.length; j++)
+        			if (Model.isMissing(row2[j])) {
+        				row2[j] = Double.NaN;
+        			}
 	        
 	        XYSeries series = chart.addSeries("Data", row1, row2);
 	          // .setMarker(SeriesMarkers.CIRCLE);

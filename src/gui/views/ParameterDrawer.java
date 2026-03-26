@@ -236,8 +236,7 @@ public class ParameterDrawer extends View implements ViewListener,
 
 		
 		
-		this.invalidate();
-		this.validate();
+		this.revalidate();
 		this.repaint();
 	}
 
