@@ -1410,28 +1410,53 @@ public abstract class Model
     }
     
     /** get matrix of standardized residuals */
-    public static double[][] getStandardizedResiduals(double[][] sigma, double[][] saturatedCov) {
+    public static double[][] getResiduals(double[][] sigma, double[][] saturatedCov)
+    {
+    	return(getResiduals(sigma, saturatedCov,"standardized.hu_bentler1999"));
+    }
+    
+    /** get matrix of standardized residuals */
+    public static double[][] getResiduals(double[][] sigma, double[][] saturatedCov, String type) {
         
     	double[][] erg = new double[sigma.length][sigma.length];
     	
-    	for (int i=0; i<sigma.length; i++) for (int j=i; j<sigma.length; j++) {
-    		erg[i][i] = saturatedCov[i][j]/Math.sqrt(saturatedCov[i][i]*saturatedCov[j][j]) - sigma[i][j]/Math.sqrt(sigma[i][i]*sigma[j][j]);
-        }    	
+    	if (type == "standardized") {
+    	
+    	for (int i=0; i<sigma.length; i++) 
+    		for (int j=i; j<sigma.length; j++) {
+    			erg[i][j] = saturatedCov[i][j]/Math.sqrt(saturatedCov[i][i]*saturatedCov[j][j]) - sigma[i][j]/Math.sqrt(sigma[i][i]*sigma[j][j]);
+    			erg[j][i] = erg[i][j];
+    		}    	
+    	
+    	} else if (type == "standardized.hu_bentler1999") {
+        	
+        	for (int i=0; i<sigma.length; i++) 
+        		for (int j=i; j<sigma.length; j++) {
+        			erg[i][j] = (saturatedCov[i][j]-sigma[i][j])/Math.sqrt(saturatedCov[i][i]*saturatedCov[j][j]) ;
+        					
+        			erg[j][i] = erg[i][j];
+        		}    	
+        	
+        } else if (type == "normalized") {
+        	
+        	// TODO        
+        	int N = 0;
+
+        	for (int i=0; i<sigma.length; i++) 
+        		for (int j=i; j<sigma.length; j++) {
+        			erg[i][j] = (saturatedCov[i][j]-sigma[i][j])/Math.sqrt((sigma[i][i]*sigma[j][j]-sigma[i][j]*sigma[i][j])/N) ;
+        					
+        			erg[j][i] = erg[i][j];
+        		}    
+        	
+        } else {
+    		return(null);
+    	}
     	
     	return(erg);
     }
     
-    /** get matrix of standardized residuals */
-    public static double[][] getAbsoluteRawResiduals(double[][] sigma, double[][] saturatedCov) {
-        
-    	double[][] erg = new double[sigma.length][sigma.length];
-    	
-    	for (int i=0; i<sigma.length; i++) for (int j=i; j<sigma.length; j++) {
-    		erg[i][i] = Math.abs(saturatedCov[i][j] - sigma[i][j]);
-        }    	
-    	
-    	return(erg);
-    }
+
     
     /** computes the Akaike Information Criterion index*/
     public static double getAIC(double ll, int anzPar) {return ll + 2*anzPar;}

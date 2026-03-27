@@ -635,6 +635,9 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 	private JMenuItem menuNodeFontColor;
 	private JCheckBoxMenuItem menuKeepStyle;
 	private JMenuItem menuAddRectangle;
+	private JMenu menuPlot;
+	private JMenuItem menuPlotResiduals;
+	private JMenuItem menuPlotFit;
 
 	public ModelView(Desktop desktop) {
 		super(desktop);
@@ -765,6 +768,23 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
+		if (e.getSource() == menuPlotFit) {
+			
+			GaugeChart d = new GaugeChart(this.getDesktop(), this);
+			this.getModelRequestInterface().addModelListener(d);
+			this.getDesktop().add(d);	
+			d.setX(this.getX()+this.getWidth()+20);
+			d.setY(this.getY());
+		}
+		
+		if (e.getSource() == menuPlotResiduals) {
+			ResidualsChart c = new ResidualsChart(this.getDesktop(), this);
+			this.getModelRequestInterface().addModelListener(c);
+			this.getDesktop().add(c);
+			c.setX(this.getX()+this.getWidth()+20);
+			c.setY(this.getY());
+		}
+		
 		if (e.getSource() == menuAddImage) {
 			addImageToNode();
 		}
@@ -3380,10 +3400,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			ResidualsChart c = new ResidualsChart(this.getDesktop(), this);
 			this.getModelRequestInterface().addModelListener(c);
 			this.getDesktop().add(c);
-			
-			GaugeChart d = new GaugeChart(this.getDesktop(), this);
-			this.getModelRequestInterface().addModelListener(d);
-			this.getDesktop().add(d);			
+		
 		}
 
 		/*
@@ -5907,7 +5924,19 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			menuSelectSaturaredModel = new JMenu("Select explicit saturated model");
 			menuSelectSaturaredModel.addActionListener(this);
 		}
-
+		
+		if (menuPlot==null)
+			menuPlot = new JMenu("Plot Model Statistics");
+		if (menuPlotResiduals == null) {
+			menuPlotResiduals = new JMenuItem(I18n.tr("modelview.menu.plotStandardizedResiduals", "Plot Standardized Residuals"));
+			menuPlot.add(menuPlotResiduals);
+			menuPlotResiduals.addActionListener(this);
+		}
+		if (menuPlotFit == null) {
+			menuPlotFit = new JMenuItem(I18n.tr("modelview.menu.plotFit", "Show RMSEA Gauge"));
+			menuPlot.add(menuPlotFit);
+			menuPlotFit.addActionListener(this);
+		}
 		if (!nodeUnderMouse && edgeUnderMouse == null) {
 
 			modelName = new LabeledInputBox("Model Name: ");
@@ -6254,6 +6283,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		menu.add(menuMeanTreatment);
 		menu.add(menuEstimation);
 		menu.add(menuShowTextOutput);
+		menu.add(menuPlot);
 
 		if (menuMeanTreatmentExplicit == null) {
 			menuMeanTreatmentExplicit = new JRadioButtonMenuItem("Explicit Means");

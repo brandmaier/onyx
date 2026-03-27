@@ -5,6 +5,7 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import javax.swing.JFrame;
 
@@ -31,6 +32,8 @@ public class ResidualsChart extends ChartView implements ModelListener {
 
 	public ResidualsChart(Desktop desktop, ModelView modelView) {
 		super(desktop, modelView);
+		
+		updateTitle("Residuals");
 		
 		this.movable = true;
 		this.resizable = true;
@@ -64,8 +67,14 @@ public class ResidualsChart extends ChartView implements ModelListener {
 	     chart.getStyler().setLegendVisible(true);
 		
 	     
+	     
 	     Color[] rangeColors = new Color[] {Color.white, Color.black};
 	     ((HeatMapStyler)chart.getStyler()).setRangeColors(rangeColors);
+	     Function<Double, String> formatter = d -> String.format("%.3f", d);
+//		((HeatMapStyler)chart.getStyler()).setHeatMapDecimalValueFormatter(formatter );
+		((HeatMapStyler)chart.getStyler()).setHeatMapValueDecimalPattern("#.###");
+		((HeatMapStyler)chart.getStyler()).setShowValue(true);
+		((HeatMapStyler)chart.getStyler()).setMax(1);
 //	     chart.getStyler().setvisi
 		update();
 		

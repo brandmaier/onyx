@@ -27,6 +27,8 @@ public class GaugeChart extends ChartView implements ModelListener {
 	public GaugeChart(Desktop desktop, ModelView modelView) {
 		super(desktop, modelView);
 		
+		updateTitle("Model Fit - RMSEA");
+		
 		this.movable = true;
 		this.resizable = true;
 		
