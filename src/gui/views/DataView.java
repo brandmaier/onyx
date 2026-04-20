@@ -441,6 +441,7 @@ public class DataView extends View implements KeyListener, ActionListener,
 		
 			JPopupMenu menu = new JPopupMenu();
 
+			// if context is the list, add ID selection
 			if (arg0.getSource() == list) {
 
 				if (menuSetIdColumn == null) {
@@ -457,9 +458,10 @@ public class DataView extends View implements KeyListener, ActionListener,
 						&& ((RawDataset) dataset).hasIdColumn()) {
 					menu.add(menuRemoveIdColumn);
 				}
-				// menu.addSeparator();
+				
+				menu.addSeparator();
 
-			} else {
+			} 
 
 				dataNameInput = new LabeledInputBox(I18n.tr("dataview.input.datasetName", "Data Set Name"));
 				menu.add(dataNameInput);
@@ -545,7 +547,7 @@ public class DataView extends View implements KeyListener, ActionListener,
 
 				menu.addSeparator();
 				
-				if (MainFrame.DEVMODE) {
+				if (MainFrame.UNSTABLE) {
 					
 					menuPlotLong = new JMenuItem(I18n.tr("dataview.menu.plot.longitudinal", "Plot longitudinal data"));
 					menuPlotBox = new JMenuItem(I18n.tr("dataview.menu.plot.box", "Plot box plot"));
@@ -581,7 +583,7 @@ public class DataView extends View implements KeyListener, ActionListener,
 				menu.add(menuIconify);
 				menu.add(menuDeleteView);
 
-			}
+			
 
 			// this problem occured on a MAC 10.7.5 with Java 6. Does not seem
 			// to be lethal, though (TODO)

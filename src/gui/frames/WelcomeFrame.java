@@ -85,6 +85,8 @@ public class WelcomeFrame extends JFrame implements MouseListener {
 	        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 	        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 	        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	        // Alpha Interp.
+	        g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
 
 	        g2.drawImage(srcImg, 0, 0, w, h, null);
 	        g2.dispose();
@@ -105,7 +107,7 @@ public class WelcomeFrame extends JFrame implements MouseListener {
 		 
 		this.setBackground(Color.white);
 		ImageIcon ii = new ImageIcon(url);
-		JLabel lab = new JLabel( new ImageIcon(WelcomeFrame.getScaledImage(ii.getImage(), 300, 150)));
+		JLabel lab = new JLabel( new ImageIcon(WelcomeFrame.getScaledImage(ii.getImage(), 308, 153)));
 		//JLabel lab = new JLabel( ii );
 		
 		try {

@@ -177,6 +177,7 @@ import gui.graph.presets.Camouflage;
 import gui.graph.presets.Celestial;
 import gui.graph.presets.Julian;
 import gui.graph.presets.Modern;
+import gui.graph.presets.Modern2;
 import gui.graph.presets.Mint;
 import gui.graph.presets.Neon;
 import gui.graph.presets.Happy;
@@ -339,7 +340,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		presets[11] = new Neon();
 		presets[12] = new Blueprint();
 		presets[13] = new RetroOrange();
-		presets[14] = new Mint();
+		presets[14] = new Modern2();
 		presets[15] = new Posh();
 		presets[16] = new Comic();
 		presets[17] = new Celestial();
@@ -2482,7 +2483,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		this.desktop.removeView(parameterView);
 
 		// remove all child views
-		for (View view : codeView) {
+		for (View view : new ArrayList<>(codeView)) {
 			try {
 				view.getDesktop().removeView(view);
 			} catch (Exception e) {
@@ -6050,8 +6051,8 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		menuCreateVariable.add(menuAddTriangle);
 		menuCreateVariable.add(menuCreateLatent);
 		menuCreateVariable.add(menuCreateManifest);
-		if (MainFrame.DEVMODE)
-			menuCreateVariable.add(menuAddMultiplication);
+//		if (MainFrame.DEVMOD)
+		menuCreateVariable.add(menuAddMultiplication);
 
 		if (menuToggleMarkUnconnectedManifests == null) {
 			menuToggleMarkUnconnectedManifests = new JCheckBoxMenuItem("Mark Unconnected Observed Variables");

@@ -30,6 +30,12 @@ public class LineColorChangeStep extends UndoStep {
 	public LineColorChangeStep(ModelView modelView, LineColorable colorable)
 	{
 		color = colorable.getLineColor();
+		
+		if (color == null) {
+			System.err.println("Color was NULL!");
+			color = Color.black;
+		}
+		
 		this.title = "Line color changed to"+color.toString();
 		this.colorable = colorable;
 		this.mv = modelView;

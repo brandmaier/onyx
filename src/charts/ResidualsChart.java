@@ -75,6 +75,7 @@ public class ResidualsChart extends ChartView implements ModelListener {
 		((HeatMapStyler)chart.getStyler()).setHeatMapValueDecimalPattern("#.###");
 		((HeatMapStyler)chart.getStyler()).setShowValue(true);
 		((HeatMapStyler)chart.getStyler()).setMax(1);
+		((HeatMapStyler)chart.getStyler()).setMin(0);		
 //	     chart.getStyler().setvisi
 		update();
 		

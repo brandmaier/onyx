@@ -52,13 +52,27 @@ public class ScatterChart extends ChartView {
 		
 		this.addComponentListener(this);
 		
+	    int[] sel = dataView.getSelectedIndices() ;
+	    
 
+		
+		Dataset ds = dataView.getDataset();
+
+		if (ds instanceof RawDataset) {
+			rds = (RawDataset)ds;
+		} else {
+			rds = new RawDataset();
+		}
+
+	    String xlabel = rds.getColumnName(sel[0]);
+	    String ylabel = rds.getColumnName(sel[1]);
+	    
 		chart = new XYChartBuilder()
 	                .width(600)
 	                .height(400)
 	                .title("Multi-line plot")
-	                .xAxisTitle("X")
-	                .yAxisTitle("Y")
+	                .xAxisTitle(xlabel)
+	                .yAxisTitle(ylabel)
 	                .build(); 
 		
 		
@@ -70,14 +84,6 @@ public class ScatterChart extends ChartView {
 		
 
 
-		
-		Dataset ds = dataView.getDataset();
-
-		if (ds instanceof RawDataset) {
-			rds = (RawDataset)ds;
-		} else {
-			rds = new RawDataset();
-		}
 		
 		plotSettings = new PlotSettingsDialog.PlotSettings();
 		applyPlotSettings();

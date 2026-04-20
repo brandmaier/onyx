@@ -96,7 +96,7 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 	 */
 	
 	public static final String MAJOR_VERSION = "1.0";
-	public static final int MINOR_VERSION = 1046;
+	public static final int MINOR_VERSION = 1047;
 	
 	
 	/**
@@ -134,6 +134,7 @@ public class MainFrame extends JFrame implements ActionListener, KeyListener,
 	private static final long serialVersionUID = 1937754663566169796L;
 	
 	public static final boolean DEFAULT_SAVEMODE_XML = true ;
+	public static final boolean UNSTABLE = true;
 
 
 	
