@@ -1,6 +1,12 @@
-## Onyx 1.0-1047 2026-03-18
+## Onyx 1.1-1047 2026-04-20
 
+
+
+* new plotting features (longitudinal plot, scatter plot and box plot for data views; RMSEA gauge and standardized residual plots for models) \[AB]
 * fixed issues with lost mouse clicks that has been existing for years \[AB]
+* data view now also opens all context-menu options if users click on the variable selection list \[AB]
+* Onyx now Shows a proper Icon on taskbars
+* some minor modifications to diagram styles (new style modern/lightblue replaces an old one)
 
 ## Onyx 1.0-1046 2026-03-02
 
