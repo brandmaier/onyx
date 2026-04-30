@@ -1,0 +1,102 @@
+name: Build Desktop Installers
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows-exe:
+    name: Build Windows EXE
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17 (includes jpackage)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build runnable JAR with Ant
+        run: ant -noinput -buildfile build.xml dist
+
+      - name: Verify JAR output
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "dist/onyx.jar")) {
+            Write-Error "Expected dist/onyx.jar was not produced by Ant build."
+            exit 1
+          }
+
+      - name: Package Windows EXE with jpackage
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path dist/windows -Force | Out-Null
+          jpackage `
+            --type exe `
+            --name Onyx `
+            --input dist `
+            --main-jar onyx.jar `
+            --main-class Main `
+            --dest dist/windows
+
+      - name: Upload Windows executable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Onyx-Windows-EXE
+          path: dist/windows/*.exe
+          if-no-files-found: error
+
+  build-macos-dmg:
+    name: Build macOS DMG
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17 (includes jpackage)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build runnable JAR with Ant
+        run: ant -noinput -buildfile build.xml dist
+
+      - name: Verify JAR output
+        run: |
+          if [ ! -f dist/onyx.jar ]; then
+            echo "Expected dist/onyx.jar was not produced by Ant build." >&2
+            exit 1
+          fi
+
+      - name: Package macOS DMG with jpackage
+        run: |
+          mkdir -p dist/macos
+          jpackage \
+            --type dmg \
+            --name Onyx \
+            --input dist \
+            --main-jar onyx.jar \
+            --main-class Main \
+            --dest dist/macos
+
+      - name: Upload macOS DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Onyx-macOS-DMG
+          path: dist/macos/*.dmg
+          if-no-files-found: error
