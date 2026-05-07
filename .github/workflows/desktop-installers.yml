@@ -1,0 +1,198 @@
+name: Build Desktop Installers
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows-exe:
+    name: Build Windows EXE
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17 (includes jpackage)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build runnable JAR with Ant
+        run: ant -noinput -buildfile build.xml dist
+
+      - name: Verify JAR output
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "dist/onyx.jar")) {
+            Write-Error "Expected dist/onyx.jar was not produced by Ant build."
+            exit 1
+          }
+
+      - name: Prepare Windows icon
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path build/package -Force | Out-Null
+          $png = [System.IO.File]::ReadAllBytes("src/images/onyx-taskbar.png")
+          $header = [byte[]](0, 0, 1, 0, 1, 0)
+          $entry = New-Object byte[] 16
+          $entry[0] = 126
+          $entry[1] = 128
+          $entry[2] = 0
+          $entry[3] = 0
+          $entry[4] = 1
+          $entry[5] = 0
+          $entry[6] = 32
+          $entry[7] = 0
+          [BitConverter]::GetBytes([UInt32]$png.Length).CopyTo($entry, 8)
+          [BitConverter]::GetBytes([UInt32]22).CopyTo($entry, 12)
+          [System.IO.File]::WriteAllBytes("build/package/onyx.ico", $header + $entry + $png)
+
+      - name: Package Windows EXE with jpackage
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path dist/windows -Force | Out-Null
+          jpackage `
+            --type exe `
+            --name Onyx `
+            --input dist `
+            --main-jar onyx.jar `
+            --main-class Main `
+            --icon build/package/onyx.ico `
+            --dest dist/windows
+
+      - name: Upload Windows executable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Onyx-Windows-EXE
+          path: dist/windows/*.exe
+          if-no-files-found: error
+
+  build-macos-app:
+    name: Build macOS App
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17 (includes jpackage)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build runnable JAR with Ant
+        run: ant -noinput -buildfile build.xml dist
+
+      - name: Verify JAR output
+        run: |
+          if [ ! -f dist/onyx.jar ]; then
+            echo "Expected dist/onyx.jar was not produced by Ant build." >&2
+            exit 1
+          fi
+
+      - name: Prepare macOS icon
+        run: |
+          mkdir -p build/package/Onyx.iconset
+          sips -z 16 16 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_16x16.png
+          sips -z 32 32 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_16x16@2x.png
+          sips -z 32 32 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_32x32.png
+          sips -z 64 64 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_32x32@2x.png
+          sips -z 128 128 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_128x128.png
+          sips -z 256 256 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_128x128@2x.png
+          sips -z 256 256 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_256x256.png
+          sips -z 512 512 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_256x256@2x.png
+          sips -z 512 512 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_512x512.png
+          sips -z 1024 1024 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_512x512@2x.png
+          iconutil -c icns build/package/Onyx.iconset -o build/package/Onyx.icns
+
+      - name: Package macOS app-image with jpackage
+        run: |
+          mkdir -p dist/macos-app
+          jpackage \
+            --type app-image \
+            --name Onyx \
+            --input dist \
+            --main-jar onyx.jar \
+            --main-class Main \
+            --java-options "-XstartOnFirstThread" \
+            --icon build/package/Onyx.icns \
+            --dest dist/macos-app
+
+      - name: Upload macOS executable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Onyx-macOS-App
+          path: dist/macos-app/Onyx.app
+          if-no-files-found: error
+
+  build-macos-dmg:
+    name: Build macOS DMG
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17 (includes jpackage)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build runnable JAR with Ant
+        run: ant -noinput -buildfile build.xml dist
+
+      - name: Verify JAR output
+        run: |
+          if [ ! -f dist/onyx.jar ]; then
+            echo "Expected dist/onyx.jar was not produced by Ant build." >&2
+            exit 1
+          fi
+
+      - name: Prepare macOS icon
+        run: |
+          mkdir -p build/package/Onyx.iconset
+          sips -z 16 16 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_16x16.png
+          sips -z 32 32 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_16x16@2x.png
+          sips -z 32 32 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_32x32.png
+          sips -z 64 64 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_32x32@2x.png
+          sips -z 128 128 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_128x128.png
+          sips -z 256 256 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_128x128@2x.png
+          sips -z 256 256 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_256x256.png
+          sips -z 512 512 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_256x256@2x.png
+          sips -z 512 512 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_512x512.png
+          sips -z 1024 1024 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_512x512@2x.png
+          iconutil -c icns build/package/Onyx.iconset -o build/package/Onyx.icns
+
+      - name: Package macOS DMG with jpackage
+        run: |
+          mkdir -p dist/macos
+          jpackage \
+            --type dmg \
+            --name Onyx \
+            --input dist \
+            --main-jar onyx.jar \
+            --main-class Main \
+            --java-options "-XstartOnFirstThread" \
+            --icon build/package/Onyx.icns \
+            --dest dist/macos
+
+      - name: Upload macOS DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Onyx-macOS-DMG
+          path: dist/macos/*.dmg
+          if-no-files-found: error
