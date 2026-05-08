@@ -1,103 +1,90 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-         
+
 <project default="dist" 
 name="Create Runnable Jar for Project Onyx" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+	<property name="java.version" value="8"/>
 
 	<property name="src" location="src" />
 	<property name="lib" location="lib" />
 	<property name="build" location="build" />
 	<property name="dist" location="dist" />
-	<property name="launch4j.dir" location="../launch4j" />
 
-	<available classname="org.apache.ivy.Main" property="ivy.installed"/> 
-
-	
-    <target name="init">
-       <!-- Create the time stamp -->
-       <tstamp/>
-       <!-- Create the build directory structure used by compile -->
-       <mkdir dir="${build}"/>
-     </target>
+	<available classname="org.apache.ivy.Main" property="ivy.installed"/>
 
 
-	 <target name="compile" depends="init"
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp/>
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}"/>
+	</target>
+
+
+	<target name="compile" depends="init"
 	        description="compile the source " >
-		
-			<!--
-			<ivy:cachepath pathid="compile.path">
-			
-				<dependency>
-				    <groupId>jakarta.xml.bind</groupId>
-				    <artifactId>jakarta.xml.bind-api</artifactId>
-				    <version>2.3.2</version>
-				</dependency>
-			    </ivy:cachepath>
-				-->
-		
-	    <!-- Compile the java code from ${src} into ${build} -->
-	    <javac srcdir="${src}" destdir="${build}" debug="true" encoding="iso-8859-1" failonerror="false">
+
+
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src}" destdir="${build}" debug="true" 	release="${java.version}" source="1.8" target="1.8" encoding="iso-8859-1" failonerror="false">
 			<classpath>
-			        <pathelement path="lib/gral-core-0.11.jar"/>
-					<pathelement path="lib/junit-4.13.2.jar"/>
-			    </classpath>
+				<pathelement path="lib/gral-core-0.11.jar"/>
+				<pathelement path="lib/junit-4.13.2.jar"/>
+				<pathelement path="lib/xchart-3.8.8.jar"/>
+			</classpath>
 
 		</javac>
-		
+
 		<copy todir="${build}/icons">
-		  <fileset dir="${src}/icons"/>
+			<fileset dir="${src}/icons"/>
 		</copy>
-		
+
 		<copy todir="${build}/images">
-		  <fileset dir="${src}/images"/>
+			<fileset dir="${src}/images"/>
 		</copy>
-		
+
 		<copy todir="${build}/data">
-		  <fileset dir="${src}/data"/>
+			<fileset dir="${src}/data"/>
 		</copy>
 		<copy todir="${build}/i18n">
-		  <fileset dir="${src}/i18n" includes="*.properties"/>
+			<fileset dir="${src}/i18n" includes="*.properties"/>
 		</copy>
-	
-	  </target>
-	  
 
-<target name="exe">
-	<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j.dir}/launch4j.jar
-	    :${launch4j.dir}/lib/xstream.jar" />
-	<launch4j configFile="./l4j.xml" />
-</target>
-   
+	</target>
 
-    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
-    <!--ANT 1.7 is required                                        -->
-    <target name="dist" depends="compile">
-    
-    <echo>Delete old JAR file</echo>
-    <delete file="./onyx.jar"/>
-        
-        <echo>Updating version number in build.num</echo>
-       <property name="version.num" value="1.0"/>
-	     <buildnumber file="build.num"/>
-	     
-	     <tstamp>
-     <format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
-   </tstamp>
-    <echo>Creating JAR</echo>
-        <jar destfile="${dist}/onyx.jar" filesetmanifest="mergewithoutmain" includes="**/*.class">
 
-            <manifest>
-                <attribute name="Built-By" value="Andreas Brandmaier"/>
-                <attribute name="Main-Class" value="Main"/>
-                <attribute name="Class-Path" value="."/>
-                
-                <attribute name="Implementation-Version" 
-                     value="${version.num}-b${build.number}"/> 
-                
-                <attribute name="Built-Date" value="${TODAY}"/>            
-            </manifest>
-            <fileset dir="${build}"
+
+
+	<!--this file was created by Eclipse Runnable JAR Export Wizard-->
+	<!--ANT 1.7 is required                                        -->
+	<target name="dist" depends="compile">
+
+		<echo>Delete old JAR file</echo>
+		<delete file="./onyx.jar"/>
+
+		<echo>Updating version number in build.num</echo>
+		<property name="version.num" value="1.0"/>
+		<buildnumber file="build.num"/>
+
+		<tstamp>
+			<format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
+		</tstamp>
+		<echo>Creating JAR</echo>
+		<jar destfile="${dist}/onyx.jar" filesetmanifest="mergewithoutmain" includes="**/*.class">
+
+			<manifest>
+				<attribute name="Built-By" value="Andreas Brandmaier"/>
+				<attribute name="Main-Class" value="Main"/>
+				<attribute name="Class-Path" value="."/>
+
+				<attribute name="Implementation-Version" 
+                     value="${version.num}-b${build.number}"/>
+
+				<attribute name="Built-Date" value="${TODAY}"/>
+			</manifest>
+			<fileset dir="${build}"
             excludes="test" />
-        </jar>
-    </target>
-  
+		</jar>
+	</target>
+
 </project>
