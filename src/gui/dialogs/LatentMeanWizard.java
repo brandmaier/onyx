@@ -295,9 +295,11 @@ public class LatentMeanWizard extends Dialog {
             case 1: {
                 indicatorNames.clear();
                 for (Component c : indicatorListPanel.getComponents()) {
-                    if (c instanceof JPanel row) {
+                    if (c instanceof JPanel) {
+                    	JPanel row = (JPanel) c;
                         Component center = ((BorderLayout) row.getLayout()).getLayoutComponent(BorderLayout.CENTER);
-                        if (center instanceof JTextField tf) {
+                        if (center instanceof JTextField) {
+                        	JTextField tf = (JTextField)center;
                             String name = tf.getText().trim();
                             if (name.isEmpty()) {
                                 showError("Please provide a name for every indicator.");

@@ -186,6 +186,7 @@ import gui.graph.presets.Preset;
 import gui.graph.presets.FadedColors;
 import gui.graph.presets.Schoeneberg;
 import gui.graph.presets.Sketch;
+import gui.graph.presets.Oldpink;
 import gui.graph.presets.Vertical;
 import gui.graph.presets.Xmas;
 import gui.graph.presets.Amelie;
@@ -323,29 +324,31 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 	public final static int THINSTROKE = 0, MEDIUMSTROKE = 1, THICKSTROKE = 2;
 
 	static {
-		presets = new Preset[20];
+		presets = new Preset[18];
 		presets[0] = new Default();
 
 		presets[1] = new Modern();
-		
-		presets[2] = new Cinema();
-		presets[3] = new Happy();
-		presets[4] = new Schoeneberg();
-		presets[5] = new Chalk();
+		presets[2] = new Modern2();
+		presets[3] = new Cinema();
+		presets[4] = new Happy();
+		presets[5] = new Schoeneberg();
+
 		presets[6] = new FadedColors();
 		presets[7] = new Metal();
-		presets[8] = new Camouflage();
-		presets[9] = new FlatRainbow();
-		presets[10] = new Sketch();	
-		presets[11] = new Neon();
-		presets[12] = new Blueprint();
+		presets[8] = new Oldpink();
+		presets[9] = new Vertical();
+		presets[10] = new Camouflage();
+		presets[11] = new FlatRainbow();
+		presets[12] = new Sketch();	
+	//	presets[12] = new Blueprint();
 		presets[13] = new RetroOrange();
-		presets[14] = new Modern2();
-		presets[15] = new Posh();
-		presets[16] = new Comic();
-		presets[17] = new Celestial();
-		presets[18] = new Vertical();
-		presets[19] = new Xmas();
+		presets[14] = new Neon();
+		presets[15] = new Chalk();
+		presets[16] = new Posh();
+		presets[17] = new Comic();
+	//	presets[17] = new Celestial();
+
+
 		/*
 		 * presets[16] = new Amelie();
 		 */
@@ -4440,6 +4443,17 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			else if (MainFrame.touchBarHandler != null)
 				MainFrame.touchBarHandler.setActiveView(this);
 		}*/
+		
+		if (arg0.isPopupTrigger() &&
+	//	if (Utilities.isRightMouseButton(arg0) && 
+				System.currentTimeMillis() - lastMousePressedTime < 100) {
+
+			// we assume that the user accidentally right-dragged instead of
+			// right-clicked, so let's show them a menu if drag length it less
+			// 1/X second
+			populateMenu(arg0);
+			arg0.consume();
+		}
 
 	}
 
@@ -4465,7 +4479,8 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			return;
 
 		// abort right-drags
-		if (Utilities.isRightMouseButton(arg0) && 
+		if (arg0.isPopupTrigger() &&
+	//	if (Utilities.isRightMouseButton(arg0) && 
 				System.currentTimeMillis() - lastMousePressedTime < 100) {
 
 			// we assume that the user accidentally right-dragged instead of

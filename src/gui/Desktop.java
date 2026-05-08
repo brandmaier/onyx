@@ -516,8 +516,11 @@ public class Desktop extends JLayeredPane
 
 		MainFrame.undoStack.endCollectSteps();
 
-		newMv.getModelRequestInterface().setRunPriority(Priority.NORMAL);
 
+		newMv.getModelRequestInterface().setRunPriority(Priority.NORMAL);
+		
+		
+		
 		return (newMv);
 
 	}
@@ -719,9 +722,15 @@ public class Desktop extends JLayeredPane
 
 	@Override
 	public void mousePressed(MouseEvent arg0) {
-		//mousePressedX = arg0.getX();
-		//mousePressedY = arg0.getY();
+		
+		if (arg0.isPopupTrigger()) {
 
+			// open context menu for desktop
+			JPopupMenu menu = getPopupMenu(arg0);
+
+			menu.show(arg0.getComponent(), arg0.getX(), arg0.getY());
+		}
+		
 	}
 
 	@Override
@@ -741,70 +750,76 @@ public class Desktop extends JLayeredPane
 		if (arg0.isPopupTrigger()) {
 
 			// open context menu for desktop
-			JPopupMenu menu = new JPopupMenu();
-
-			// was any of the LR connections clicked?
-			for (ViewConnection conn : viewConnections) {
-				if (conn.isOnLabel(arg0.getX(), arg0.getY())) {
-					removeLRedge = new JMenuItem("Remove model comparison");
-					removeLRedge.addActionListener(this);
-					contextLRedge = conn;
-					menu.add(removeLRedge);
-					menu.addSeparator();
-				}
-			}
-
-			JMenu create = new JMenu("Create new model");
-			menu.add(create);
-
-			create.add(new CreateEmptyModelAction(this, arg0.getX(), arg0.getY()));
-			create.add(new CreateLatentMeanAction(this, arg0.getX(), arg0.getY()));
-			create.add(new CreateSingleFactorModelAction(this, arg0.getX(), arg0.getY()));
-			create.add(new CreateLGCMAction(this, arg0.getX(), arg0.getY()));
-			create.add(new CreateUARAction(this, arg0.getX(), arg0.getY()));
-			if (MainFrame.DEVMODE) {
-				create.add(new CreateApproxUARAction(this, arg0.getX(), arg0.getY()));
-			}
-
-			create.add(new CreateDCSMAction(this, arg0.getX(), arg0.getY()));
-			create.add(new CreateLDEAction(this, arg0.getX(), arg0.getY()));
-			create.add(new CreateMeasurementInvarianceAction(this, arg0.getX(), arg0.getY()));
-
-			JMenu loadTutorial = new JMenu("Load tutorial data");
-
-			loadTutorialX = new JMenuItem[MainFrame.tutorialNum];
-			for (int i = 0; i < MainFrame.tutorialNum; i++) {
-				loadTutorialX[i] = new JMenuItem(MainFrame.tutorialMenunames[i]);
-				loadTutorial.add(loadTutorialX[i]);
-				loadTutorialX[i].addActionListener(this);
-			}
-
-			menu.add(new LoadAction(this, null, null, arg0.getX(), arg0.getY()));
-			menu.add(loadTutorial);
-			// menu.add(new LoadDataAction(this,arg0.getX(),arg0.getY()));
-
-			menu.add(mainFrame.getLoadRecent(arg0.getX(), arg0.getY()));
-
-			menu.add(new DesktopPasteAction(this, arg0.getX(), arg0.getY()));
-
-			if (menuSaveWorkspace == null) {
-				menuSaveWorkspace = new JMenuItem("Save workspace");
-				menuSaveWorkspace.addActionListener(this);
-			}
-			menu.addSeparator();
-			menu.add(menuSaveWorkspace);
-			menu.addSeparator();
-
-			if (closeAll == null) {
-				closeAll = new JMenuItem("Close all panels");
-				closeAll.addActionListener(this);
-			}
-
-			menu.add(closeAll);
+			JPopupMenu menu = getPopupMenu(arg0);
 
 			menu.show(arg0.getComponent(), arg0.getX(), arg0.getY());
 		}
 
+	}
+
+	private JPopupMenu getPopupMenu(MouseEvent arg0) {
+		JPopupMenu menu = new JPopupMenu();
+
+		// was any of the LR connections clicked?
+		for (ViewConnection conn : viewConnections) {
+			if (conn.isOnLabel(arg0.getX(), arg0.getY())) {
+				removeLRedge = new JMenuItem("Remove model comparison");
+				removeLRedge.addActionListener(this);
+				contextLRedge = conn;
+				menu.add(removeLRedge);
+				menu.addSeparator();
+			}
+		}
+
+		JMenu create = new JMenu("Create new model");
+		menu.add(create);
+
+		create.add(new CreateEmptyModelAction(this, arg0.getX(), arg0.getY()));
+		create.add(new CreateLatentMeanAction(this, arg0.getX(), arg0.getY()));
+		create.add(new CreateSingleFactorModelAction(this, arg0.getX(), arg0.getY()));
+		create.add(new CreateLGCMAction(this, arg0.getX(), arg0.getY()));
+		create.add(new CreateUARAction(this, arg0.getX(), arg0.getY()));
+		if (MainFrame.DEVMODE) {
+			create.add(new CreateApproxUARAction(this, arg0.getX(), arg0.getY()));
+		}
+
+		create.add(new CreateDCSMAction(this, arg0.getX(), arg0.getY()));
+		create.add(new CreateLDEAction(this, arg0.getX(), arg0.getY()));
+		create.add(new CreateMeasurementInvarianceAction(this, arg0.getX(), arg0.getY()));
+
+		JMenu loadTutorial = new JMenu("Load tutorial data");
+
+		loadTutorialX = new JMenuItem[MainFrame.tutorialNum];
+		for (int i = 0; i < MainFrame.tutorialNum; i++) {
+			loadTutorialX[i] = new JMenuItem(MainFrame.tutorialMenunames[i]);
+			loadTutorial.add(loadTutorialX[i]);
+			loadTutorialX[i].addActionListener(this);
+		}
+
+		menu.add(new LoadAction(this, null, null, arg0.getX(), arg0.getY()));
+		menu.add(loadTutorial);
+		// menu.add(new LoadDataAction(this,arg0.getX(),arg0.getY()));
+
+		menu.add(mainFrame.getLoadRecent(arg0.getX(), arg0.getY()));
+
+		menu.add(new DesktopPasteAction(this, arg0.getX(), arg0.getY()));
+
+		if (menuSaveWorkspace == null) {
+			menuSaveWorkspace = new JMenuItem("Save workspace");
+			menuSaveWorkspace.addActionListener(this);
+		}
+		menu.addSeparator();
+		menu.add(menuSaveWorkspace);
+		menu.addSeparator();
+
+		if (closeAll == null) {
+			closeAll = new JMenuItem("Close all panels");
+			closeAll.addActionListener(this);
+		}
+
+		menu.add(closeAll);
+		
+		return(menu);
 	}
 
 	@Override

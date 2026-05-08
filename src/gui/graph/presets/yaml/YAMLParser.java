@@ -59,7 +59,7 @@ public class YAMLParser {
 			//while (context_list.size()> level) {context_list.removeElementAt(context_list.size());}
 			
 			// strip whitespaces
-			line = line.strip();
+			line = stripWhitespace(line);
 			
 			
 			// multi-line?
@@ -76,15 +76,15 @@ public class YAMLParser {
 				String key, val;
 				if (has_key) {
 					String[] tokens = line.split(":");
-					key = tokens[0].strip();
-					val = tokens[1].strip();
+					key = stripWhitespace(tokens[0]);
+					val = stripWhitespace(tokens[1]);
 					
 					
 				} else {
 					// no key
 					key = "";
 					for (int i1=0; i1 < context_list.size(); i1++) {if (i1>0) key=key+"-"; key=key+context_list.get(i1);}
-					val = line.strip();
+					val = stripWhitespace(line);
 				}
 				
 				System.out.println("Set "+key+ " to "+ val+"  at level"+level+"\n");
@@ -100,7 +100,14 @@ public class YAMLParser {
 		return(yp);
 	}
 	
-	public static void main(String[] args) {
+	public static String stripWhitespace(String input) {
+	    if (input == null) {
+	        return null;
+	    }
+	    return input.replaceAll("\\s+", "");
+	}
+	
+/*	public static void main(String[] args) {
 		YAMLParser yp = new YAMLParser();
 		String s = "";
 		try {
@@ -110,5 +117,5 @@ public class YAMLParser {
 			e.printStackTrace();
 		}
 		yp.parse(s);
-	}
+	}*/
 }

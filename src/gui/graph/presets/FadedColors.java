@@ -32,6 +32,8 @@ public class FadedColors extends Default {
 	
 	HashMap<Node, Color> colmap = new HashMap<Node, Color>();
 	
+	protected Color background = Color.white;
+	
 	@Override
 	public String getName() {
 		return "Faded Colors";
@@ -41,7 +43,7 @@ public class FadedColors extends Default {
 	public void apply(Graph graph)
 	{
 		super.apply(graph);
-		graph.backgroundColor = Color.white;
+		graph.backgroundColor = background;
 		
 		colpointer = 0;
 	}
@@ -49,6 +51,7 @@ public class FadedColors extends Default {
 	public void init(Graph graph)
 	{
 		//if (colmap.isEmpty()) {
+		colpointer = 0;
 		colmap.clear();
 			// map all latents
 			for (Node tnode : graph.getLatentNodes()) {
