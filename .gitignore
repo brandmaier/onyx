@@ -1,2 +1,6 @@
 bin/
 build/
+dist/
+.onyxProperties
+.classpath
+.project
