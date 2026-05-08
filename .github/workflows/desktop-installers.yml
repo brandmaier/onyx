@@ -79,66 +79,7 @@ jobs:
           path: dist/windows/*.exe
           if-no-files-found: error
 
-  build-macos-app:
-    name: Build macOS App
-    runs-on: macos-latest
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17 (includes jpackage)
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Build runnable JAR with Ant
-        run: ant -noinput -buildfile build.xml dist
-
-      - name: Verify JAR output
-        run: |
-          if [ ! -f dist/onyx.jar ]; then
-            echo "Expected dist/onyx.jar was not produced by Ant build." >&2
-            exit 1
-          fi
-
-      - name: Prepare macOS icon
-        run: |
-          mkdir -p build/package/Onyx.iconset
-          sips -z 16 16 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_16x16.png
-          sips -z 32 32 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_16x16@2x.png
-          sips -z 32 32 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_32x32.png
-          sips -z 64 64 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_32x32@2x.png
-          sips -z 128 128 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_128x128.png
-          sips -z 256 256 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_128x128@2x.png
-          sips -z 256 256 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_256x256.png
-          sips -z 512 512 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_256x256@2x.png
-          sips -z 512 512 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_512x512.png
-          sips -z 1024 1024 src/images/onyx-taskbar.png --out build/package/Onyx.iconset/icon_512x512@2x.png
-          iconutil -c icns build/package/Onyx.iconset -o build/package/Onyx.icns
-
-      - name: Package macOS app-image with jpackage
-        run: |
-          mkdir -p dist/macos-app
-          jpackage \
-            --type app-image \
-            --name Onyx \
-            --input dist \
-            --main-jar onyx.jar \
-            --main-class Main \
-            --java-options "-XstartOnFirstThread" \
-            --icon build/package/Onyx.icns \
-            --dest dist/macos-app
-
-      - name: Upload macOS executable artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Onyx-macOS-App
-          path: dist/macos-app/Onyx.app
-          if-no-files-found: error
-
-  build-macos-dmg:
+ build-macos-dmg:
     name: Build macOS DMG
     runs-on: macos-latest
 
