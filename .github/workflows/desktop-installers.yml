@@ -78,8 +78,8 @@ jobs:
           name: Onyx-Windows-EXE
           path: dist/windows/*.exe
           if-no-files-found: error
-
- build-macos-dmg:
+          
+  build-macos-dmg:
     name: Build macOS DMG
     runs-on: macos-latest
 
