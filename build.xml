@@ -3,8 +3,7 @@
 <project default="dist" 
 name="Create Runnable Jar for Project Onyx" xmlns:ivy="antlib:org.apache.ivy.ant">
 
-	<property name="java.version" value="9"/>
-	<property name="src.version" value="1.9"/>
+	<property name="javac.release" value="9"/>
 
 	<property name="src" location="src" />
 	<property name="lib" location="lib" />
@@ -27,7 +26,7 @@ name="Create Runnable Jar for Project Onyx" xmlns:ivy="antlib:org.apache.ivy.ant
 
 
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac srcdir="${src}" destdir="${build}" debug="true" 	release="${java.version}" source="${src.version}" target="${src.version}" encoding="iso-8859-1" failonerror="false">
+		<javac srcdir="${src}" destdir="${build}" debug="true" release="${javac.release}" encoding="iso-8859-1" includeantruntime="false" failonerror="true">
 			<classpath>
 				<pathelement path="lib/gral-core-0.11.jar"/>
 				<pathelement path="lib/junit-4.13.2.jar"/>
