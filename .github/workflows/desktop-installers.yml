@@ -39,6 +39,11 @@ jobs:
             Write-Error "Expected dist/onyx.jar was not produced by Ant build."
             exit 1
           }
+          $classCount = (& jar tf "dist/onyx.jar" | Select-String "\.class$").Count
+          if ($classCount -eq 0) {
+            Write-Error "dist/onyx.jar does not contain any compiled .class files."
+            exit 1
+          }
 
       - name: Prepare Windows icon
         shell: pwsh
@@ -100,6 +105,10 @@ jobs:
         run: |
           if [ ! -f dist/onyx.jar ]; then
             echo "Expected dist/onyx.jar was not produced by Ant build." >&2
+            exit 1
+          fi
+          if ! jar tf dist/onyx.jar | grep -q '\.class$'; then
+            echo "dist/onyx.jar does not contain any compiled .class files." >&2
             exit 1
           fi
 
