@@ -136,7 +136,6 @@ jobs:
             --input dist \
             --main-jar onyx.jar \
             --main-class Main \
-            --java-options "-XstartOnFirstThread" \
             --icon build/package/Onyx.icns \
             --dest dist/macos
 
