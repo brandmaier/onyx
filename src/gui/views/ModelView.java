@@ -4445,8 +4445,9 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		}*/
 		
 		if (arg0.isPopupTrigger() &&
-	//	if (Utilities.isRightMouseButton(arg0) && 
-				System.currentTimeMillis() - lastMousePressedTime < 100) {
+				true
+				//System.currentTimeMillis() - lastMousePressedTime < 100
+				) {
 
 			// we assume that the user accidentally right-dragged instead of
 			// right-clicked, so let's show them a menu if drag length it less

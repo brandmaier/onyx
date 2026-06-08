@@ -421,7 +421,13 @@ public class DataView extends View implements KeyListener, ActionListener,
 	}
 	
 
-
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		if (arg0.isPopupTrigger()) {
+			populateMenu(arg0);
+		}
+	}
+	
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
 
@@ -436,163 +442,166 @@ public class DataView extends View implements KeyListener, ActionListener,
 		if (arg0.isConsumed())
 			return;
 
-	//	if (Utilities.isRightMouseButton(arg0)) {
+
 		if (arg0.isPopupTrigger()) {
-		
-			JPopupMenu menu = new JPopupMenu();
+			populateMenu(arg0);
+		}
 
-			// if context is the list, add ID selection
-			if (arg0.getSource() == list) {
+	}
 
-				if (menuSetIdColumn == null) {
-					menuSetIdColumn = new JMenuItem(I18n.tr("dataview.menu.setIdColumn", "Set ID Column"));
-					menuSetIdColumn.addActionListener(this);
-				}
-				if (menuRemoveIdColumn == null) {
-					menuRemoveIdColumn = new JMenuItem(I18n.tr("dataview.menu.removeIdColumn", "Remove ID Column"));
-					menuRemoveIdColumn.addActionListener(this);
-				}
+	private void populateMenu(MouseEvent arg0) {
+		JPopupMenu menu = new JPopupMenu();
 
-				menu.add(menuSetIdColumn);
-				if (dataset instanceof RawDataset
-						&& ((RawDataset) dataset).hasIdColumn()) {
-					menu.add(menuRemoveIdColumn);
-				}
-				
-				menu.addSeparator();
+		// if context is the list, add ID selection
+		if (arg0.getSource() == list) {
 
-			} 
-
-				dataNameInput = new LabeledInputBox(I18n.tr("dataview.input.datasetName", "Data Set Name"));
-				menu.add(dataNameInput);
-				dataNameInput.setText(this.getName());
-				dataNameInput.getDocument().addDocumentListener(this);
-
-				if (menuCreateModel == null) {
-					menuCreateModel = new JMenuItem(I18n.tr("dataview.menu.createModel", "Create Model From Data Set"));
-					menuCreateModel.addActionListener(this);
-				}
-
-				if (menuSaveData == null) {
-					menuSaveData = new JMenuItem(I18n.tr("dataview.menu.saveData", "Save Data Set"));
-					menuSaveData.addActionListener(this);
-				}
-
-				if (menuDeleteView == null) {
-					menuDeleteView = new JMenuItem(I18n.tr("dataview.menu.closeData", "Close Data Set"));
-					menuDeleteView.addActionListener(this);
-				}
-
-				if (menuIconify == null) {
-					menuIconify = new JMenuItem(I18n.tr("common.menu.iconify", "Iconify"));
-					menuIconify.addActionListener(this);
-				}
-
-				if (menuCopyToClipboard == null) {
-					menuCopyToClipboard = new JMenuItem(I18n.tr("dataview.menu.copyToClipboard", "Copy To Clipboard"));
-					menuCopyToClipboard.addActionListener(this);
-				}
-
-				if (menuSendData == null) {
-					menuSendData = new JMenu(I18n.tr("dataview.menu.sendData", "Send Data To Model"));
-				}
-				if (menuSendSelectedData == null) {
-					menuSendSelectedData = new JMenu(
-							I18n.tr("dataview.menu.sendSelectedData", "Send Selected Data To Model"));
-				}
-
-				menu.add(menuSendData);
-				if (hasRowsSelected())
-					menu.add(menuSendSelectedData);
-				menuSendData.removeAll();
-				menuSendSelectedData.removeAll();
-				List<ModelView> mvs = desktop.getModelViews();
-				menuSend = new JMenuItem[mvs.size()];
-				menuSendSelected = new JMenuItem[mvs.size()];
-				for (int i = 0; i < mvs.size(); i++) {
-					JMenuItem jmi = new JMenuItem(mvs.get(i).getName());
-					JMenuItem jmi2 = new JMenuItem(mvs.get(i).getName());
-					menuSendData.add(jmi);
-					menuSendSelectedData.add(jmi2);
-					jmi.addActionListener(this);
-					jmi2.addActionListener(this);
-					menuSend[i] = jmi;
-					menuSendSelected[i] = jmi2;
-				}
-
-			
-				
-				if (menuBootstrap == null) {
-					menuBootstrap = new JMenuItem(I18n.tr("dataview.menu.bootstrap", "Bootstrap Data Set"));
-					menuBootstrap.addActionListener(this);
-				}
-
-				if (menuRebootstrap == null) {
-					menuRebootstrap = new JMenuItem(
-							I18n.tr("dataview.menu.rebootstrap", "Rebootstrap Data Set (in-place)"));
-					menuRebootstrap.addActionListener(this);
-				}
-
-				if (menuResimulate == null) {
-					menuResimulate = new JMenuItem(
-							I18n.tr("dataview.menu.resimulate", "Resimulate Data Set (in-place)"));
-					menuResimulate.addActionListener(this);
-				}
-
-				
-				menu.add(menuCreateModel);
-				menu.addSeparator();
-				menu.add(menuSaveData);
-				menu.add(menuCopyToClipboard);
-
-				menu.addSeparator();
-				
-				if (MainFrame.UNSTABLE) {
-					
-					menuPlotLong = new JMenuItem(I18n.tr("dataview.menu.plot.longitudinal", "Plot longitudinal data"));
-					menuPlotBox = new JMenuItem(I18n.tr("dataview.menu.plot.box", "Plot box plot"));
-					menuPlotScatter = new JMenuItem(I18n.tr("dataview.menu.plot.scatter", "Plot scatter plot"));
-					
-					menuPlot = new JMenu(I18n.tr("dataview.menu.plot", "Plot data"));
-					menuPlotBox.addActionListener(this);
-					menuPlotLong.addActionListener(this);
-					menuPlotScatter.addActionListener(this);
-					menu.add(menuPlot);
-					
-					menuPlot.add(menuPlotLong);
-					menuPlot.add(menuPlotBox);
-					menuPlot.add(menuPlotScatter);
-				}
-				
-				int numbs=0;
-				if (this.dataset instanceof RawDataset)
-					menu.add(menuBootstrap);
-					numbs+=1;
-				if (this.getDataset() instanceof BootstrappedDataset) {
-					menu.add(menuRebootstrap);
-					numbs+=1;
-				}
-				if (this.getDataset() instanceof SimulatedDataset) {
-					menu.add(menuResimulate);
-					numbs+=1;
-				}
-				
-				if (numbs > 0)
-					menu.addSeparator();
-				
-				menu.add(menuIconify);
-				menu.add(menuDeleteView);
-
-			
-
-			// this problem occured on a MAC 10.7.5 with Java 6. Does not seem
-			// to be lethal, though (TODO)
-			try {
-				menu.show(arg0.getComponent(), arg0.getX(), arg0.getY());
-			} catch (java.awt.IllegalComponentStateException e) {
-				e.printStackTrace();
+			if (menuSetIdColumn == null) {
+				menuSetIdColumn = new JMenuItem(I18n.tr("dataview.menu.setIdColumn", "Set ID Column"));
+				menuSetIdColumn.addActionListener(this);
+			}
+			if (menuRemoveIdColumn == null) {
+				menuRemoveIdColumn = new JMenuItem(I18n.tr("dataview.menu.removeIdColumn", "Remove ID Column"));
+				menuRemoveIdColumn.addActionListener(this);
 			}
 
+			menu.add(menuSetIdColumn);
+			if (dataset instanceof RawDataset
+					&& ((RawDataset) dataset).hasIdColumn()) {
+				menu.add(menuRemoveIdColumn);
+			}
+			
+			menu.addSeparator();
+
+		} 
+
+			dataNameInput = new LabeledInputBox(I18n.tr("dataview.input.datasetName", "Data Set Name"));
+			menu.add(dataNameInput);
+			dataNameInput.setText(this.getName());
+			dataNameInput.getDocument().addDocumentListener(this);
+
+			if (menuCreateModel == null) {
+				menuCreateModel = new JMenuItem(I18n.tr("dataview.menu.createModel", "Create Model From Data Set"));
+				menuCreateModel.addActionListener(this);
+			}
+
+			if (menuSaveData == null) {
+				menuSaveData = new JMenuItem(I18n.tr("dataview.menu.saveData", "Save Data Set"));
+				menuSaveData.addActionListener(this);
+			}
+
+			if (menuDeleteView == null) {
+				menuDeleteView = new JMenuItem(I18n.tr("dataview.menu.closeData", "Close Data Set"));
+				menuDeleteView.addActionListener(this);
+			}
+
+			if (menuIconify == null) {
+				menuIconify = new JMenuItem(I18n.tr("common.menu.iconify", "Iconify"));
+				menuIconify.addActionListener(this);
+			}
+
+			if (menuCopyToClipboard == null) {
+				menuCopyToClipboard = new JMenuItem(I18n.tr("dataview.menu.copyToClipboard", "Copy To Clipboard"));
+				menuCopyToClipboard.addActionListener(this);
+			}
+
+			if (menuSendData == null) {
+				menuSendData = new JMenu(I18n.tr("dataview.menu.sendData", "Send Data To Model"));
+			}
+			if (menuSendSelectedData == null) {
+				menuSendSelectedData = new JMenu(
+						I18n.tr("dataview.menu.sendSelectedData", "Send Selected Data To Model"));
+			}
+
+			menu.add(menuSendData);
+			if (hasRowsSelected())
+				menu.add(menuSendSelectedData);
+			menuSendData.removeAll();
+			menuSendSelectedData.removeAll();
+			List<ModelView> mvs = desktop.getModelViews();
+			menuSend = new JMenuItem[mvs.size()];
+			menuSendSelected = new JMenuItem[mvs.size()];
+			for (int i = 0; i < mvs.size(); i++) {
+				JMenuItem jmi = new JMenuItem(mvs.get(i).getName());
+				JMenuItem jmi2 = new JMenuItem(mvs.get(i).getName());
+				menuSendData.add(jmi);
+				menuSendSelectedData.add(jmi2);
+				jmi.addActionListener(this);
+				jmi2.addActionListener(this);
+				menuSend[i] = jmi;
+				menuSendSelected[i] = jmi2;
+			}
+
+		
+			
+			if (menuBootstrap == null) {
+				menuBootstrap = new JMenuItem(I18n.tr("dataview.menu.bootstrap", "Bootstrap Data Set"));
+				menuBootstrap.addActionListener(this);
+			}
+
+			if (menuRebootstrap == null) {
+				menuRebootstrap = new JMenuItem(
+						I18n.tr("dataview.menu.rebootstrap", "Rebootstrap Data Set (in-place)"));
+				menuRebootstrap.addActionListener(this);
+			}
+
+			if (menuResimulate == null) {
+				menuResimulate = new JMenuItem(
+						I18n.tr("dataview.menu.resimulate", "Resimulate Data Set (in-place)"));
+				menuResimulate.addActionListener(this);
+			}
+
+			
+			menu.add(menuCreateModel);
+			menu.addSeparator();
+			menu.add(menuSaveData);
+			menu.add(menuCopyToClipboard);
+
+			menu.addSeparator();
+			
+			if (MainFrame.UNSTABLE) {
+				
+				menuPlotLong = new JMenuItem(I18n.tr("dataview.menu.plot.longitudinal", "Plot longitudinal data"));
+				menuPlotBox = new JMenuItem(I18n.tr("dataview.menu.plot.box", "Plot box plot"));
+				menuPlotScatter = new JMenuItem(I18n.tr("dataview.menu.plot.scatter", "Plot scatter plot"));
+				
+				menuPlot = new JMenu(I18n.tr("dataview.menu.plot", "Plot data"));
+				menuPlotBox.addActionListener(this);
+				menuPlotLong.addActionListener(this);
+				menuPlotScatter.addActionListener(this);
+				menu.add(menuPlot);
+				
+				menuPlot.add(menuPlotLong);
+				menuPlot.add(menuPlotBox);
+				menuPlot.add(menuPlotScatter);
+			}
+			
+			int numbs=0;
+			if (this.dataset instanceof RawDataset)
+				menu.add(menuBootstrap);
+				numbs+=1;
+			if (this.getDataset() instanceof BootstrappedDataset) {
+				menu.add(menuRebootstrap);
+				numbs+=1;
+			}
+			if (this.getDataset() instanceof SimulatedDataset) {
+				menu.add(menuResimulate);
+				numbs+=1;
+			}
+			
+			if (numbs > 0)
+				menu.addSeparator();
+			
+			menu.add(menuIconify);
+			menu.add(menuDeleteView);
+
+		
+
+		// this problem occured on a MAC 10.7.5 with Java 6. Does not seem
+		// to be lethal, though (TODO)
+		try {
+			menu.show(arg0.getComponent(), arg0.getX(), arg0.getY());
+		} catch (java.awt.IllegalComponentStateException e) {
+			e.printStackTrace();
 		}
 
 	}
