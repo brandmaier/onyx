@@ -423,6 +423,8 @@ public class DataView extends View implements KeyListener, ActionListener,
 
 	@Override
 	public void mousePressed(MouseEvent arg0) {
+		super.mousePressed(arg0);
+		
 		if (arg0.isPopupTrigger()) {
 			populateMenu(arg0);
 		}
