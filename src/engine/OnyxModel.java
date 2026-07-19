@@ -332,6 +332,7 @@ public class OnyxModel extends RAMModel implements ModelRequestInterface {
         if (!node.isLatent()) {
             filter[anzVar] = anzFac-1;
             anzVar++;
+            if (node.isOrdinal()) setOrdinalVariable(anzVar-1, true, node.getOrdinalThresholds());
         }
 
         node.setId(anzFac-1);
@@ -341,6 +342,7 @@ public class OnyxModel extends RAMModel implements ModelRequestInterface {
     }
 
     public synchronized void requestSwapLatentToManifest(Node node) {
+        int[] oldFilter = filter;
         anzVar += (node.isLatent()?+1:-1);
         int[] nFilter = new int[anzVar];
         
@@ -351,10 +353,28 @@ public class OnyxModel extends RAMModel implements ModelRequestInterface {
         } else {
             Statik.subvector(filter, nFilter, node.getId());
         }
+        int[] ordinalSources = new int[nFilter.length];
+        for (int i=0; i<nFilter.length; i++) {
+            ordinalSources[i] = -1;
+            for (int j=0; j<oldFilter.length; j++) if (oldFilter[j] == nFilter[i]) {ordinalSources[i] = j; break;}
+        }
+        remapOrdinalVariables(ordinalSources);
         filter = nFilter;
         
         for (int i=0; i<modelListener.length; i++) modelListener[i].swapLatentToManifest(node);
         invalidateDataSet(); modelRun.requestReset();
+    }
+
+    @Override
+    public synchronized void requestSetOrdinalVariable(Node node, boolean ordinal, double[] thresholds) {
+        if (!node.isObserved()) throw new IllegalArgumentException("Only observed variables can be ordinal.");
+        int observedIndex = -1;
+        for (int i=0; i<filter.length; i++) if (filter[i] == node.getId()) { observedIndex = i; break; }
+        if (observedIndex == -1) throw new IllegalArgumentException("Node is not an observed model variable.");
+        setOrdinalVariable(observedIndex, ordinal, thresholds);
+        node.setOrdinal(ordinal, thresholds);
+        invalidateDataSet();
+        modelRun.requestReset();
     }
 
     public synchronized boolean requestCycleArrowHeads(Edge edge) {

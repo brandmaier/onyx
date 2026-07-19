@@ -95,6 +95,16 @@ public abstract class Model
       public double[] mu;
       public double sigmaDet;
 
+      /*
+       * Measurement scale metadata.  An ordinal observation is assumed to be a
+       * zero-based category of a latent Gaussian response.  Its thresholds are
+       * the (strictly increasing) finite cut points between categories; hence
+       * k thresholds describe k + 1 categories.  Keeping this on Model rather
+       * than on RAMModel also makes the likelihood available to its wrappers.
+       */
+      protected boolean[] ordinalVariables;
+      protected double[][] ordinalThresholds;
+
       public enum Objective {maximumLikelihood, Leastsquares};
       public Objective fitFunction;                       // remembers last initialization of fit process with ml or ls
       public enum Strategy {classic, defaul, user, defaultWithEMSupport, MCMC};
@@ -178,6 +188,47 @@ public abstract class Model
       
       public int getAnzPar() {return anzPar = paraNames.length;}
       public int getAnzVar() {return anzVar;}
+
+      /** Marks an observed variable as ordinal and supplies its latent-response cut points. */
+      public void setOrdinalVariable(int variable, boolean ordinal, double[] thresholds) {
+          if (variable < 0 || variable >= anzVar) throw new IllegalArgumentException("Unknown observed variable: "+variable);
+          if (ordinal && thresholds == null) throw new IllegalArgumentException("Ordinal variables require thresholds.");
+          if (ordinal) {
+              for (int i=0; i<thresholds.length; i++) {
+                  if (!Double.isFinite(thresholds[i]) || (i > 0 && thresholds[i] <= thresholds[i-1]))
+                      throw new IllegalArgumentException("Ordinal thresholds must be finite and strictly increasing.");
+              }
+          }
+          if (ordinalVariables == null || ordinalVariables.length != anzVar) ordinalVariables = new boolean[anzVar];
+          if (ordinalThresholds == null || ordinalThresholds.length != anzVar) ordinalThresholds = new double[anzVar][];
+          ordinalVariables[variable] = ordinal;
+          ordinalThresholds[variable] = ordinal ? Arrays.copyOf(thresholds, thresholds.length) : null;
+      }
+
+      public boolean isOrdinalVariable(int variable) {return ordinalVariables != null && ordinalVariables[variable];}
+      public double[] getOrdinalThresholds(int variable) {
+          return ordinalThresholds == null || ordinalThresholds[variable] == null ? null : Arrays.copyOf(ordinalThresholds[variable], ordinalThresholds[variable].length);
+      }
+      protected boolean hasOrdinalVariables() {
+          if (ordinalVariables != null) for (boolean ordinal : ordinalVariables) if (ordinal) return true;
+          return false;
+      }
+
+      /** Reorders ordinal metadata after an observed-variable filter changes. */
+      public void remapOrdinalVariables(int[] sourceIndices) {
+          if (ordinalVariables == null) return;
+          boolean[] remappedFlags = new boolean[sourceIndices.length];
+          double[][] remappedThresholds = new double[sourceIndices.length][];
+          for (int i=0; i<sourceIndices.length; i++) {
+              int source = sourceIndices[i];
+              if (source >= 0 && source < ordinalVariables.length) {
+                  remappedFlags[i] = ordinalVariables[source];
+                  remappedThresholds[i] = ordinalThresholds[source] == null ? null : Arrays.copyOf(ordinalThresholds[source], ordinalThresholds[source].length);
+              }
+          }
+          ordinalVariables = remappedFlags;
+          ordinalThresholds = remappedThresholds;
+      }
 
       /** copies this */
       public abstract Model copy(); 
@@ -522,6 +573,7 @@ public abstract class Model
 
           if (value != null) setParameter(value);
           if (recomputeMuAndSigma) evaluateMuAndSigma(value);
+          if (hasOrdinalVariables()) return getJointOrdinalContinuousMinusTwoLogLikelihood();
         
           if (anzVar == 0) {
               sigmaDet = Double.NaN; ll = Double.NaN; 
@@ -558,6 +610,108 @@ public abstract class Model
           }
           
         return ll;
+    }
+
+    /**
+     * Full-information likelihood for a mixture of Gaussian continuous
+     * observations and thresholded Gaussian ordinal observations.  Continuous
+     * values are evaluated as a marginal density and ordinal values as a
+     * conditional normal rectangle probability.  The latter uses deterministic
+     * GHK integration, so the objective remains reproducible for numerical
+     * optimization and supports correlated ordinal responses.
+     */
+    private double getJointOrdinalContinuousMinusTwoLogLikelihood() {
+        if (data == null) throw new IllegalStateException("Joint ordinal likelihood requires raw data.");
+        double result = 0.0;
+        for (double[] row : data) {
+            int[] continuous = observedIndices(row, false);
+            int[] ordinal = observedIndices(row, true);
+            if (continuous.length == 0 && ordinal.length == 0) continue;
+            double logProbability = continuousLogDensity(row, continuous);
+            if (ordinal.length > 0) logProbability += Math.log(ordinalProbability(row, continuous, ordinal));
+            result -= 2.0 * logProbability;
+        }
+        ll = result;
+        return result;
+    }
+
+    private int[] observedIndices(double[] row, boolean ordinal) {
+        int count = 0;
+        for (int i=0; i<anzVar; i++) if (isOrdinalVariable(i) == ordinal && !isMissing(row[i])) count++;
+        int[] indices = new int[count]; int p = 0;
+        for (int i=0; i<anzVar; i++) if (isOrdinalVariable(i) == ordinal && !isMissing(row[i])) indices[p++] = i;
+        return indices;
+    }
+
+    private double continuousLogDensity(double[] row, int[] continuous) {
+        if (continuous.length == 0) return 0.0;
+        double[][] covariance = submatrix(sigma, continuous, continuous);
+        double[][] inverse = new double[continuous.length][continuous.length];
+        double determinant;
+        try {determinant = Statik.invert(covariance, inverse, new double[1]);}
+        catch (RuntimeException e) {return Double.NEGATIVE_INFINITY;}
+        if (!(determinant > 0.0)) return Double.NEGATIVE_INFINITY;
+        double quadratic = 0.0;
+        for (int i=0; i<continuous.length; i++) for (int j=0; j<continuous.length; j++)
+            quadratic += (row[continuous[i]]-mu[continuous[i]]) * inverse[i][j] * (row[continuous[j]]-mu[continuous[j]]);
+        return -0.5 * (continuous.length * LNTWOPI + Math.log(determinant) + quadratic);
+    }
+
+    private double ordinalProbability(double[] row, int[] continuous, int[] ordinal) {
+        double[] conditionalMean = new double[ordinal.length];
+        double[][] conditionalCovariance = submatrix(sigma, ordinal, ordinal);
+        for (int i=0; i<ordinal.length; i++) conditionalMean[i] = mu[ordinal[i]];
+        if (continuous.length > 0) {
+            double[][] cc = submatrix(sigma, continuous, continuous), ccInverse = new double[continuous.length][continuous.length];
+            if (!(Statik.invert(cc, ccInverse, new double[1]) > 0.0)) return 0.0;
+            double[][] oc = submatrix(sigma, ordinal, continuous), co = submatrix(sigma, continuous, ordinal);
+            double[] delta = new double[continuous.length];
+            for (int i=0; i<delta.length; i++) delta[i] = row[continuous[i]] - mu[continuous[i]];
+            for (int i=0; i<ordinal.length; i++) for (int j=0; j<continuous.length; j++) for (int k=0; k<continuous.length; k++)
+                conditionalMean[i] += oc[i][j] * ccInverse[j][k] * delta[k];
+            for (int i=0; i<ordinal.length; i++) for (int j=0; j<ordinal.length; j++) for (int k=0; k<continuous.length; k++) for (int l=0; l<continuous.length; l++)
+                conditionalCovariance[i][j] -= oc[i][k] * ccInverse[k][l] * co[l][j];
+        }
+        double[][] lower = cholesky(conditionalCovariance);
+        if (lower == null) return 0.0;
+        double probability = 0.0;
+        for (int draw=1; draw<=128; draw++) {
+            double[] z = new double[ordinal.length]; double weight = 1.0;
+            for (int i=0; i<ordinal.length; i++) {
+                int category = checkedCategory(row[ordinal[i]], ordinal[i]);
+                double location = conditionalMean[i]; for (int j=0; j<i; j++) location += lower[i][j]*z[j];
+                double lowerBound = category == 0 ? Double.NEGATIVE_INFINITY : ordinalThresholds[ordinal[i]][category-1];
+                double upperBound = category == ordinalThresholds[ordinal[i]].length ? Double.POSITIVE_INFINITY : ordinalThresholds[ordinal[i]][category];
+                double a = normalCdf((lowerBound-location)/lower[i][i]);
+                double b = normalCdf((upperBound-location)/lower[i][i]);
+                double mass = Math.max(1e-300, b-a); weight *= mass;
+                z[i] = inverseNormal(a + mass * halton(draw, i));
+            }
+            probability += weight;
+        }
+        return Math.max(1e-300, probability / 128.0);
+    }
+
+    private int checkedCategory(double value, int variable) {
+        int category = (int)Math.rint(value);
+        if (Math.abs(value-category) > 1e-9 || category < 0 || category > ordinalThresholds[variable].length)
+            throw new IllegalArgumentException("Ordinal value "+value+" is outside the categories for variable "+variable);
+        return category;
+    }
+    private static double[][] submatrix(double[][] matrix, int[] rows, int[] columns) { double[][] r = new double[rows.length][columns.length]; for(int i=0;i<rows.length;i++) for(int j=0;j<columns.length;j++) r[i][j]=matrix[rows[i]][columns[j]]; return r; }
+    private static double[][] cholesky(double[][] a) { int n=a.length; double[][] l=new double[n][n]; for(int i=0;i<n;i++) for(int j=0;j<=i;j++){ double s=a[i][j]; for(int k=0;k<j;k++) s-=l[i][k]*l[j][k]; if(i==j){if(s<=0)return null;l[i][j]=Math.sqrt(s);}else l[i][j]=s/l[j][j]; } return l; }
+    private static double halton(int index, int dimension) { int[] bases={2,3,5,7,11,13,17,19,23,29}; int base=bases[dimension%bases.length], n=index; double f=1.0, r=0.0; while(n>0){f/=base;r+=f*(n%base);n/=base;} return r; }
+    private static double normalCdf(double x) { if(x==Double.NEGATIVE_INFINITY)return 0; if(x==Double.POSITIVE_INFINITY)return 1; double t=1/(1+0.2316419*Math.abs(x)); double p=1-0.3989422804014327*Math.exp(-x*x/2)*t*(0.319381530+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429)))); return x<0?1-p:p; }
+    private static double inverseNormal(double p) { // Peter J. Acklam's rational approximation
+        p=Math.max(1e-15,Math.min(1-1e-15,p));
+        double[] a={-39.69683028665376,220.9460984245205,-275.9285104469687,138.357751867269,-30.66479806614716,2.506628277459239};
+        double[] b={-54.47609879822406,161.5858368580409,-155.6989798598866,66.80131188771972,-13.28068155288572};
+        double[] c={-0.007784894002430293,-0.3223964580411365,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783};
+        double[] d={0.007784695709041462,0.3224671290700398,2.445134137142996,3.754408661907416};
+        double q, r;
+        if (p < .02425) { q=Math.sqrt(-2*Math.log(p)); return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+        if (p > .97575) { q=Math.sqrt(-2*Math.log(1-p)); return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+        q=p-.5; r=q*q; return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
     }
       /**
        * Returns the standard deviation of the parameter estimates as the diagonal elements of the inverted Hessian.

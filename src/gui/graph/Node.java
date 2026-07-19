@@ -85,6 +85,10 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 	private boolean multiplication = false;
 
 	private boolean isNormalized = false;
+	// Threshold-model metadata for observed variables.  Thresholds are in the
+	// latent-response scale and define zero-based ordinal categories.
+	private boolean ordinal = false;
+	private double[] ordinalThresholds;
 
 	// Depth of the node in the graph object. Needs to be set using the
 	// computeDirectedDephts in the Graph class.
@@ -220,6 +224,7 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 			node.groupingVariableContainer.addVariableContainerListener(node);
 			node.observedVariableContainer = (VariableContainer) observedVariableContainer.clone(node);
 			node.observedVariableContainer.addVariableContainerListener(node);
+			node.ordinalThresholds = ordinalThresholds == null ? null : ordinalThresholds.clone();
 			return (node);
 		} catch (CloneNotSupportedException e) {
 			// TODO Auto-generated catch block
@@ -227,6 +232,17 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 			return (null);
 		}
 
+	}
+
+	public boolean isOrdinal() { return ordinal; }
+
+	public double[] getOrdinalThresholds() {
+		return ordinalThresholds == null ? null : ordinalThresholds.clone();
+	}
+
+	public void setOrdinal(boolean ordinal, double[] thresholds) {
+		this.ordinal = ordinal;
+		this.ordinalThresholds = ordinal && thresholds != null ? thresholds.clone() : null;
 	}
 
 	public boolean isNormalized() {
