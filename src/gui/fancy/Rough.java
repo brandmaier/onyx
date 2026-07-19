@@ -15,14 +15,17 @@
 */
 package gui.fancy;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.TexturePaint;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
@@ -107,9 +110,18 @@ public class Rough extends JFrame {
 		return roughness*(rand.nextFloat()*(maxVal-minVal)+minVal);
 }
 	
-	/*public static void rect(Graphics2D g) {
-		
-	}*/
+	public static void drawScribbleOutline(Graphics2D g2d, Shape shape, int rough_seed) {
+		Composite oldComposite = g2d.getComposite();
+		Stroke oldStroke = g2d.getStroke();
+		float strokeWidth = oldStroke instanceof BasicStroke ? ((BasicStroke) oldStroke).getLineWidth() : 1f;
+		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .85f));
+		Rough.draw(g2d, shape, rough_seed, 1);
+		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .55f));
+		g2d.setStroke(new BasicStroke(Math.max(1f, strokeWidth * .65f), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+		Rough.draw(g2d, shape, rough_seed + 7919, 2);
+		g2d.setStroke(oldStroke);
+		g2d.setComposite(oldComposite);
+	}
 	
 	public static void draw(Graphics2D g, Shape shape) {
 			draw(g, shape, -1,2);

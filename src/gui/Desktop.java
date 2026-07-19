@@ -24,6 +24,7 @@ import engine.RawDataset;
 import engine.ModelRun.Priority;
 import engine.backend.Model;
 import gui.actions.CreateApproxUARAction;
+import gui.actions.CreateBivariateCSMAction;
 import gui.actions.CreateDCSMAction;
 import gui.actions.CreateEmptyModelAction;
 import gui.actions.CreateLDEAction;
@@ -784,6 +785,7 @@ public class Desktop extends JLayeredPane
 		}
 
 		create.add(new CreateDCSMAction(this, arg0.getX(), arg0.getY()));
+		create.add(new CreateBivariateCSMAction(this, arg0.getX(), arg0.getY()));
 		create.add(new CreateLDEAction(this, arg0.getX(), arg0.getY()));
 		create.add(new CreateMeasurementInvarianceAction(this, arg0.getX(), arg0.getY()));
 

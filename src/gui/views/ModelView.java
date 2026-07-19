@@ -248,18 +248,19 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 	/** Immutable counts for the objects currently enclosed by a selection box. */
 	public static final class SelectionBoxContents {
 		private final int observedVariables;
-		private final int manifestVariables;
+		private final int latentVariables;
 		private final int edges;
 
-		private SelectionBoxContents(int observedVariables, int manifestVariables, int edges) {
+		private SelectionBoxContents(int observedVariables, int latentVariables, int edges) {
 			this.observedVariables = observedVariables;
-			this.manifestVariables = manifestVariables;
+			this.latentVariables = latentVariables;
 			this.edges = edges;
 		}
 
 		public int getObservedVariables() { return observedVariables; }
-		public int getManifestVariables() { return manifestVariables; }
+		public int getLatentVariables() { return latentVariables; }
 		public int getEdges() { return edges; }
+
 	}
 
 	private static final Color MODERN_SELECTION_BLUE = new Color(37, 99, 235);
@@ -675,6 +676,8 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 	public ModelView(Desktop desktop) {
 		super(desktop);
+		
+		useModernSelectionBox(); 
 
 		super.hasTopLeftResizer = true;
 
@@ -4991,24 +4994,27 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 	private SelectionBoxContents getSelectionBoxContents(java.awt.Rectangle selection) {
 		int observedVariables = 0;
-		int manifestVariables = 0;
+		int latentVariables = 0;
 		int edges = 0;
+		
+
 
 		for (Node node : graph.getNodes()) {
 			if (node.isWithinRectangle(selection)) {
 				if (node.isObserved())
 					observedVariables++;
-				if (node.isManifest())
-					manifestVariables++;
+				if (node.isLatent())
+					latentVariables++;
 			}
 		}
+		
 
 		for (Edge edge : graph.getEdges()) {
 			if (edge.isWithinRectangle(selection))
 				edges++;
 		}
 
-		return new SelectionBoxContents(observedVariables, manifestVariables, edges);
+		return new SelectionBoxContents(observedVariables, latentVariables, edges);
 	}
 
 	/**
@@ -5033,8 +5039,17 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			graphics.setStroke(new BasicStroke(2f));
 			graphics.drawRoundRect(selection.x, selection.y, selection.width, selection.height, CORNER_RADIUS, CORNER_RADIUS);
 
-			String summary = String.format("Observed: %d  Manifest: %d  Edges: %d",
-					contents.getObservedVariables(), contents.getManifestVariables(), contents.getEdges());
+			int num_o = contents.getObservedVariables();
+			int num_m = contents.getLatentVariables();
+			int num_p = contents.getEdges();
+			
+			String summary = String.format("Observed: %d  Latent: %d  Paths: %d",
+					num_o, num_m, num_p);
+			
+			boolean empty = num_o+num_m+num_p == 0;
+			
+			
+			
 			int summaryWidth = graphics.getFontMetrics().stringWidth(summary) + 2 * SUMMARY_PADDING_X;
 			int summaryHeight = graphics.getFontMetrics().getHeight() + 2 * SUMMARY_PADDING_Y;
 			int summaryX = selection.x + 8;
@@ -5044,13 +5059,17 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			summaryX = Math.min(summaryX, Math.max(selection.x, selection.x + selection.width - summaryWidth - 8));
 			summaryY = Math.min(summaryY, Math.max(selection.y, selection.y + selection.height - summaryHeight - 8));
 
-			graphics.setColor(new Color(239, 246, 255));
-			graphics.fillRoundRect(summaryX, summaryY, summaryWidth, summaryHeight, CORNER_RADIUS, CORNER_RADIUS);
-			graphics.setColor(MODERN_SELECTION_BLUE.darker());
-			graphics.drawRoundRect(summaryX, summaryY, summaryWidth, summaryHeight, CORNER_RADIUS, CORNER_RADIUS);
-			graphics.drawString(summary, summaryX + SUMMARY_PADDING_X,
-					summaryY + SUMMARY_PADDING_Y + graphics.getFontMetrics().getAscent());
 
+			
+			if (!empty) {
+				graphics.setColor(new Color(239, 246, 255));
+				graphics.fillRoundRect(summaryX, summaryY, summaryWidth, summaryHeight, CORNER_RADIUS, CORNER_RADIUS);
+				graphics.setColor(MODERN_SELECTION_BLUE.darker());
+				graphics.drawRoundRect(summaryX, summaryY, summaryWidth, summaryHeight, CORNER_RADIUS, CORNER_RADIUS);
+				graphics.drawString(summary, summaryX + SUMMARY_PADDING_X,
+					summaryY + SUMMARY_PADDING_Y + graphics.getFontMetrics().getAscent());
+			}
+			
 			graphics.setColor(oldColor);
 			graphics.setStroke(oldStroke);
 			graphics.setComposite(oldComposite);

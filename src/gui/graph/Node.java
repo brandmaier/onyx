@@ -722,6 +722,7 @@ public class Node implements Cloneable, FillColorable, LineColorable, Movable, R
 			g.setColor(borderColor);
 			if (this.rough) {
 				Rough.draw(g2d, shape);
+				//Rough.drawScribbleOutline(g2d, shape, 132);
 			} else {
 				g2d.draw(shape);
 			}
