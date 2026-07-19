@@ -123,6 +123,8 @@ public class RAMModel extends NumericalDerivativeModel {
         this.paraNames = Statik.copy(toCopy.paraNames);
         this.position = Statik.copy(toCopy.position);
         this.anzPar = toCopy.anzPar;
+        if (toCopy.ordinalVariables != null) this.ordinalVariables = Statik.copy(toCopy.ordinalVariables);
+        if (toCopy.ordinalThresholds != null) this.ordinalThresholds = Statik.copy(toCopy.ordinalThresholds);
         if (toCopy.isIndirectData) this.setDataDistribution(toCopy.dataCov, toCopy.dataMean, toCopy.anzPer); 
         else this.setData(Statik.copy(toCopy.data), Statik.copy(toCopy.auxiliaryData), Statik.copy(toCopy.controlData));
         this.filter = Statik.copy(toCopy.filter); 
@@ -412,7 +414,9 @@ public class RAMModel extends NumericalDerivativeModel {
     public boolean debugGradientAndHessianComputationIsNumerical = false;
     public void computeLogLikelihoodDerivatives(double[] value, boolean recomputeMuAndSigma) {
         callCount++;
-        if (debugGradientAndHessianComputationIsNumerical) super.computeLogLikelihoodDerivatives(value, recomputeMuAndSigma);
+        // Threshold likelihoods use conditional rectangle probabilities and
+        // therefore require numerical derivatives until analytic GHK scores are supplied.
+        if (debugGradientAndHessianComputationIsNumerical || hasOrdinalVariables()) super.computeLogLikelihoodDerivatives(value, recomputeMuAndSigma);
         else correctComputeLogLikelihoodDerivatives(value, recomputeMuAndSigma);        
     }
     
@@ -823,8 +827,7 @@ public class RAMModel extends NumericalDerivativeModel {
 
     @Override
     public Model copy() {
-        return new RAMModel(Statik.copy(symPar), Statik.copy(symVal), Statik.copy(asyPar), Statik.copy(asyVal), Statik.copy(meanPar), 
-                Statik.copy(meanVal), Statik.copy(filter));
+        return new RAMModel(this);
     }
 
     @Override
@@ -893,6 +896,12 @@ public class RAMModel extends NumericalDerivativeModel {
     public RAMModel removeObservation(int obs) {
         RAMModel copy = new RAMModel((RAMModel)this);
         copy.filter = Statik.subvector(copy.filter, obs);
+        if (copy.ordinalVariables != null) copy.ordinalVariables = Statik.subvector(copy.ordinalVariables, obs);
+        if (copy.ordinalThresholds != null) {
+            double[][] thresholds = new double[copy.ordinalThresholds.length-1][];
+            for (int i=0, j=0; i<copy.ordinalThresholds.length; i++) if (i != obs) thresholds[j++] = copy.ordinalThresholds[i];
+            copy.ordinalThresholds = thresholds;
+        }
         copy.anzVar--;
         return copy;
     }

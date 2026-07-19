@@ -51,6 +51,12 @@ public interface ModelRequestInterface {
 
 	public void requestSwapLatentToManifest(Node node);
 
+	/**
+	 * Marks an observed variable as ordinal and supplies its latent-response
+	 * thresholds. Thresholds are ignored when ordinal is false.
+	 */
+	public void requestSetOrdinalVariable(Node node, boolean ordinal, double[] thresholds);
+
 	
 	/**
 	 * request a change of the model name

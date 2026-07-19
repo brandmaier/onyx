@@ -554,6 +554,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 	private JMenuItem menuSwapManifestLatent;
 
 	private JMenuItem menuSwapNormalized;
+	private JCheckBoxMenuItem menuSetOrdinal;
 	private JMenuItem menuResetToDefaults;
 	private JMenuItem menuToggleAutomaticNaming;
 
@@ -1127,6 +1128,28 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 				node.setNormalized(!state);
 
 			this.modelChangedEvent();
+			this.redraw();
+		}
+
+		if (e.getSource() == menuSetOrdinal) {
+			if (menuSetOrdinal.isSelected()) {
+				String current = formatOrdinalThresholds(menuContextNode.getOrdinalThresholds());
+				String input = JOptionPane.showInputDialog(this,
+						"Latent-response thresholds (comma separated; categories are zero-based):",
+						current.length() == 0 ? "0" : current);
+				if (input == null) {
+					menuSetOrdinal.setSelected(false);
+					return;
+				}
+				try {
+					getModelRequestInterface().requestSetOrdinalVariable(menuContextNode, true, parseOrdinalThresholds(input));
+				} catch (IllegalArgumentException exception) {
+					menuSetOrdinal.setSelected(false);
+					JOptionPane.showMessageDialog(this, exception.getMessage(), "Invalid ordinal thresholds", JOptionPane.ERROR_MESSAGE);
+				}
+			} else {
+				getModelRequestInterface().requestSetOrdinalVariable(menuContextNode, false, null);
+			}
 			this.redraw();
 		}
 
@@ -5057,6 +5080,25 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 		}
 	}
 
+	private static double[] parseOrdinalThresholds(String input) {
+		String[] parts = input.trim().split("\\s*,\\s*");
+		if (parts.length == 0 || (parts.length == 1 && parts[0].isEmpty()))
+			throw new IllegalArgumentException("Provide at least one threshold.");
+		double[] thresholds = new double[parts.length];
+		for (int i=0; i<parts.length; i++) thresholds[i] = Double.parseDouble(parts[i]);
+		return thresholds;
+	}
+
+	private static String formatOrdinalThresholds(double[] thresholds) {
+		if (thresholds == null) return "";
+		StringBuilder text = new StringBuilder();
+		for (int i=0; i<thresholds.length; i++) {
+			if (i > 0) text.append(", ");
+			text.append(thresholds[i]);
+		}
+		return text.toString();
+	}
+
 	private void populateMenu(MouseEvent arg0) {
 		menu = new JPopupMenu();
 
@@ -5134,6 +5176,10 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 								.getCurrentNodeState().getFontSize();
 						boolean nameChanged = !pendingNode.getPreviousNodeState().getCaption()
 								.equals(pendingNode.getCurrentNodeState().getCaption());
+						boolean ordinalChanged = pendingNode.getPreviousNodeState().isOrdinal() != pendingNode
+								.getCurrentNodeState().isOrdinal()
+								|| !Arrays.equals(pendingNode.getPreviousNodeState().getOrdinalThresholds(),
+										pendingNode.getCurrentNodeState().getOrdinalThresholds());
 
 						// System.out.println(pendingNode.getPreviousNodeState().getCaption()+"
 						// "+fontSizeChanged+" "+nameChanged);
@@ -5147,6 +5193,7 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 							MainFrame.undoStack.add(new NodeRenameStep(getModelRequestInterface(), menuContextNode,
 									pendingNode.getPreviousNodeState().getCaption()));
 						}
+						if (ordinalChanged) MainFrame.undoStack.add(pendingNode);
 
 					}
 
@@ -5270,6 +5317,13 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			menu.add(menuSwapLatent);
 
 			if (menuContextNode.isManifest()) {
+				if (menuSetOrdinal == null) {
+					menuSetOrdinal = new JCheckBoxMenuItem("Ordinal variable");
+					menuSetOrdinal.addActionListener(this);
+				}
+				menuSetOrdinal.setSelected(menuContextNode.isOrdinal());
+				menu.add(menuSetOrdinal);
+
 				if (menuSwapGrouping == null) {
 					menuSwapGrouping = new JMenuItem("");
 					menuSwapGrouping.addActionListener(this);
