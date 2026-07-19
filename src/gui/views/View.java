@@ -388,13 +388,31 @@ public class View extends JPanel implements MouseListener, MouseMotionListener, 
 				h = mouseClickY - selectionEndpoint.y;
 			}
 
-			g2d.setColor(Color.black);
 			selection = new Rectangle(x, y, w, h);
 
-			g2d.draw(selection);
+			if (shouldPaintDefaultSelectionBox()) {
+				g2d.setColor(Color.black);
+				g2d.draw(selection);
+			}
 
 		}
 
+	}
+
+	/**
+	 * Whether this view should use the basic selection-box rendering supplied by
+	 * {@code View}. Subclasses that render their selection box with their own
+	 * content can return {@code false} and paint it at the appropriate layer.
+	 */
+	protected boolean shouldPaintDefaultSelectionBox() {
+		return true;
+	}
+
+	/**
+	 * Indicates whether the user is currently dragging out a selection box.
+	 */
+	protected boolean isSelectionBoxActive() {
+		return selectAction;
 	}
 
 	public void redraw() {
