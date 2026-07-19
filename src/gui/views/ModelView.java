@@ -38,7 +38,9 @@ import importexport.SemExport;
 import importexport.XMLExport;
 
 import java.awt.BasicStroke;
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -234,6 +236,34 @@ import gui.graph.decorators.*;
  */
 public class ModelView extends View implements ModelListener, ActionListener, DropTargetListener, DocumentListener,
 		KeyListener, MouseMotionListener, MouseListener, Transferable, ClipboardOwner, LinkListener {
+
+	/**
+	 * Paints a selection box after the graph has been drawn. A {@code null}
+	 * renderer retains the simple selection box inherited from {@link View}.
+	 */
+	public interface SelectionBoxRenderer {
+		void paint(Graphics2D graphics, java.awt.Rectangle selection, SelectionBoxContents contents);
+	}
+
+	/** Immutable counts for the objects currently enclosed by a selection box. */
+	public static final class SelectionBoxContents {
+		private final int observedVariables;
+		private final int manifestVariables;
+		private final int edges;
+
+		private SelectionBoxContents(int observedVariables, int manifestVariables, int edges) {
+			this.observedVariables = observedVariables;
+			this.manifestVariables = manifestVariables;
+			this.edges = edges;
+		}
+
+		public int getObservedVariables() { return observedVariables; }
+		public int getManifestVariables() { return manifestVariables; }
+		public int getEdges() { return edges; }
+	}
+
+	private static final Color MODERN_SELECTION_BLUE = new Color(37, 99, 235);
+	private SelectionBoxRenderer selectionBoxRenderer;
 
 	enum DRAGTYPE {
 		CREATE_SINGLEHEADED_PATH, CREATE_DOUBLEHEADED_PATH, MOVE_ANCHOR, MOVE_CONTROL, MOVE_EDGE_LABEL, MOVE_NODES,
@@ -767,6 +797,34 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 
 		Desktop.getLinkHandler().addLinkListener(this);
 
+	}
+
+	/**
+	 * Sets the renderer used while dragging a selection box. Pass {@code null} to
+	 * restore the original outline-only selection box.
+	 */
+	public void setSelectionBoxRenderer(SelectionBoxRenderer renderer) {
+		selectionBoxRenderer = renderer;
+		repaint();
+	}
+
+	public SelectionBoxRenderer getSelectionBoxRenderer() {
+		return selectionBoxRenderer;
+	}
+
+	/** Enables the built-in blue selection box with a live selection summary. */
+	public void useModernSelectionBox() {
+		setSelectionBoxRenderer(new ModernSelectionBoxRenderer());
+	}
+
+	/** Restores the original outline-only selection box. */
+	public void useDefaultSelectionBox() {
+		setSelectionBoxRenderer(null);
+	}
+
+	@Override
+	protected boolean shouldPaintDefaultSelectionBox() {
+		return selectionBoxRenderer == null;
 	}
 
 	@Override
@@ -4912,12 +4970,91 @@ public class ModelView extends View implements ModelListener, ActionListener, Dr
 			messageObjectContainer.draw(g);
 		}
 
+		paintCustomSelectionBox(g2d);
+
 		// development
 		/*
 		 * for (Edge edge : graph.getEdges()) { g2d.setColor(Color.red);
 		 * g2d.draw(edge.getLabelRectangle()); }
 		 */
 
+	}
+
+	private void paintCustomSelectionBox(Graphics2D graphics) {
+		if (selectionBoxRenderer == null || !isSelectionBoxActive())
+			return;
+
+		java.awt.Rectangle selection = getSelection();
+		if (selection != null)
+			selectionBoxRenderer.paint(graphics, selection, getSelectionBoxContents(selection));
+	}
+
+	private SelectionBoxContents getSelectionBoxContents(java.awt.Rectangle selection) {
+		int observedVariables = 0;
+		int manifestVariables = 0;
+		int edges = 0;
+
+		for (Node node : graph.getNodes()) {
+			if (node.isWithinRectangle(selection)) {
+				if (node.isObserved())
+					observedVariables++;
+				if (node.isManifest())
+					manifestVariables++;
+			}
+		}
+
+		for (Edge edge : graph.getEdges()) {
+			if (edge.isWithinRectangle(selection))
+				edges++;
+		}
+
+		return new SelectionBoxContents(observedVariables, manifestVariables, edges);
+	}
+
+	/**
+	 * Built-in UIX-style selection box. It uses the current enclosure rather
+	 * than existing selection state, so its summary updates during the drag.
+	 */
+	private static final class ModernSelectionBoxRenderer implements SelectionBoxRenderer {
+		private static final int CORNER_RADIUS = 8;
+		private static final int SUMMARY_PADDING_X = 10;
+		private static final int SUMMARY_PADDING_Y = 6;
+
+		@Override
+		public void paint(Graphics2D graphics, java.awt.Rectangle selection, SelectionBoxContents contents) {
+			Color oldColor = graphics.getColor();
+			Stroke oldStroke = graphics.getStroke();
+			Composite oldComposite = graphics.getComposite();
+
+			graphics.setColor(MODERN_SELECTION_BLUE);
+			graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.14f));
+			graphics.fillRoundRect(selection.x, selection.y, selection.width, selection.height, CORNER_RADIUS, CORNER_RADIUS);
+			graphics.setComposite(oldComposite);
+			graphics.setStroke(new BasicStroke(2f));
+			graphics.drawRoundRect(selection.x, selection.y, selection.width, selection.height, CORNER_RADIUS, CORNER_RADIUS);
+
+			String summary = String.format("Observed: %d  Manifest: %d  Edges: %d",
+					contents.getObservedVariables(), contents.getManifestVariables(), contents.getEdges());
+			int summaryWidth = graphics.getFontMetrics().stringWidth(summary) + 2 * SUMMARY_PADDING_X;
+			int summaryHeight = graphics.getFontMetrics().getHeight() + 2 * SUMMARY_PADDING_Y;
+			int summaryX = selection.x + 8;
+			int summaryY = selection.y + 8;
+
+			// Keep the label inside its box even when the user drags upward or leftward.
+			summaryX = Math.min(summaryX, Math.max(selection.x, selection.x + selection.width - summaryWidth - 8));
+			summaryY = Math.min(summaryY, Math.max(selection.y, selection.y + selection.height - summaryHeight - 8));
+
+			graphics.setColor(new Color(239, 246, 255));
+			graphics.fillRoundRect(summaryX, summaryY, summaryWidth, summaryHeight, CORNER_RADIUS, CORNER_RADIUS);
+			graphics.setColor(MODERN_SELECTION_BLUE.darker());
+			graphics.drawRoundRect(summaryX, summaryY, summaryWidth, summaryHeight, CORNER_RADIUS, CORNER_RADIUS);
+			graphics.drawString(summary, summaryX + SUMMARY_PADDING_X,
+					summaryY + SUMMARY_PADDING_Y + graphics.getFontMetrics().getAscent());
+
+			graphics.setColor(oldColor);
+			graphics.setStroke(oldStroke);
+			graphics.setComposite(oldComposite);
+		}
 	}
 
 	private void populateMenu(MouseEvent arg0) {
